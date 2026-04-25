@@ -180,9 +180,24 @@ header{
 .chord-type.inv{color:var(--accent)}
 .piano-wrap{display:flex;align-items:center;justify-content:center;
   flex:1 1 auto;
-  padding:16px 10px 12px;overflow:hidden;border:1px solid var(--border);border-radius:30px;
+  padding:16px 40px 12px;overflow:hidden;border:1px solid var(--border);border-radius:30px;
   background:linear-gradient(180deg,rgba(33,15,10,.92),rgba(14,7,5,.96));
-  box-shadow:var(--shadow),var(--glow)}
+  box-shadow:var(--shadow),var(--glow);
+  position:relative}
+.oct-btn{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:28px;height:48px;border-radius:8px;border:1px solid var(--border);
+  background:rgba(20,10,6,.82);color:var(--text-soft);font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:10;flex-shrink:0;
+  transition:background .12s,border-color .12s,color .12s,opacity .15s;
+  opacity:.7;touch-action:none;
+}
+.oct-btn:hover{background:rgba(40,20,10,.92);border-color:var(--border-strong);color:var(--accent-strong);opacity:1}
+.oct-btn:active{background:rgba(60,30,12,.95);color:var(--accent)}
+.oct-btn.disabled{opacity:.2;pointer-events:none}
+.oct-btn-l{left:6px}
+.oct-btn-r{right:6px}
 /* Piano key sizing via CSS vars — resizeKeys() updates them; CSS transitions handle smooth resize */
 #piano{
   position:relative;filter:drop-shadow(0 18px 28px rgba(0,0,0,.36));max-width:100%;
@@ -233,40 +248,89 @@ footer .sp{opacity:.25}
   .notes-strip{gap:8px;padding:8px 10px;min-height:48px}
   footer{font-size:9px;gap:8px}
 }
-/* Portrait phone: compress everything so the piano is always visible.
-   Targets narrow+short screens (portrait phones up to ~430px wide, ~900px tall). */
-@media (max-width:520px) and (orientation:portrait){
-  .app{padding:8px;gap:6px}
-  .topbar{gap:4px}
-  header{height:40px;padding:0 10px}
-  .brand{font-size:10px}
-  .midi-btn,.clear{padding:5px 9px;font-size:9px}
-  /* Collapse notes strip to minimal height — it can still scroll horizontally */
-  .notes-strip{min-height:36px;padding:5px 10px;gap:6px}
-  .pill{min-height:28px;padding:5px 12px;font-size:11px}
-  /* Chord zone: shrink fonts and padding aggressively */
-  .chord-zone{min-height:0;padding:10px 12px 8px;flex-shrink:1}
-  .chord-root{font-size:44px}
-  .chord-sym{font-size:20px;padding-bottom:5px}
-  .chord-type{font-size:9px;margin-top:5px}
-  .chord-ph{font-size:11px}
-  /* Footer: absolute minimum */
-  footer{min-height:24px;padding:0 10px;font-size:8px;gap:8px}
-  /* Piano wrap: let it grow to fill remaining space, ensure it doesn't vanish */
-  .piano-wrap{padding:10px 8px 8px;min-height:100px}
+
+/* chord-inner: wraps the chord name + type; in portrait the chord-zone flips to row */
+.chord-inner{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;z-index:1;flex:1 1 auto;
 }
-/* Extra compact for very short portrait screens (e.g. iPhone SE, older Android ~667px tall) */
-@media (max-width:520px) and (max-height:680px) and (orientation:portrait){
-  .app{gap:4px;padding:6px}
-  header{height:36px;padding:0 8px}
-  .notes-strip{min-height:28px;padding:3px 8px}
-  .pill{min-height:24px;padding:4px 10px;font-size:10px}
-  .chord-zone{min-height:0;padding:6px 10px 5px;flex-shrink:1}
-  .chord-root{font-size:34px}
-  .chord-sym{font-size:16px;padding-bottom:3px}
-  .chord-type{font-size:8px;margin-top:3px;min-height:10px}
+/* Portrait-only clear button — hidden by default, shown in portrait via media query */
+.portrait-clear{
+  display:none;
+  background:rgba(255,173,82,.10);border:1px solid var(--border);color:var(--text-soft);
+  border-radius:10px;font-family:inherit;font-size:16px;cursor:pointer;
+  padding:6px 10px;flex-shrink:0;align-self:center;
+  transition:background .12s,border-color .12s;
+}
+.portrait-clear:active{background:rgba(255,173,82,.22);border-color:var(--border-strong)}
+
+/* ============================================================
+   PORTRAIT PHONE — dedicated compact layout
+   Only shows: chord name + notes strip + piano keys.
+   Header, footer, chord-type, chord-ph all hidden.
+   Chord name is inline/small. Piano gets the bulk of the space.
+   Pixel 9a: 412×915 logical px. iPhone 14: 390×844.
+   ============================================================ */
+@media (max-width:520px) and (orientation:portrait){
+  /* Tighten app container */
+  .app{padding:6px;gap:5px}
+
+  /* Hide header entirely — MIDI auto-connects, clear is available via the chord zone */
+  header{display:none}
+
+  /* Notes strip: slim single-line row of pills */
+  .topbar{gap:4px}
+  .notes-strip{
+    min-height:32px;max-height:40px;padding:4px 10px;gap:6px;
+    border-radius:12px;
+  }
+  .notes-strip.empty::before{font-size:9px}
+  .pill{min-height:24px;padding:4px 11px;font-size:11px;border-radius:999px}
+
+  /* Chord zone: row layout — name on left, clear button on right */
+  .chord-zone{
+    min-height:0;
+    flex-shrink:0;
+    padding:5px 10px 5px 14px;
+    border-radius:16px;
+    flex-direction:row;       /* override column default */
+    align-items:center;
+    justify-content:flex-start;
+    gap:8px;
+  }
+  .chord-zone::after{display:none}
+  .chord-inner{align-items:flex-start;flex-direction:row;align-items:center;gap:4px}
+  .chord-ph{font-size:10px;letter-spacing:.08em;position:static;transform:none}
+  .chord-main{line-height:1}
+  .chord-type{display:none}
+
+  /* Chord name: compact but still readable */
+  .chord-root{font-size:36px;line-height:1}
+  .chord-sym{font-size:17px;padding-bottom:2px}
+
+  /* Show portrait clear button */
+  .portrait-clear{display:flex}
+
+  /* Footer: hidden — its info (range, note count) isn't essential on mobile */
   footer{display:none}
-  .piano-wrap{min-height:110px;padding:8px 6px 6px}
+
+  /* Piano wrap: all remaining space */
+  .piano-wrap{
+    flex:1 1 auto;
+    min-height:0;
+    padding:8px 6px 6px;
+    border-radius:20px;
+  }
+}
+
+/* Very short portrait (iPhone SE ~667px, older androids) */
+@media (max-width:520px) and (max-height:680px) and (orientation:portrait){
+  .chord-root{font-size:28px}
+  .chord-sym{font-size:14px;padding-bottom:3px}
+  .chord-zone{padding:4px 10px 4px}
+  .notes-strip{min-height:26px;max-height:32px;padding:3px 8px}
+  .pill{min-height:20px;padding:3px 9px;font-size:10px}
+  .app{gap:4px;padding:5px}
 }
 </style>
 </head>
@@ -290,15 +354,22 @@ footer .sp{opacity:.25}
   <div class="notes-strip" id="pills"></div>
 </div>
 <div class="chord-zone">
-  <div class="chord-ph" id="cph">tap any key to start</div>
-  <div class="chord-main">
-    <div class="chord-root hidden" id="croot"></div>
-    <div class="chord-sym hidden" id="csym"></div>
+  <!-- chord-inner: in portrait becomes a flex row: [name] [spacer] [clear btn] -->
+  <div class="chord-inner">
+    <div class="chord-ph" id="cph">tap keys to start</div>
+    <div class="chord-main">
+      <div class="chord-root hidden" id="croot"></div>
+      <div class="chord-sym hidden" id="csym"></div>
+    </div>
+    <div class="chord-type" id="ctype"></div>
   </div>
-  <div class="chord-type" id="ctype"></div>
+  <!-- portrait-only clear button, hidden on desktop via CSS -->
+  <button type="button" class="portrait-clear" id="portraitClrBtn" aria-label="Clear all notes">⌫</button>
 </div>
 <div class="piano-wrap">
+  <button type="button" class="oct-btn oct-btn-l" id="octDn" aria-label="Shift piano down one octave">&#8249;</button>
   <div id="piano"></div>
+  <button type="button" class="oct-btn oct-btn-r" id="octUp" aria-label="Shift piano up one octave">&#8250;</button>
 </div>
 <footer>
   <span id="fmsg">ready</span>
@@ -413,6 +484,9 @@ const dom={
   clrBtn:   document.getElementById('clrBtn'),
   pullInd:  document.getElementById('pullIndicator'),
   app:      document.getElementById('app'),
+  octDn:        document.getElementById('octDn'),
+  octUp:        document.getElementById('octUp'),
+  portraitClr:  document.getElementById('portraitClrBtn'),
 };
 
 // === MIDI UI ===
@@ -569,7 +643,7 @@ function update(force=false){
   state.piano.nocts=nocts;
   state.piano.last=nextMidi0+nocts*12-1;
   dom.frange.textContent=`${formatMidiName(nextMidi0)} – ${formatMidiName(state.piano.last)}`;
-  if(structureChanged)build();
+  if(structureChanged){build();updateOctBtns();}
   else updateKeyStates();
   render(notes);
 }
@@ -643,6 +717,67 @@ function render(notes=activeNotes()){
   }
   dom.pills.appendChild(frag);
 }
+
+// === OCTAVE NAVIGATION ===
+
+function shiftWindow(delta){
+  // delta: +12 = one octave up, -12 = one octave down
+  const nocts=state.piano.nocts;
+  const next=clampWindowMidi0(state.piano.windowMidi0+delta,nocts);
+  if(next===state.piano.windowMidi0)return; // already at limit
+  state.piano.windowMidi0=next;
+  state.piano.last=next+nocts*12-1;
+  dom.frange.textContent=`${formatMidiName(next)} – ${formatMidiName(state.piano.last)}`;
+  build();
+  updateOctBtns();
+}
+
+function updateOctBtns(){
+  const nocts=state.piano.nocts;
+  const atMin=clampWindowMidi0(state.piano.windowMidi0-12,nocts)===state.piano.windowMidi0;
+  const atMax=clampWindowMidi0(state.piano.windowMidi0+12,nocts)===state.piano.windowMidi0;
+  dom.octDn.classList.toggle('disabled',atMin);
+  dom.octUp.classList.toggle('disabled',atMax);
+}
+
+// Swipe on the piano wrap to shift octaves
+(function(){
+  const wrap=document.querySelector('.piano-wrap');
+  let sx=0,sy=0,pid=null,moved=false;
+  const SWIPE_MIN=40; // px horizontal to count as swipe
+  const TAP_MAX=10;   // px — if moved less than this it's a tap, not a swipe
+
+  wrap.addEventListener('pointerdown',e=>{
+    // Only track the first touch; ignore if it lands on a key or nav button
+    if(pid!==null)return;
+    if(e.target.closest('.key')||e.target.closest('.oct-btn'))return;
+    pid=e.pointerId; sx=e.clientX; sy=e.clientY; moved=false;
+  },{passive:true});
+
+  wrap.addEventListener('pointermove',e=>{
+    if(e.pointerId!==pid)return;
+    if(Math.abs(e.clientX-sx)>TAP_MAX||Math.abs(e.clientY-sy)>TAP_MAX)moved=true;
+  },{passive:true});
+
+  wrap.addEventListener('pointerup',e=>{
+    if(e.pointerId!==pid)return;
+    pid=null;
+    if(!moved)return;
+    const dx=e.clientX-sx, dy=e.clientY-sy;
+    // Must be more horizontal than vertical, and exceed threshold
+    if(Math.abs(dx)>SWIPE_MIN&&Math.abs(dx)>Math.abs(dy)*1.4){
+      shiftWindow(dx<0?12:-12); // swipe left = higher octave, swipe right = lower
+    }
+  },{passive:true});
+
+  wrap.addEventListener('pointercancel',()=>{pid=null;},{passive:true});
+
+  // Mouse wheel on piano wrap (desktop)
+  wrap.addEventListener('wheel',e=>{
+    e.preventDefault();
+    shiftWindow(e.deltaY>0?12:-12);
+  },{passive:false});
+})();
 
 // === PIANO INTERACTION ===
 
@@ -833,8 +968,14 @@ async function connectMidi(){
 // === INIT ===
 
 dom.midiBtn.addEventListener('click',connectMidi);
+dom.octDn.addEventListener('click',()=>shiftWindow(-12));
+dom.octUp.addEventListener('click',()=>shiftWindow(12));
 // BUG FIX: was using document.getElementById('clrBtn') — now uses the dom cache
 dom.clrBtn.addEventListener('click',()=>{
+  state.manual.clear();state.midi.clear();
+  update();
+});
+dom.portraitClr.addEventListener('click',()=>{
   state.manual.clear();state.midi.clear();
   update();
 });
@@ -848,6 +989,7 @@ if(!state.midiSupported){
   connectMidi();
 }
 update(true);
+updateOctBtns();
 requestAnimationFrame(()=>dom.app.classList.remove('no-trans'));
 window.addEventListener('resize',onResize);
 </script>
