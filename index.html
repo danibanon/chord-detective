@@ -75,10 +75,12 @@ header{
 .sep{width:1px;height:18px;background:var(--border);flex-shrink:0;margin-right:auto}
 .controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .notes-strip{
-  display:flex;flex-wrap:wrap;gap:6px;min-height:42px;padding:10px 12px;
+  display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:10px;min-height:56px;padding:10px 14px;
   background:linear-gradient(180deg,rgba(34,16,10,.86),rgba(19,10,7,.84));
-  border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow),var(--glow)
+  border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow),var(--glow);
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
 }
+.notes-strip::-webkit-scrollbar{display:none}
 .notes-strip.empty{align-items:center}
 .notes-strip.empty::before{
   content:'No notes selected';
@@ -86,9 +88,10 @@ header{
   color:var(--dim);
 }
 .pill{
-  padding:4px 10px;border-radius:999px;font-size:10px;white-space:nowrap;flex-shrink:0;letter-spacing:.06em;
+  min-height:36px;padding:8px 16px;border-radius:999px;font-size:14px;white-space:nowrap;flex-shrink:0;letter-spacing:.05em;
   border:1px solid var(--white-pill-border);background:var(--white-pill);color:var(--text-soft);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  display:flex;align-items:center;justify-content:center;
 }
 .pill.root{
   background:var(--root-pill);border-color:var(--root-pill-border);color:#fff3e4;
@@ -199,10 +202,10 @@ footer .sp{opacity:.25}
   .chord-zone{min-height:154px;padding:20px 14px 16px}
   .chord-root{font-size:64px}
   .chord-sym{font-size:28px;padding-bottom:7px}
-  .pill{padding:4px 9px;font-size:9px}
+  .pill{min-height:32px;padding:7px 14px;font-size:12px}
   .controls{gap:6px}
   .midi-btn,.clear{padding:6px 10px;font-size:9px}
-  .notes-strip{padding:8px 10px;min-height:38px}
+  .notes-strip{gap:8px;padding:8px 10px;min-height:48px}
   footer{font-size:9px;gap:8px}
 }
 </style>
@@ -300,7 +303,8 @@ const OCT=[
 ];
 
 const manualSel=new Set(),midiSel=new Set();let els={};
-let pianoState={midi0:48,nocts:2,last:71,label:'C3 – B4'};
+const MIN_PIANO_MIDI=36,MAX_PIANO_MIDI=95;
+let pianoState={defaultMidi0:48,windowMidi0:48,nocts:2,last:71,label:'C3 – B4'};
 let midiAccess=null,midiConnected=false,midiSupported='requestMIDIAccess' in navigator;
 const pullState={active:false,armed:false,startY:0,dist:0,pointerId:null,touchId:null};
 
@@ -422,6 +426,7 @@ function clearMidiHeld(){
   midiSel.clear();
   midiConnected=false;
   updateMidiButton(midiSupported?'MIDI connect':'MIDI unsupported',false,!midiSupported);
+  syncPianoWindow();
   updateKeyStates();
   render();
 }
@@ -460,6 +465,7 @@ function handleMidiMessage(e){
   const midi=data1;
   if(cmd===0x90&&data2>0)midiSel.add(midi);
   else if(cmd===0x80||(cmd===0x90&&data2===0))midiSel.delete(midi);
+  syncPianoWindow();
   updateKeyStates();
   render();
 }
@@ -481,30 +487,60 @@ async function connectMidi(){
   }
 }
 
-function getRangeConfig(width){
-  if(width<520)return{midi0:48,nocts:2};
-  if(width<860)return{midi0:48,nocts:3};
-  if(width<1260)return{midi0:48,nocts:4};
-  return{midi0:36,nocts:5};
+function getVisibleOctaves(width){
+  if(width<520)return 2;
+  if(width<860)return 3;
+  if(width<1260)return 4;
+  return 5;
+}
+
+function getDefaultMidi0(width){
+  return width<1260?48:36;
+}
+
+function clampWindowMidi0(midi0,nocts){
+  const span=Math.max(12,nocts*12);
+  const maxStart=Math.max(MIN_PIANO_MIDI,MAX_PIANO_MIDI-span+1);
+  const octaveAligned=Math.round(midi0/12)*12;
+  return Math.max(MIN_PIANO_MIDI,Math.min(octaveAligned,maxStart));
+}
+
+function getCenteredWindowMidi0(notes,nocts,currentMidi0){
+  if(!notes.length)return clampWindowMidi0(currentMidi0,nocts);
+  const min=Math.min(...notes);
+  const max=Math.max(...notes);
+  const midpoint=(min+max)/2;
+  const span=nocts*12;
+  return clampWindowMidi0(midpoint-span/2+6,nocts);
+}
+
+function syncPianoWindow(force=false){
+  const notes=activeNotes();
+  const nocts=getVisibleOctaves(window.innerWidth);
+  const defaultMidi0=getDefaultMidi0(window.innerWidth);
+  const nextMidi0=notes.length
+    ? getCenteredWindowMidi0(notes,nocts,pianoState.windowMidi0)
+    : clampWindowMidi0(pianoState.windowMidi0??defaultMidi0,nocts);
+  const changed=
+    force||
+    pianoState.nocts!==nocts||
+    pianoState.windowMidi0!==nextMidi0||
+    pianoState.defaultMidi0!==defaultMidi0;
+  pianoState.defaultMidi0=defaultMidi0;
+  pianoState.windowMidi0=nextMidi0;
+  pianoState.nocts=nocts;
+  pianoState.last=nextMidi0+nocts*12-1;
+  pianoState.label=`${formatMidiName(nextMidi0)} – ${formatMidiName(pianoState.last)}`;
+  document.getElementById('frange').textContent=pianoState.label;
+  if(changed)build();
 }
 
 function build(){
   const pno=document.getElementById('piano');
   pno.innerHTML='';els={};
   const wrap=pno.parentElement;
-  const {midi0,nocts}=getRangeConfig(window.innerWidth);
+  const {windowMidi0:noMidi0,nocts}=pianoState;
   const isPortraitPhone=window.innerWidth<520&&window.innerHeight>window.innerWidth;
-  pianoState.midi0=midi0;
-  pianoState.nocts=nocts;
-  pianoState.last=midi0+nocts*12-1;
-  pianoState.label=`${formatMidiName(midi0)} – ${formatMidiName(pianoState.last)}`;
-  document.getElementById('frange').textContent=pianoState.label;
-  for(const midi of [...manualSel]){
-    if(midi<midi0||midi>pianoState.last)manualSel.delete(midi);
-  }
-  for(const midi of [...midiSel]){
-    if(midi<midi0||midi>pianoState.last)midiSel.delete(midi);
-  }
   const aW=wrap.clientWidth-8;
   const wW=Math.min(Math.floor(aW/(7*nocts)),78);
   const whiteKeyRatio=isPortraitPhone?4.2:5.2;
@@ -519,7 +555,7 @@ function build(){
   const whites=[],blacks=[];
   for(let o=0;o<nocts;o++){
     for(const k of OCT){
-      const midi=midi0+o*12+k.semi;
+      const midi=noMidi0+o*12+k.semi;
       const gWi=o*7+k.wi;
       const octN=Math.floor(midi/12)-1;
       const entry={midi,gWi,isBlack:!!k.b,label:k.semi===0?`C${octN}`:''};
@@ -553,6 +589,7 @@ function build(){
 function toggle(midi){
   if(manualSel.has(midi))manualSel.delete(midi);
   else manualSel.add(midi);
+  syncPianoWindow();
   updateKeyStates();
   render();
 }
@@ -620,6 +657,7 @@ function render(){
 document.getElementById('clrBtn').addEventListener('click',()=>{
   manualSel.clear();
   midiSel.clear();
+  syncPianoWindow();
   updateKeyStates();
   render();
 });
@@ -634,8 +672,8 @@ document.addEventListener('touchend',endPullTouch);
 document.addEventListener('touchcancel',resetPullIndicator);
 
 if(!midiSupported)updateMidiButton('MIDI unsupported',false,true);
-build();
-window.addEventListener('resize',build);
+syncPianoWindow(true);
+window.addEventListener('resize',()=>syncPianoWindow());
 
 if('serviceWorker' in navigator){
   const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(clients.claim()));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
