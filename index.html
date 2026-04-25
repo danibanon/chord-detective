@@ -650,6 +650,13 @@ function shouldStartPull(e){
 
 document.addEventListener('pointerdown',e=>{
   if(!shouldStartPull(e))return;
+  // FIX: call preventDefault() here so Chrome's compositor gesture classifier does
+  // NOT run for this touch. With passive:true (old code) Chrome was free to classify
+  // the downward swipe as a scroll/overscroll gesture and fire pointercancel before
+  // any pointermove handler could run — silently killing the pull every time.
+  // Changing to passive:false and calling preventDefault() tells the compositor the
+  // event is fully handled by JS, suppressing pointercancel on Android Chrome.
+  e.preventDefault();
   state.pull.pointerId=e.pointerId;
   state.pull.active=true;
   state.pull.startY=e.clientY;
@@ -657,7 +664,7 @@ document.addEventListener('pointerdown',e=>{
   dom.pullInd.classList.add('active');
   dom.app.classList.add('pull-live');
   dom.app.classList.remove('pull-snap');
-},{passive:true});
+},{passive:false});
 
 document.addEventListener('pointermove',e=>{
   if(!state.pull.active||e.pointerId!==state.pull.pointerId)return;
