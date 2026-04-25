@@ -486,6 +486,7 @@ function build(){
   pno.innerHTML='';els={};
   const wrap=pno.parentElement;
   const {midi0,nocts}=getRangeConfig(window.innerWidth);
+  const isPortraitPhone=window.innerWidth<520&&window.innerHeight>window.innerWidth;
   pianoState.midi0=midi0;
   pianoState.nocts=nocts;
   pianoState.last=midi0+nocts*12-1;
@@ -499,9 +500,11 @@ function build(){
   }
   const aW=wrap.clientWidth-8;
   const wW=Math.min(Math.floor(aW/(7*nocts)),78);
-  const targetWH=Math.round(wW*5.2);
-  const maxWH=Math.min(Math.round(window.innerHeight*.58),430);
-  const wH=Math.max(220,Math.min(targetWH,maxWH));
+  const whiteKeyRatio=isPortraitPhone?4.2:5.2;
+  const targetWH=Math.round(wW*whiteKeyRatio);
+  const maxWH=Math.min(Math.round(window.innerHeight*(isPortraitPhone ? .42 : .58)),430);
+  const minWH=isPortraitPhone?180:220;
+  const wH=Math.max(minWH,Math.min(targetWH,maxWH));
   const bW=Math.round(wW*.6),bH=Math.round(wH*.64);
   pno.style.width=(wW*7*nocts)+'px';
   pno.style.height=wH+'px';
