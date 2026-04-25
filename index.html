@@ -93,6 +93,7 @@ header{
   background:linear-gradient(180deg,rgba(34,16,10,.86),rgba(19,10,7,.84));
   border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow),var(--glow);
   overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
+  touch-action:pan-x; /* override body touch-action:none so pills are horizontally scrollable on touch */
 }
 .notes-strip::-webkit-scrollbar{display:none}
 .notes-strip.empty{align-items:center}
@@ -405,9 +406,9 @@ function clampWindowMidi0(midi0,nocts){
   const maxStart=Math.max(MIN_MIDI,MAX_MIDI-span+1);
   // Snap to octave boundary (multiples of 12), but allow MIN_MIDI as a valid floor
   const octaveAligned=Math.round(midi0/12)*12;
-  const clamped=Math.max(MIN_MIDI,Math.min(octaveAligned,maxStart));
-  // If snapping pushed us below MIN_MIDI, use the next octave up
-  return clamped<MIN_MIDI?Math.ceil(MIN_MIDI/12)*12:clamped;
+  // Math.max(MIN_MIDI,...) guarantees result >= MIN_MIDI; the old guard below this
+  // was unreachable. Simplified to a single expression.
+  return Math.max(MIN_MIDI,Math.min(octaveAligned,maxStart));
 }
 
 function getCenteredWindowMidi0(notes,nocts,currentMidi0){
@@ -423,7 +424,9 @@ function getCenteredWindowMidi0(notes,nocts,currentMidi0){
 
   const maxStart=Math.max(MIN_MIDI,MAX_MIDI-span+1);
   const starts=[];
-  for(let s=MIN_MIDI;s<=maxStart;s+=12){
+  // Candidates must be C-aligned (multiples of 12); MIN_MIDI=21 is A, so start from C1=24
+  const C1=Math.ceil(MIN_MIDI/12)*12;
+  for(let s=C1;s<=maxStart;s+=12){
     if(s>=Math.max(MIN_MIDI,max-span+1)&&s<=Math.min(maxStart,min))starts.push(s);
   }
   if(!starts.length)return centeredStart;
@@ -446,10 +449,9 @@ function keyDims(nocts){
 function resizeKeys(nocts){
   const{wW,wH,bW,bH}=keyDims(nocts);
   const p=dom.piano;
-  // Update positions on existing keys using stored layout metadata
-  for(const[midi,meta] of state.keyMeta){
-    const el=state.keys.get(midi);
-    if(!el)continue;
+  // Both maps are always in sync (built together); iterate keys directly
+  for(const[midi,el] of state.keys){
+    const meta=state.keyMeta.get(midi);
     el.style.left=meta.isBlack
       ?`${(meta.gWi+1)*wW-bW/2}px`
       :`${meta.gWi*wW}px`;
@@ -520,10 +522,13 @@ function update(force=false){
   const nextMidi0=notes.length
     ?getCenteredWindowMidi0(notes,nocts,state.piano.windowMidi0)
     :clampWindowMidi0(state.piano.windowMidi0??defaultMidi0,nocts);
+  // defaultMidi0 only matters when no notes are held (it's the fallback window position).
+  // Once windowMidi0 is set it drives nextMidi0 directly, so defaultMidi0 can never
+  // change the layout independently — including it in structureChanged caused spurious
+  // full DOM rebuilds when crossing the 1260px breakpoint while notes were held.
   const structureChanged=force
     ||state.piano.nocts!==nocts
-    ||state.piano.windowMidi0!==nextMidi0
-    ||state.piano.defaultMidi0!==defaultMidi0;
+    ||state.piano.windowMidi0!==nextMidi0;
   state.piano.defaultMidi0=defaultMidi0;
   state.piano.windowMidi0=nextMidi0;
   state.piano.nocts=nocts;
@@ -648,7 +653,12 @@ function resetPull(){
 }
 
 function shouldStartPull(e){
-  return window.scrollY===0&&!e.target.closest('#piano')&&!e.target.closest('button');
+  // Exclude the pill strip: it has touch-action:pan-x so horizontal drags there
+  // should scroll pills, not arm pull-to-refresh.
+  return window.scrollY===0
+    &&!e.target.closest('#piano')
+    &&!e.target.closest('button')
+    &&!e.target.closest('.notes-strip');
 }
 
 document.addEventListener('pointerdown',e=>{
@@ -744,6 +754,9 @@ function refreshMidiInputs(){
 function handleMidiMessage(e){
   const [status,data1,data2]=e.data;
   const cmd=status&0xf0;
+  // Ignore notes outside the 88-key range — a DAW or soft-synth can send any MIDI note
+  // (0-127) and unclamped values would corrupt getCenteredWindowMidi0 scroll targeting.
+  if(data1<MIN_MIDI||data1>MAX_MIDI)return;
   if(cmd===0x90&&data2>0)state.midi.add(data1);
   else if(cmd===0x80||(cmd===0x90&&data2===0))state.midi.delete(data1);
   update();
