@@ -316,7 +316,7 @@ const OCT=[
 ];
 
 function formatMidiName(midi){
-  return `${NAMES[((midi%12)+12)%12]}${Math.floor(midi/12)-2}`;
+  return `${NAMES[((midi%12)+12)%12]}${Math.floor(midi/12)-1}`;
 }
 
 function detect(midis){
@@ -340,7 +340,7 @@ function detect(midis){
 
 // === STATE ===
 
-const MIN_MIDI=36, MAX_MIDI=95;
+const MIN_MIDI=21, MAX_MIDI=108;
 
 const state={
   manual:new Set(),   // notes toggled by clicking the piano
@@ -403,8 +403,11 @@ function getDefaultMidi0(width){
 function clampWindowMidi0(midi0,nocts){
   const span=Math.max(12,nocts*12);
   const maxStart=Math.max(MIN_MIDI,MAX_MIDI-span+1);
+  // Snap to octave boundary (multiples of 12), but allow MIN_MIDI as a valid floor
   const octaveAligned=Math.round(midi0/12)*12;
-  return Math.max(MIN_MIDI,Math.min(octaveAligned,maxStart));
+  const clamped=Math.max(MIN_MIDI,Math.min(octaveAligned,maxStart));
+  // If snapping pushed us below MIN_MIDI, use the next octave up
+  return clamped<MIN_MIDI?Math.ceil(MIN_MIDI/12)*12:clamped;
 }
 
 function getCenteredWindowMidi0(notes,nocts,currentMidi0){
