@@ -2,6 +2,8 @@
 
 Chord Detective is a single-file Web MIDI chord finder built for quick testing on desktop and touch devices.
 
+![Chord Detective app screenshot](./screenshot-app.png)
+
 Live site:
 [https://danibanon.github.io/chord-detective/](https://danibanon.github.io/chord-detective/)
 
