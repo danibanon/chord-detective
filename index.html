@@ -26,18 +26,18 @@
   --glow:0 0 0 1px rgba(255,173,82,.08),0 0 28px rgba(255,126,32,.12);
   --pull:0px;
 }
-html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);
+html,body{width:100%;height:100%;background:var(--bg);color:var(--text);
   font-family:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
-  user-select:none;-webkit-user-select:none;overscroll-behavior-y:contain}
+  user-select:none;-webkit-user-select:none;overscroll-behavior:none}
 body{
   background:
     radial-gradient(circle at top,rgba(255,136,40,.13),transparent 28%),
     radial-gradient(circle at bottom,rgba(186,87,16,.1),transparent 32%),
     linear-gradient(180deg,#1d0b05 0%,#110603 48%,#090302 100%);
-  overflow-x:hidden;
+  overflow:hidden;
 }
 .app{
-  display:flex;flex-direction:column;min-height:100dvh;width:100%;
+  display:flex;flex-direction:column;height:100dvh;width:100%;
   padding:14px;
   gap:10px;
   background:
@@ -45,6 +45,7 @@ body{
     linear-gradient(90deg,rgba(255,173,82,.03),transparent 18%,transparent 82%,rgba(255,173,82,.03));
   transform:translateY(calc(var(--pull) * .58));
   transition:transform .18s ease;
+  overflow:hidden;
 }
 .app.pull-live{transition:none}
 .pull-indicator{
@@ -78,7 +79,12 @@ header{
   background:linear-gradient(180deg,rgba(34,16,10,.86),rgba(19,10,7,.84));
   border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow),var(--glow)
 }
-.notes-strip:empty{display:none}
+.notes-strip.empty{align-items:center}
+.notes-strip.empty::before{
+  content:'No notes selected';
+  font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--dim);
+}
 .pill{
   padding:4px 10px;border-radius:999px;font-size:10px;white-space:nowrap;flex-shrink:0;letter-spacing:.06em;
   border:1px solid var(--white-pill-border);background:var(--white-pill);color:var(--text-soft);
@@ -154,6 +160,7 @@ header{
 .chord-type.known{color:var(--text)}
 .chord-type.inv{color:var(--accent)}
 .piano-wrap{display:flex;align-items:center;justify-content:center;
+  flex:1 1 auto;
   padding:16px 10px 12px;overflow:hidden;border:1px solid var(--border);border-radius:30px;
   background:linear-gradient(180deg,rgba(33,15,10,.92),rgba(14,7,5,.96));
   box-shadow:var(--shadow),var(--glow)}
@@ -562,6 +569,7 @@ function render(){
   let detected=null;
 
   pillsEl.innerHTML='';
+  pillsEl.classList.toggle('empty',notes.length===0);
   document.getElementById('fnotes').textContent=notes.length+(notes.length===1?' note':' notes');
 
   if(notes.length===0){
