@@ -489,7 +489,7 @@ const state={
   piano:{defaultMidi0:48,windowMidi0:48,nocts:2,last:71},
   midiAccess:null,
   midiSupported:'requestMIDIAccess' in navigator,
-  pull:{active:false,armed:false,startY:0,dist:0,pointerId:null},
+  pull:{active:false,armed:false,startY:0,dist:0,pointerId:null,input:'',touchId:null},
   resizeTimer:null,
 };
 
@@ -853,7 +853,7 @@ function setPullRotation(fraction){
 }
 
 function resetPull(){
-  Object.assign(state.pull,{active:false,armed:false,startY:0,dist:0,pointerId:null});
+  Object.assign(state.pull,{active:false,armed:false,startY:0,dist:0,pointerId:null,input:'',touchId:null});
   // Re-enable app transition BEFORE zeroing --pull so snap-back animates
   dom.app.classList.remove('pull-live');
   dom.app.classList.add('pull-snap');
@@ -874,20 +874,23 @@ function isWithinTopThird(y){
   return y<=window.innerHeight/3;
 }
 
+function isExcludedPullTarget(target){
+  return !!(target.closest('#piano')
+    || target.closest('button')
+    || target.closest('.notes-strip'));
+}
+
 function shouldStartPull(e){
+  if(isCompactPortraitPhone()&&e.pointerType==='touch')return false;
   if(isCompactPortraitPhone()){
     return window.scrollY===0
       &&isWithinTopThird(e.clientY)
-      &&!e.target.closest('#piano')
-      &&!e.target.closest('button')
-      &&!e.target.closest('.notes-strip');
+      &&!isExcludedPullTarget(e.target);
   }
   // Exclude the pill strip: it has touch-action:pan-x so horizontal drags there
   // should scroll pills, not arm pull-to-refresh.
   return window.scrollY===0
-    &&!e.target.closest('#piano')
-    &&!e.target.closest('button')
-    &&!e.target.closest('.notes-strip');
+    &&!isExcludedPullTarget(e.target);
 }
 
 document.addEventListener('pointerdown',e=>{
@@ -900,6 +903,7 @@ document.addEventListener('pointerdown',e=>{
   // event is fully handled by JS, suppressing pointercancel on Android Chrome.
   e.preventDefault();
   state.pull.pointerId=e.pointerId;
+  state.pull.input='pointer';
   state.pull.active=true;
   state.pull.startY=e.clientY;
   state.pull.armed=false;
@@ -909,7 +913,7 @@ document.addEventListener('pointerdown',e=>{
 },{passive:false});
 
 document.addEventListener('pointermove',e=>{
-  if(!state.pull.active||e.pointerId!==state.pull.pointerId)return;
+  if(!state.pull.active||state.pull.input!=='pointer'||e.pointerId!==state.pull.pointerId)return;
   const raw=e.clientY-state.pull.startY;
   if(raw<=0){
     state.pull.dist=0;
@@ -936,7 +940,7 @@ document.addEventListener('pointermove',e=>{
 },{passive:false});
 
 document.addEventListener('pointerup',e=>{
-  if(!state.pull.active||e.pointerId!==state.pull.pointerId)return;
+  if(!state.pull.active||state.pull.input!=='pointer'||e.pointerId!==state.pull.pointerId)return;
   const armed=state.pull.armed;
   if(armed){
     // BUG FIX: mark pull inactive immediately so any accidental touch during the
@@ -952,9 +956,82 @@ document.addEventListener('pointerup',e=>{
 });
 
 document.addEventListener('pointercancel',e=>{
-  if(!state.pull.active||e.pointerId!==state.pull.pointerId)return;
+  if(!state.pull.active||state.pull.input!=='pointer'||e.pointerId!==state.pull.pointerId)return;
   resetPull();
 });
+
+document.addEventListener('touchstart',e=>{
+  if(!isCompactPortraitPhone())return;
+  if(state.pull.active||e.touches.length!==1)return;
+  const touch=e.touches[0];
+  if(window.scrollY!==0)return;
+  if(!isWithinTopThird(touch.clientY))return;
+  if(isExcludedPullTarget(e.target))return;
+  e.preventDefault();
+  state.pull.input='touch';
+  state.pull.touchId=touch.identifier;
+  state.pull.active=true;
+  state.pull.startY=touch.clientY;
+  state.pull.armed=false;
+  dom.pullInd.classList.add('active');
+  dom.app.classList.add('pull-live');
+  dom.app.classList.remove('pull-snap');
+},{passive:false});
+
+document.addEventListener('touchmove',e=>{
+  if(!state.pull.active||state.pull.input!=='touch')return;
+  if(e.touches.length!==1){
+    resetPull();
+    return;
+  }
+  const touch=[...e.touches].find(t=>t.identifier===state.pull.touchId);
+  if(!touch){
+    resetPull();
+    return;
+  }
+  const raw=touch.clientY-state.pull.startY;
+  if(raw<=0){
+    state.pull.dist=0;
+    if(state.pull.armed){
+      state.pull.armed=false;
+      dom.pullInd.classList.remove('armed');
+    }
+    setPullDistance(0);
+    setPullRotation(0);
+    e.preventDefault();
+    return;
+  }
+  state.pull.dist=rubberBand(raw);
+  const fraction=state.pull.dist/PULL_MAX;
+  const wasArmed=state.pull.armed;
+  state.pull.armed=fraction>=PULL_ARM;
+  setPullDistance(state.pull.dist);
+  setPullRotation(fraction);
+  if(state.pull.armed!==wasArmed){
+    dom.pullInd.classList.toggle('armed',state.pull.armed);
+    if(state.pull.armed&&navigator.vibrate)navigator.vibrate(10);
+  }
+  e.preventDefault();
+},{passive:false});
+
+document.addEventListener('touchend',e=>{
+  if(!state.pull.active||state.pull.input!=='touch')return;
+  if(e.touches.length>0)return;
+  const armed=state.pull.armed;
+  if(armed){
+    state.pull.active=false;
+    dom.pullInd.classList.add('spinning');
+    dom.app.classList.remove('pull-live');
+    setTimeout(()=>window.location.reload(),480);
+  }else{
+    resetPull();
+  }
+},{passive:false});
+
+document.addEventListener('touchcancel',()=>{
+  if(!state.pull.active||state.pull.input!=='touch')return;
+  resetPull();
+},{passive:false});
 
 // === MIDI ===
 
