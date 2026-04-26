@@ -236,6 +236,13 @@ footer{
 }
 footer .hi{color:var(--accent-strong)}
 footer .sp{opacity:.25}
+.ver{
+  margin-left:auto;
+  font-size:9px;
+  color:rgba(255,191,117,.72);
+  letter-spacing:.1em;
+  white-space:nowrap;
+}
 @media (max-width:720px){
   .app{padding:10px;gap:8px}
   .topbar{gap:6px}
@@ -398,6 +405,7 @@ footer .sp{opacity:.25}
   <span id="frange">C3 – B4</span>
   <span class="sp">|</span>
   <span id="fnotes" class="hi">0 notes</span>
+  <span id="ver" class="ver">v bac6677-dev</span>
 </footer>
 </div>
 <script>
@@ -442,6 +450,7 @@ const OCT=[
   {semi:9, isBlack:false, wi:5},{semi:10,isBlack:true,  wi:5},
   {semi:11,isBlack:false, wi:6},
 ];
+const BLACK_SEMIS=new Set([1,3,6,8,10]);
 
 function formatMidiName(midi){
   return `${NAMES[((midi%12)+12)%12]}${Math.floor(midi/12)-1}`;
@@ -541,11 +550,11 @@ function getDefaultMidi0(width){
 
 function clampWindowMidi0(midi0,nocts){
   const span=Math.max(12,nocts*12);
+  // The builder now supports the real A0/B0 lead-in, so the lowest window can
+  // start at A0 while normal windows still snap to octave boundaries.
   const maxStart=Math.max(MIN_MIDI,MAX_MIDI-span+1);
-  // Snap to octave boundary (multiples of 12), but allow MIN_MIDI as a valid floor
   const octaveAligned=Math.round(midi0/12)*12;
-  // Math.max(MIN_MIDI,...) guarantees result >= MIN_MIDI; the old guard below this
-  // was unreachable. Simplified to a single expression.
+  if(midi0<=MIN_MIDI)return MIN_MIDI;
   return Math.max(MIN_MIDI,Math.min(octaveAligned,maxStart));
 }
 
@@ -618,29 +627,33 @@ function build(){
   p.style.width=`${wW*7*nocts}px`;
   p.style.height=`${wH}px`;
 
-  for(let o=0;o<nocts;o++){
-    for(const k of OCT){
-      const midi=midi0+o*12+k.semi;
-      const gWi=o*7+k.wi;
-      const el=document.createElement('div');
-      if(k.isBlack){
-        el.className='key black';
-        el.style.left=`${(gWi+1)*wW-bW/2}px`;
-      }else{
-        el.className='key white';
-        el.style.left=`${gWi*wW}px`;
-        if(k.semi===0){
-          const lb=document.createElement('div');
-          lb.className='klabel';
-          lb.textContent=formatMidiName(midi);
-          el.appendChild(lb);
-        }
+  // Build from the actual visible MIDI range so the special low-end A0/B0 lead-in
+  // can appear before the first C-based octave without misplacing key labels.
+  let whiteIndex=0;
+  const midiEnd=Math.min(midi0+nocts*12-1,MAX_MIDI);
+  for(let midi=midi0;midi<=midiEnd;midi++){
+    const pc=((midi%12)+12)%12;
+    const isBlack=BLACK_SEMIS.has(pc);
+    const gWi=isBlack?Math.max(0,whiteIndex-1):whiteIndex;
+    const el=document.createElement('div');
+    if(isBlack){
+      el.className='key black';
+      el.style.left=`${(gWi+1)*wW-bW/2}px`;
+    }else{
+      el.className='key white';
+      el.style.left=`${gWi*wW}px`;
+      if(pc===0||midi===MIN_MIDI){
+        const lb=document.createElement('div');
+        lb.className='klabel';
+        lb.textContent=formatMidiName(midi);
+        el.appendChild(lb);
       }
-      el.addEventListener('pointerdown',e=>{e.preventDefault();toggle(midi);});
-      p.appendChild(el);
-      state.keys.set(midi,el);
-      state.keyMeta.set(midi,{gWi,isBlack:k.isBlack});
+      whiteIndex++;
     }
+    el.addEventListener('pointerdown',e=>{e.preventDefault();toggle(midi);});
+    p.appendChild(el);
+    state.keys.set(midi,el);
+    state.keyMeta.set(midi,{gWi,isBlack});
   }
   updateKeyStates();
 }
@@ -857,10 +870,15 @@ function isCompactPortraitPhone(){
   return window.matchMedia('(max-width:520px) and (orientation:portrait)').matches;
 }
 
+function isWithinTopThird(y){
+  return y<=window.innerHeight/3;
+}
+
 function shouldStartPull(e){
   if(isCompactPortraitPhone()){
     return window.scrollY===0
-      &&!!e.target.closest('.topbar')
+      &&isWithinTopThird(e.clientY)
+      &&!e.target.closest('#piano')
       &&!e.target.closest('button')
       &&!e.target.closest('.notes-strip');
   }
