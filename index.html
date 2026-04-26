@@ -853,12 +853,16 @@ function resetPull(){
   });
 }
 
+function isCompactPortraitPhone(){
+  return window.matchMedia('(max-width:520px) and (orientation:portrait)').matches;
+}
+
 function shouldStartPull(e){
-  // On narrow portrait phones the page itself needs native vertical scrolling
-  // when the content is taller than the viewport, so don't hijack those gestures
-  // for the custom pull-to-refresh interaction.
-  if(window.matchMedia('(max-width:520px) and (orientation:portrait)').matches){
-    return false;
+  if(isCompactPortraitPhone()){
+    return window.scrollY===0
+      &&!!e.target.closest('.topbar')
+      &&!e.target.closest('button')
+      &&!e.target.closest('.notes-strip');
   }
   // Exclude the pill strip: it has touch-action:pan-x so horizontal drags there
   // should scroll pills, not arm pull-to-refresh.
