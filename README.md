@@ -54,6 +54,7 @@ If the played notes do not match one of the supported patterns, the app shows `c
 - Web MIDI input support for external keyboards and controllers
 - Real-time chord naming with root, symbol, and inversion-aware output
 - Active note pill strip for quick visual feedback
+- Sharp/flat display toggle for note labels and detected chord names
 - Responsive layouts for desktop, phone portrait, and phone landscape
 - Octave navigation controls plus gesture-friendly mobile behavior
 - Installable PWA with standalone app-style launch on supported devices
@@ -66,7 +67,7 @@ The interface is designed to stay usable on smaller screens rather than just shr
 - Phone portrait uses a compact stacked layout
 - Phone landscape uses a different optimized arrangement for tight vertical space
 - Desktop keeps the wider, full keyboard-first layout
-- Touch interactions are tuned for mobile usage, including scrolling, note selection, and refresh behavior
+- Touch interactions are tuned for mobile usage, including scrolling, note selection, and octave shifting
 - The piano window can shift octaves without rebuilding the whole app experience
 
 ## PWA / Installable App
@@ -141,6 +142,7 @@ Important behavior:
 - The bass note is considered when deciding inversions
 - Active notes are re-centered into the visible keyboard window
 - The low end of the range includes proper `A0` / `B0` handling
+- Display names can be switched between sharp and flat spellings
 - The app is intentionally fast and lightweight rather than theory-heavy
 
 ## Limits / Non-Goals
@@ -150,7 +152,7 @@ Chord Detective is intentionally simple and focused.
 - It is not a full harmonic analysis engine
 - Detection is pattern-based, not context-aware music theory
 - More advanced extended or ambiguous voicings may not resolve to a named chord
-- Enharmonic spelling is simplified to sharp note names
+- Enharmonic spelling is limited to a global sharp-or-flat display toggle
 - Browser MIDI behavior can still vary depending on platform and hardware
 
 ## Troubleshooting
@@ -181,7 +183,7 @@ Reload once after install so the latest shell is active. If needed, close and re
 
 ### Mobile gesture behavior feels inconsistent
 
-Phone behavior is intentionally scoped to balance scrolling, zoom, and refresh gestures. If something feels off, retest on the hosted version and compare with the footer version marker shown inside the app.
+Phone behavior is intentionally scoped to balance scrolling, note interaction, and octave-shift gestures. If something feels off, retest on the hosted version and confirm the latest `index.html` is deployed.
 
 ## Local Use
 

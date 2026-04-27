@@ -26,11 +26,10 @@
   --note-pill:rgba(255,173,82,.08);--note-pill-border:rgba(255,173,82,.18);
   --shadow:0 24px 60px rgba(0,0,0,.45);
   --glow:0 0 0 1px rgba(255,173,82,.08),0 0 28px rgba(255,126,32,.12);
-  --pull:0px;
 }
 html,body{width:100%;height:100%;background:var(--bg);color:var(--text);
   font-family:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
-  user-select:none;-webkit-user-select:none;overscroll-behavior:none;
+  user-select:none;-webkit-user-select:none;
   touch-action:manipulation}
 body{
   background:
@@ -45,37 +44,9 @@ body{
   background:
     linear-gradient(180deg,rgba(255,255,255,.01),rgba(255,255,255,0)),
     linear-gradient(90deg,rgba(255,173,82,.03),transparent 18%,transparent 82%,rgba(255,173,82,.03));
-  transform:translateY(calc(var(--pull) * .58));
-  transition:transform .28s cubic-bezier(.22,.9,.36,1);
   overflow:visible;
   touch-action:manipulation;
 }
-.app.no-trans,.app.pull-live{transition:none}
-.app.pull-snap{transition:transform .32s cubic-bezier(.22,.9,.36,1)}
-.pull-indicator{
-  position:fixed;top:10px;left:50%;
-  transform:translateX(-50%) translateY(calc(-100% + var(--pull)));
-  width:46px;height:46px;border-radius:999px;display:flex;align-items:center;justify-content:center;
-  background:rgba(30,14,8,.92);border:1px solid rgba(255,196,124,.24);box-shadow:var(--shadow),var(--glow);
-  opacity:0;pointer-events:none;
-  transition:opacity .18s ease,transform .18s ease,border-color .15s ease,box-shadow .15s ease;
-  z-index:30;
-}
-.pull-indicator.active{opacity:1}
-.pull-indicator.armed{border-color:rgba(255,196,124,.7);box-shadow:var(--shadow),var(--glow),0 0 22px rgba(255,148,41,.22)}
-@keyframes pull-spin{to{transform:rotate(360deg)}}
-.pull-indicator svg{
-  width:24px;height:24px;display:block;
-  transform:rotate(var(--pull-rotate,0deg));
-  transition:transform .04s linear;
-}
-.pull-indicator.spinning svg{animation:pull-spin .5s cubic-bezier(.4,0,.2,1) forwards}
-.pull-indicator path{
-  stroke:var(--accent-strong);stroke-width:2.1;fill:none;stroke-linecap:round;stroke-linejoin:round;
-  filter:drop-shadow(0 0 10px rgba(255,148,41,.18));
-  transition:stroke .15s ease;
-}
-.pull-indicator.armed path{stroke:var(--accent)}
 .topbar{display:flex;flex-direction:column;gap:8px}
 header{
   display:flex;align-items:center;gap:8px;
@@ -94,7 +65,7 @@ header{
   background:linear-gradient(180deg,rgba(34,16,10,.86),rgba(19,10,7,.84));
   border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow),var(--glow);
   overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
-  touch-action:pan-x; /* override body touch-action:none so pills are horizontally scrollable on touch */
+  touch-action:pan-x;
 }
 .notes-strip::-webkit-scrollbar{display:none}
 .notes-strip.empty{align-items:center}
@@ -114,7 +85,6 @@ header{
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px rgba(255,148,41,.15);
 }
 .pill.note{background:var(--note-pill);border-color:var(--note-pill-border);color:var(--accent-strong)}
-.pill.neutral{color:var(--text-soft)}
 .clear{
   background:linear-gradient(180deg,rgba(255,176,88,.24),rgba(187,99,26,.18));border:1px solid var(--border-strong);color:#fff2e4;
   padding:6px 13px;border-radius:999px;font-family:inherit;font-size:10px;cursor:pointer;
@@ -165,7 +135,6 @@ header{
   text-shadow:0 0 22px rgba(255,155,56,.15);
   transition:opacity .2s;
 }
-/* #7: renamed .empty to .hidden to avoid collision with .notes-strip.empty */
 .hidden{opacity:0;pointer-events:none}
 .chord-ph{
   font-size:13px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;
@@ -229,21 +198,7 @@ header{
   font-size:8px;color:#7f654d;pointer-events:none;letter-spacing:.06em;text-transform:uppercase}
 .key.white.on .klabel{color:#381c07;font-weight:700}
 .key.black .klabel,.key.black.on .klabel{display:none}
-footer{
-  min-height:32px;background:linear-gradient(180deg,rgba(31,14,9,.94),rgba(18,8,6,.94));border:1px solid var(--border);
-  border-radius:16px;display:flex;align-items:center;padding:0 12px;
-  font-size:10px;color:var(--dim);flex-shrink:0;gap:12px;letter-spacing:.08em;text-transform:uppercase;
-  box-shadow:var(--shadow),var(--glow)
-}
-footer .hi{color:var(--accent-strong)}
-footer .sp{opacity:.25}
-.ver{
-  margin-left:auto;
-  font-size:9px;
-  color:rgba(255,191,117,.72);
-  letter-spacing:.1em;
-  white-space:nowrap;
-}
+
 @media (max-width:720px){
   .app{padding:10px;gap:8px}
   .topbar{gap:6px}
@@ -255,7 +210,6 @@ footer .sp{opacity:.25}
   .controls{gap:6px}
   .midi-btn,.clear{padding:6px 10px;font-size:9px}
   .notes-strip{gap:8px;padding:8px 10px;min-height:48px}
-  footer{font-size:9px;gap:8px}
 }
 
 @media (max-width:430px){
@@ -305,7 +259,6 @@ footer .sp{opacity:.25}
   html,body{height:auto;min-height:100%}
   body{overflow-y:auto;overflow-x:hidden}
 
-  /* Tighten app container */
   .app{
     height:auto;
     min-height:100dvh;
@@ -314,7 +267,6 @@ footer .sp{opacity:.25}
     padding:6px;gap:5px
   }
 
-  /* Notes strip: slim single-line row of pills */
   .topbar{gap:4px}
   .notes-strip{
     min-height:32px;max-height:40px;padding:4px 10px;gap:6px;
@@ -329,7 +281,7 @@ footer .sp{opacity:.25}
     flex-shrink:0;
     padding:5px 10px 5px 14px;
     border-radius:16px;
-    flex-direction:row;       /* override column default */
+    flex-direction:row;
     align-items:center;
     justify-content:flex-start;
     gap:8px;
@@ -339,11 +291,9 @@ footer .sp{opacity:.25}
   .chord-ph{font-size:10px;letter-spacing:.08em;position:static;transform:none}
   .chord-main{line-height:1}
 
-  /* Chord name: compact but still readable */
   .chord-root{font-size:36px;line-height:1}
   .chord-sym{font-size:17px;padding-bottom:2px}
 
-  /* Piano wrap: all remaining space */
   .piano-wrap{
     flex:1 1 auto;
     min-height:0;
@@ -365,7 +315,6 @@ footer .sp{opacity:.25}
 /* ============================================================
    LANDSCAPE PHONE — small screen landscape layout
    Targets phones in landscape: height < 480px, width < 960px.
-   Works generically for all small phones (Pixel, iPhone, Galaxy…).
    Layout: top half = [chord name | note pills], bottom half = piano.
    ============================================================ */
 @media (max-height:480px) and (orientation:landscape) and (max-width:960px){
@@ -389,14 +338,9 @@ footer .sp{opacity:.25}
       "piano piano";
   }
 
-  /* Make .topbar transparent so its children (header, notes-strip)
-     become direct grid children — no wrapper box in the layout */
   .topbar{display:contents}
-
-  /* Header hidden — MIDI/clear controls not needed in landscape tight view */
   header{display:none}
 
-  /* Notes strip → top-left cell (secondary role) */
   .notes-strip{
     grid-area:notes;
     min-height:0;max-height:none;height:100%;
@@ -408,7 +352,6 @@ footer .sp{opacity:.25}
   }
   .notes-strip.empty::before{font-size:10px}
 
-  /* Chord zone → top-right cell (star of the show) */
   .chord-zone{
     grid-area:chord;
     position:relative;
@@ -421,29 +364,25 @@ footer .sp{opacity:.25}
   }
   .chord-zone::after{display:none}
 
-  /* chord-inner: absolutely centred so chord-root sits at the tile's midpoint.
-     Flex-centering a group (name + label) would push the name above mid. */
   .chord-inner{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     display:flex;flex-direction:column;
     align-items:center;
     gap:2px;
-    width:max-content;max-width:calc(100% - 60px);/* don't bleed into clear btn */
+    width:max-content;max-width:calc(100% - 60px);
   }
 
-  /* Placeholder stays independently centred in chord-zone */
   .chord-ph{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     font-size:10px;letter-spacing:.08em;white-space:nowrap;text-align:center;
   }
 
-  /* Chord name — full size until 200px, reduced only below that */
   .chord-main{line-height:1;gap:1px}
   .chord-root{font-size:72px;line-height:.88}
   .chord-sym{font-size:30px;padding-bottom:4px}
   .chord-type{margin-top:4px;font-size:10px;letter-spacing:.1em;text-align:center}
 
-  /* Clear button — absolutely pinned to right edge, vertically centred with the chord name */
+  /* Clear button: absolutely pinned to right edge in compact landscape */
   .portrait-clear{
     display:flex;
     position:absolute;right:10px;top:50%;transform:translateY(-50%);
@@ -452,7 +391,6 @@ footer .sp{opacity:.25}
     flex-shrink:0;
   }
 
-  /* Piano wrap → bottom row, full width */
   .piano-wrap{
     grid-area:piano;
     min-height:0;
@@ -461,8 +399,6 @@ footer .sp{opacity:.25}
     flex:unset;
   }
 
-  /* Both oct-btns: fully opaque dark pill so the right arrow isn't
-     washed out by the ivory keys underneath — symmetrical appearance */
   .oct-btn{
     background:rgba(12,5,3,.97);
     border-color:rgba(255,183,102,.32);
@@ -471,15 +407,10 @@ footer .sp{opacity:.25}
   }
   .oct-btn.disabled{opacity:.25}
 
-  /* Footer hidden in landscape — range shown inline */
-  footer{display:none}
-
-  /* Pills sizing */
   .pill{min-height:26px;padding:5px 12px;font-size:12px}
 }
 
-/* Landscape phone — only reduce chord font below 200px height.
-   36vh × 200px = 72px (matches full size at the threshold, then shrinks smoothly). */
+/* Landscape phone — reduce chord font only below 200px viewport height */
 @media (max-height:200px) and (orientation:landscape) and (max-width:960px){
   .chord-root{font-size:min(72px,36vh)}
   .chord-sym{font-size:min(30px,15vh)}
@@ -488,18 +419,13 @@ footer .sp{opacity:.25}
 </style>
 </head>
 <body>
-<div class="pull-indicator" id="pullIndicator" aria-hidden="true">
-  <svg viewBox="0 0 24 24" role="presentation">
-    <path d="M17 8a7 7 0 1 0 1.7 7.1"></path>
-    <path d="M18 5v5h-5"></path>
-  </svg>
-</div>
-<div class="app no-trans" id="app">
+<div class="app" id="app">
 <div class="topbar">
   <header>
     <div class="brand">🎹 <b>Chord</b> Detective</div>
     <div class="sep"></div>
     <div class="controls">
+      <button type="button" class="midi-btn" id="flatBtn" aria-label="Toggle sharps and flats">♭</button>
       <button type="button" class="midi-btn" id="midiBtn" aria-label="Connect MIDI device">MIDI connect</button>
       <button type="button" class="clear" id="clrBtn" aria-label="Clear all notes">⌫ clear</button>
     </div>
@@ -507,7 +433,6 @@ footer .sp{opacity:.25}
   <div class="notes-strip" id="pills"></div>
 </div>
 <div class="chord-zone">
-  <!-- chord-inner: in portrait becomes a flex row: [name] [spacer] [clear btn] -->
   <div class="chord-inner">
     <div class="chord-ph" id="cph">tap keys to start</div>
     <div class="chord-main">
@@ -516,7 +441,6 @@ footer .sp{opacity:.25}
     </div>
     <div class="chord-type" id="ctype"></div>
   </div>
-  <!-- portrait-only clear button, hidden on desktop via CSS -->
   <button type="button" class="portrait-clear" id="portraitClrBtn" aria-label="Clear all notes">⌫</button>
 </div>
 <div class="piano-wrap">
@@ -524,77 +448,65 @@ footer .sp{opacity:.25}
   <div id="piano"></div>
   <button type="button" class="oct-btn oct-btn-r" id="octUp" aria-label="Shift piano up one octave">&#8250;</button>
 </div>
-<footer>
-  <span id="fmsg">ready</span>
-  <span class="sp">|</span>
-  <span id="frange">C3 – B4</span>
-  <span class="sp">|</span>
-  <span id="fnotes" class="hi">0 notes</span>
-  <span id="ver" class="ver">v bac6677-dev</span>
-</footer>
 </div>
 <script>
 // === MUSIC ENGINE ===
 
 const PATTERNS=[
-  {s:'5',  n:'Power chord',          i:[0,7]},
-  {s:'',   n:'Major',                i:[0,4,7]},
-  {s:'m',  n:'Minor',                i:[0,3,7]},
-  {s:'°',  n:'Diminished',           i:[0,3,6]},
-  {s:'+',  n:'Augmented',            i:[0,4,8]},
-  {s:'sus2',n:'Suspended 2nd',       i:[0,2,7]},
-  {s:'sus4',n:'Suspended 4th',       i:[0,5,7]},
-  {s:'maj7',n:'Major 7th',           i:[0,4,7,11]},
-  {s:'m7', n:'Minor 7th',            i:[0,3,7,10]},
-  {s:'7',  n:'Dominant 7th',         i:[0,4,7,10]},
-  {s:'°7', n:'Diminished 7th',       i:[0,3,6,9]},
-  {s:'ø7', n:'Half-diminished',      i:[0,3,6,10]},
-  {s:'mM7',n:'Minor major 7th',      i:[0,3,7,11]},
-  {s:'+M7',n:'Augmented major 7th',  i:[0,4,8,11]},
-  {s:'+7', n:'Augmented 7th',        i:[0,4,8,10]},
-  {s:'6',  n:'Major 6th',            i:[0,4,7,9]},
-  {s:'m6', n:'Minor 6th',            i:[0,3,7,9]},
-  {s:'add9',n:'Add 9',               i:[0,2,4,7]},
-  {s:'madd9',n:'Minor add 9',        i:[0,2,3,7]},
-  {s:'7sus4',n:'Dominant 7 sus4',    i:[0,5,7,10]},
-  {s:'9',  n:'Dominant 9th',         i:[0,2,4,7,10]},
-  {s:'maj9',n:'Major 9th',           i:[0,2,4,7,11]},
-  {s:'m9', n:'Minor 9th',            i:[0,2,3,7,10]},
-  {s:'6/9',n:'Six-nine',             i:[0,2,4,7,9]},
+  {sym:'5',    name:'Power chord',         intervals:[0,7]},
+  {sym:'',     name:'Major',               intervals:[0,4,7]},
+  {sym:'m',    name:'Minor',               intervals:[0,3,7]},
+  {sym:'°',    name:'Diminished',          intervals:[0,3,6]},
+  {sym:'+',    name:'Augmented',           intervals:[0,4,8]},
+  {sym:'sus2', name:'Suspended 2nd',       intervals:[0,2,7]},
+  {sym:'sus4', name:'Suspended 4th',       intervals:[0,5,7]},
+  {sym:'maj7', name:'Major 7th',           intervals:[0,4,7,11]},
+  {sym:'m7',   name:'Minor 7th',           intervals:[0,3,7,10]},
+  {sym:'7',    name:'Dominant 7th',        intervals:[0,4,7,10]},
+  {sym:'°7',   name:'Diminished 7th',      intervals:[0,3,6,9]},
+  {sym:'ø7',   name:'Half-diminished',     intervals:[0,3,6,10]},
+  {sym:'mM7',  name:'Minor major 7th',     intervals:[0,3,7,11]},
+  {sym:'+M7',  name:'Augmented major 7th', intervals:[0,4,8,11]},
+  {sym:'+7',   name:'Augmented 7th',       intervals:[0,4,8,10]},
+  {sym:'6',    name:'Major 6th',           intervals:[0,4,7,9]},
+  {sym:'m6',   name:'Minor 6th',           intervals:[0,3,7,9]},
+  {sym:'add9', name:'Add 9',               intervals:[0,2,4,7]},
+  {sym:'madd9',name:'Minor add 9',         intervals:[0,2,3,7]},
+  {sym:'7sus4',name:'Dominant 7 sus4',     intervals:[0,5,7,10]},
+  {sym:'9',    name:'Dominant 9th',        intervals:[0,2,4,7,10]},
+  {sym:'maj9', name:'Major 9th',           intervals:[0,2,4,7,11]},
+  {sym:'m9',   name:'Minor 9th',           intervals:[0,2,3,7,10]},
+  {sym:'6/9',  name:'Six-nine',            intervals:[0,2,4,7,9]},
 ];
 
 const NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FLAT_NAMES=['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+function noteNames(){return state.useFlats?FLAT_NAMES:NAMES;}
 
-// Semitone layout within one octave: {semi, isBlack, whiteIndex}
-const OCT=[
-  {semi:0, isBlack:false, wi:0},{semi:1, isBlack:true,  wi:0},
-  {semi:2, isBlack:false, wi:1},{semi:3, isBlack:true,  wi:1},
-  {semi:4, isBlack:false, wi:2},
-  {semi:5, isBlack:false, wi:3},{semi:6, isBlack:true,  wi:3},
-  {semi:7, isBlack:false, wi:4},{semi:8, isBlack:true,  wi:4},
-  {semi:9, isBlack:false, wi:5},{semi:10,isBlack:true,  wi:5},
-  {semi:11,isBlack:false, wi:6},
-];
+// Which semitones within an octave are black keys
 const BLACK_SEMIS=new Set([1,3,6,8,10]);
+const pc=n=>((n%12)+12)%12;
 
 function formatMidiName(midi){
-  return `${NAMES[((midi%12)+12)%12]}${Math.floor(midi/12)-1}`;
+  return `${noteNames()[pc(midi)]}${Math.floor(midi/12)-1}`;
 }
 
 function detect(midis){
   if(midis.length<2)return null;
-  const pcs=[...new Set(midis.map(n=>((n%12)+12)%12))].sort((a,b)=>a-b);
-  // BUG FIX: try the bass note's pitch class as root first so that, e.g.,
-  // A-C-E-G identifies as Am7 (bass=A is root) rather than C6/A (C tried first
-  // because 0 < 9 in ascending-sorted pcs order).
-  const bassPC=((Math.min(...midis)%12)+12)%12;
+  const pcs=[...new Set(midis.map(n=>pc(n)))].sort((a,b)=>a-b);
+  // Try the bass note's pitch class as root first so e.g. A-C-E-G
+  // identifies as Am7 rather than C6/A.
+  const bassPC=pc(Math.min(...midis));
   const tryOrder=[bassPC,...pcs.filter(p=>p!==bassPC)];
-  for(const root of tryOrder){
-    const iv=pcs.map(p=>(p-root+12)%12).sort((a,b)=>a-b);
-    const m=PATTERNS.find(p=>p.i.length===iv.length&&p.i.every((v,i)=>v===iv[i]));
+  for(const rootPc of tryOrder){
+    const iv=pcs.map(p=>(p-rootPc+12)%12).sort((a,b)=>a-b);
+    const m=PATTERNS.find(p=>p.intervals.length===iv.length&&p.intervals.every((v,i)=>v===iv[i]));
     if(m){
-      const inv=bassPC!==root;
-      return{root:NAMES[root],sym:m.s,name:m.n,slash:inv?'/'+NAMES[bassPC]:'',inv};
+      const inv=bassPC!==rootPc;
+      const names=noteNames();
+      // rootPc (number 0–11) is returned alongside rootName (string) so callers
+      // never need to reverse-look up the pitch class from the name string.
+      return{rootPc,rootName:names[rootPc],sym:m.sym,name:m.name,slash:inv?'/'+names[bassPC]:'',inv};
     }
   }
   return null;
@@ -605,43 +517,37 @@ function detect(midis){
 const MIN_MIDI=21, MAX_MIDI=108;
 
 const state={
-  manual:new Set(),   // notes toggled by clicking the piano
-  midi:new Set(),     // notes held via MIDI input
-  // BUG FIX: use Map (consistent with state.keyMeta; avoids string-key coercion
-  // in Object.entries and the +midi cast that was needed in updateKeyStates)
-  keys:new Map(),     // midi -> DOM element map, rebuilt on each build()
-  keyMeta:new Map(),  // midi -> {gWi, isBlack} layout data for resizeKeys()
-  piano:{defaultMidi0:48,windowMidi0:48,nocts:2,last:71},
+  manual:new Set(),    // notes toggled by clicking the piano
+  midi:new Set(),      // notes held via MIDI input
+  keys:new Map(),      // midi -> {el, gWi, isBlack}
+  piano:{windowMidi0:null,nocts:2},
   midiAccess:null,
   midiSupported:'requestMIDIAccess' in navigator,
-  pull:{active:false,armed:false,startY:0,dist:0,pointerId:null,input:'',touchId:null},
+  useFlats:false,
   resizeTimer:null,
 };
 
+// manual and midi are always disjoint (clicking a MIDI-held note is not meaningful),
+// so a plain merge is sufficient — no dedup needed.
 function activeNotes(){
-  return [...new Set([...state.manual,...state.midi])].sort((a,b)=>a-b);
+  return [...state.manual,...state.midi].sort((a,b)=>a-b);
 }
 
-// === CACHED DOM REFS ===
-// #2: resolve once, never query inside hot paths
+// === DOM CACHE ===
+
 const dom={
-  pills:    document.getElementById('pills'),
-  croot:    document.getElementById('croot'),
-  csym:     document.getElementById('csym'),
-  cph:      document.getElementById('cph'),
-  ctype:    document.getElementById('ctype'),
-  fmsg:     document.getElementById('fmsg'),
-  frange:   document.getElementById('frange'),
-  fnotes:   document.getElementById('fnotes'),
-  piano:    document.getElementById('piano'),
-  midiBtn:  document.getElementById('midiBtn'),
-  // BUG FIX: was queried via getElementById at init instead of being cached here
-  clrBtn:   document.getElementById('clrBtn'),
-  pullInd:  document.getElementById('pullIndicator'),
-  app:      document.getElementById('app'),
-  octDn:        document.getElementById('octDn'),
-  octUp:        document.getElementById('octUp'),
-  portraitClr:  document.getElementById('portraitClrBtn'),
+  pills:       document.getElementById('pills'),
+  croot:       document.getElementById('croot'),
+  csym:        document.getElementById('csym'),
+  cph:         document.getElementById('cph'),
+  ctype:       document.getElementById('ctype'),
+  piano:       document.getElementById('piano'),
+  flatBtn:     document.getElementById('flatBtn'),
+  midiBtn:     document.getElementById('midiBtn'),
+  clrBtn:      document.getElementById('clrBtn'),
+  octDn:       document.getElementById('octDn'),
+  octUp:       document.getElementById('octUp'),
+  portraitClr: document.getElementById('portraitClrBtn'),
 };
 
 // === MIDI UI ===
@@ -650,14 +556,6 @@ function updateMidiButton(label,on=false,disabled=false){
   dom.midiBtn.textContent=label;
   dom.midiBtn.classList.toggle('on',on);
   dom.midiBtn.disabled=disabled;
-}
-
-function updateConnectivityStatus(){
-  if(!navigator.onLine&&activeNotes().length===0&&!state.midi.size){
-    dom.fmsg.textContent='offline ready';
-  }else if(navigator.onLine&&activeNotes().length===0){
-    dom.fmsg.textContent='ready';
-  }
 }
 
 // === PIANO LAYOUT ===
@@ -673,10 +571,8 @@ function getDefaultMidi0(width){
   return width<1260?48:36;
 }
 
-function clampWindowMidi0(midi0,nocts){
-  const span=Math.max(12,nocts*12);
-  // The builder now supports the real A0/B0 lead-in, so the lowest window can
-  // start at A0 while normal windows still snap to octave boundaries.
+function clampMidi0(midi0,nocts){
+  const span=nocts*12;
   const maxStart=Math.max(MIN_MIDI,MAX_MIDI-span+1);
   const octaveAligned=Math.round(midi0/12)*12;
   if(midi0<=MIN_MIDI)return MIN_MIDI;
@@ -684,14 +580,14 @@ function clampWindowMidi0(midi0,nocts){
 }
 
 function getCenteredWindowMidi0(notes,nocts,currentMidi0){
-  if(!notes.length)return clampWindowMidi0(currentMidi0,nocts);
+  if(!notes.length)return clampMidi0(currentMidi0,nocts);
   const min=Math.min(...notes),max=Math.max(...notes);
   const span=nocts*12;
-  const currentStart=clampWindowMidi0(currentMidi0,nocts);
+  const currentStart=clampMidi0(currentMidi0,nocts);
   if(min>=currentStart&&max<=currentStart+span-1)return currentStart;
 
   const unclampedIdeal=(min+max)/2-span/2+6;
-  const centeredStart=clampWindowMidi0(unclampedIdeal,nocts);
+  const centeredStart=clampMidi0(unclampedIdeal,nocts);
   if(max-min+1>span)return centeredStart;
 
   const maxStart=Math.max(MIN_MIDI,MAX_MIDI-span+1);
@@ -711,15 +607,11 @@ function getCenteredWindowMidi0(notes,nocts,currentMidi0){
 function keyDims(nocts){
   const wrap=dom.piano.parentElement;
   const isPortrait=window.innerWidth<520&&window.innerHeight>window.innerWidth;
-  // Small phone in landscape: height<480, wider than tall, width<960
   const isLandscapePhone=window.innerHeight<480&&window.innerWidth>window.innerHeight&&window.innerWidth<960;
-  // Subtract 80px (40px each side) to keep the piano clear of both oct-btn zones.
-  // The original -8 was too small — the piano would extend under the right button.
   const wW=Math.min((wrap.clientWidth-80)/(7*nocts),78);
 
   let maxWH,minWH;
   if(isLandscapePhone){
-    // Piano sits in the bottom half (~50dvh minus padding), cap key height to ~42% of viewport
     maxWH=Math.min(window.innerHeight*.42,220);
     minWH=80;
   }else if(isPortrait){
@@ -733,18 +625,9 @@ function keyDims(nocts){
   return{wW,wH,bW:wW*.6,bH:wH*.64};
 }
 
-// Set CSS variable sizes on #piano — keys scale via CSS transition, no DOM rebuild
-function resizeKeys(nocts){
-  const{wW,wH,bW,bH}=keyDims(nocts);
+// Apply computed key dimensions as CSS vars and element size to #piano
+function applyPianoDims({wW,wH,bW,bH},nocts){
   const p=dom.piano;
-  // Both maps are always in sync (built together); iterate keys directly
-  for(const[midi,el] of state.keys){
-    const meta=state.keyMeta.get(midi);
-    el.style.left=meta.isBlack
-      ?`${(meta.gWi+1)*wW-bW/2}px`
-      :`${meta.gWi*wW}px`;
-  }
-  // Update CSS vars so width/height transitions animate on all keys
   p.style.setProperty('--ww',`${wW}px`);
   p.style.setProperty('--wh',`${wH}px`);
   p.style.setProperty('--bw',`${bW}px`);
@@ -753,28 +636,31 @@ function resizeKeys(nocts){
   p.style.height=`${wH}px`;
 }
 
+// Set CSS variable sizes on #piano — keys scale via CSS transition, no DOM rebuild
+function resizeKeys(nocts){
+  const dims=keyDims(nocts);
+  const{wW,bW}=dims;
+  for(const[midi,{el,gWi,isBlack}] of state.keys){
+    el.style.left=isBlack
+      ?`${(gWi+1)*wW-bW/2}px`
+      :`${gWi*wW}px`;
+  }
+  applyPianoDims(dims,nocts);
+}
+
 // Full rebuild — only called when octave count or window position changes
 function build(){
   dom.piano.innerHTML='';
   state.keys.clear();
-  state.keyMeta=new Map();
   const{windowMidi0:midi0,nocts}=state.piano;
-  const{wW,wH,bW,bH}=keyDims(nocts);
-  const p=dom.piano;
-  p.style.setProperty('--ww',`${wW}px`);
-  p.style.setProperty('--wh',`${wH}px`);
-  p.style.setProperty('--bw',`${bW}px`);
-  p.style.setProperty('--bh',`${bH}px`);
-  p.style.width=`${wW*7*nocts}px`;
-  p.style.height=`${wH}px`;
+  const dims=keyDims(nocts);
+  const{wW,bW}=dims;
+  applyPianoDims(dims,nocts);
 
-  // Build from the actual visible MIDI range so the special low-end A0/B0 lead-in
-  // can appear before the first C-based octave without misplacing key labels.
   let whiteIndex=0;
   const midiEnd=Math.min(midi0+nocts*12-1,MAX_MIDI);
   for(let midi=midi0;midi<=midiEnd;midi++){
-    const pc=((midi%12)+12)%12;
-    const isBlack=BLACK_SEMIS.has(pc);
+    const isBlack=BLACK_SEMIS.has(pc(midi));
     const gWi=isBlack?Math.max(0,whiteIndex-1):whiteIndex;
     const el=document.createElement('div');
     if(isBlack){
@@ -783,7 +669,7 @@ function build(){
     }else{
       el.className='key white';
       el.style.left=`${gWi*wW}px`;
-      if(pc===0||midi===MIN_MIDI){
+      if(pc(midi)===0||midi===MIN_MIDI){
         const lb=document.createElement('div');
         lb.className='klabel';
         lb.textContent=formatMidiName(midi);
@@ -792,18 +678,15 @@ function build(){
       whiteIndex++;
     }
     el.addEventListener('pointerdown',e=>{e.preventDefault();toggle(midi);});
-    p.appendChild(el);
-    state.keys.set(midi,el);
-    state.keyMeta.set(midi,{gWi,isBlack});
+    dom.piano.appendChild(el);
+    state.keys.set(midi,{el,gWi,isBlack});
   }
   updateKeyStates();
 }
 
 function updateKeyStates(){
-  const active=new Set([...state.manual,...state.midi]);
-  // BUG FIX: state.keys is now a Map so keys are already numbers — no +midi cast needed
-  for(const[midi,el] of state.keys){
-    el.classList.toggle('on',active.has(midi));
+  for(const[midi,{el}] of state.keys){
+    el.classList.toggle('on',state.manual.has(midi)||state.midi.has(midi));
   }
 }
 
@@ -813,89 +696,76 @@ function update(force=false){
   const defaultMidi0=getDefaultMidi0(window.innerWidth);
   const nextMidi0=notes.length
     ?getCenteredWindowMidi0(notes,nocts,state.piano.windowMidi0)
-    :clampWindowMidi0(state.piano.windowMidi0??defaultMidi0,nocts);
-  // defaultMidi0 only matters when no notes are held (it's the fallback window position).
-  // Once windowMidi0 is set it drives nextMidi0 directly, so defaultMidi0 can never
-  // change the layout independently — including it in structureChanged caused spurious
-  // full DOM rebuilds when crossing the 1260px breakpoint while notes were held.
+    :clampMidi0(state.piano.windowMidi0??defaultMidi0,nocts);
   const structureChanged=force
     ||state.piano.nocts!==nocts
     ||state.piano.windowMidi0!==nextMidi0;
-  state.piano.defaultMidi0=defaultMidi0;
   state.piano.windowMidi0=nextMidi0;
   state.piano.nocts=nocts;
-  state.piano.last=nextMidi0+nocts*12-1;
-  dom.frange.textContent=`${formatMidiName(nextMidi0)} – ${formatMidiName(state.piano.last)}`;
   if(structureChanged){build();updateOctBtns();}
   else updateKeyStates();
   render(notes);
 }
 
-// On resize: immediately reposition keys via CSS vars (smooth),
-// then debounce a full rebuild for octave count changes
+// On resize: immediately reposition keys (smooth), then debounce a full rebuild for octave count changes
 function onResize(){
   const nocts=getVisibleOctaves(window.innerWidth);
   if(nocts!==state.piano.nocts){
-    // Octave count changes require a full DOM rebuild — debounce it
     clearTimeout(state.resizeTimer);
     state.resizeTimer=setTimeout(()=>update(),120);
   }else{
-    // Same octave count — just reflow key positions and CSS var sizes smoothly
     resizeKeys(nocts);
   }
 }
 
 // === RENDER ===
 
+function showChord(root,sym,typeCls,typeText){
+  dom.croot.className='chord-root';dom.croot.textContent=root;
+  dom.csym.className='chord-sym'+(sym?'':' hidden');dom.csym.textContent=sym||'';
+  dom.cph.classList.add('hidden');
+  dom.ctype.className='chord-type'+(typeCls?' '+typeCls:'');dom.ctype.textContent=typeText;
+}
+
 function render(notes=activeNotes()){
   let detectedRoot=null,detected=null;
 
   dom.pills.innerHTML='';
   dom.pills.classList.toggle('empty',notes.length===0);
-  dom.fnotes.textContent=notes.length+(notes.length===1?' note':' notes');
 
+  // — Chord display —
   if(notes.length===0){
-    // #7: use .hidden instead of .empty on chord display elements
     dom.croot.className='chord-root hidden';dom.croot.textContent='';
     dom.csym.className='chord-sym hidden';dom.csym.textContent='';
     dom.cph.classList.remove('hidden');
     dom.ctype.className='chord-type';dom.ctype.textContent='';
-    dom.fmsg.textContent='ready';
   }else if(notes.length===1){
-    const pc=((notes[0]%12)+12)%12;
-    detectedRoot=pc;
-    dom.croot.className='chord-root';dom.croot.textContent=NAMES[pc];
-    dom.csym.className='chord-sym hidden';dom.csym.textContent='';
-    dom.cph.classList.add('hidden');
-    dom.ctype.className='chord-type';dom.ctype.textContent='add more notes...';
-    dom.fmsg.textContent='keep adding notes';
+    const p0=pc(notes[0]);
+    detectedRoot=p0;
+    showChord(noteNames()[p0],'','','add more notes...');
   }else{
     detected=detect(notes);
     dom.cph.classList.add('hidden');
     if(detected){
-      detectedRoot=NAMES.indexOf(detected.root);
-      dom.croot.className='chord-root';dom.croot.textContent=detected.root;
-      dom.csym.className='chord-sym';dom.csym.textContent=detected.sym+(detected.slash||'');
-      dom.ctype.className='chord-type'+(detected.inv?' inv':' known');
-      dom.ctype.textContent=detected.name+(detected.inv?' - inversion':'');
-      dom.fmsg.textContent=detected.root+detected.sym+(detected.slash||'')+' · '+detected.name;
+      detectedRoot=detected.rootPc;
+      showChord(detected.rootName,detected.sym+(detected.slash||''),
+        detected.inv?'inv':'known',
+        detected.name+(detected.inv?' - inversion':''));
     }else{
-      dom.croot.className='chord-root';dom.croot.textContent='?';
-      dom.csym.className='chord-sym hidden';dom.csym.textContent='';
-      dom.ctype.className='chord-type';dom.ctype.textContent='chord not recognised';
-      dom.fmsg.textContent='unknown chord';
+      showChord('?','','','chord not recognised');
     }
   }
 
+  // — Note pills —
   const frag=document.createDocumentFragment();
   for(const m of notes){
-    const pc=((m%12)+12)%12;
+    const p0=pc(m);
     const p=document.createElement('div');
     let cls='neutral';
-    if(detectedRoot!==null&&pc===detectedRoot)cls='root';
+    if(detectedRoot!==null&&p0===detectedRoot)cls='root';
     else if(detected||notes.length===1)cls='note';
     p.className='pill '+cls;
-    p.textContent=NAMES[pc];
+    p.textContent=noteNames()[p0];
     frag.appendChild(p);
   }
   dom.pills.appendChild(frag);
@@ -904,21 +774,18 @@ function render(notes=activeNotes()){
 // === OCTAVE NAVIGATION ===
 
 function shiftWindow(delta){
-  // delta: +12 = one octave up, -12 = one octave down
   const nocts=state.piano.nocts;
-  const next=clampWindowMidi0(state.piano.windowMidi0+delta,nocts);
-  if(next===state.piano.windowMidi0)return; // already at limit
+  const next=clampMidi0(state.piano.windowMidi0+delta,nocts);
+  if(next===state.piano.windowMidi0)return;
   state.piano.windowMidi0=next;
-  state.piano.last=next+nocts*12-1;
-  dom.frange.textContent=`${formatMidiName(next)} – ${formatMidiName(state.piano.last)}`;
   build();
   updateOctBtns();
 }
 
 function updateOctBtns(){
   const nocts=state.piano.nocts;
-  const atMin=clampWindowMidi0(state.piano.windowMidi0-12,nocts)===state.piano.windowMidi0;
-  const atMax=clampWindowMidi0(state.piano.windowMidi0+12,nocts)===state.piano.windowMidi0;
+  const atMin=clampMidi0(state.piano.windowMidi0-12,nocts)===state.piano.windowMidi0;
+  const atMax=clampMidi0(state.piano.windowMidi0+12,nocts)===state.piano.windowMidi0;
   dom.octDn.classList.toggle('disabled',atMin);
   dom.octUp.classList.toggle('disabled',atMax);
 }
@@ -931,7 +798,6 @@ function updateOctBtns(){
   const TAP_MAX=10;   // px — if moved less than this it's a tap, not a swipe
 
   wrap.addEventListener('pointerdown',e=>{
-    // Only track the first touch; ignore if it lands on a key or nav button
     if(pid!==null)return;
     if(e.target.closest('.key')||e.target.closest('.oct-btn'))return;
     pid=e.pointerId; sx=e.clientX; sy=e.clientY; moved=false;
@@ -947,7 +813,6 @@ function updateOctBtns(){
     pid=null;
     if(!moved)return;
     const dx=e.clientX-sx, dy=e.clientY-sy;
-    // Must be more horizontal than vertical, and exceed threshold
     if(Math.abs(dx)>SWIPE_MIN&&Math.abs(dx)>Math.abs(dy)*1.4){
       shiftWindow(dx<0?12:-12); // swipe left = higher octave, swipe right = lower
     }
@@ -955,8 +820,7 @@ function updateOctBtns(){
 
   wrap.addEventListener('pointercancel',()=>{pid=null;},{passive:true});
 
-  // Preserve normal page scrolling. Hold Alt while wheeling over the piano to
-  // shift octaves without scrolling the document.
+  // Hold Alt while wheeling over the piano to shift octaves without scrolling the page
   wrap.addEventListener('wheel',e=>{
     if(!e.altKey)return;
     e.preventDefault();
@@ -972,214 +836,9 @@ function toggle(midi){
   update();
 }
 
-// === PULL-TO-REFRESH ===
-
-const PULL_MAX=88;       // max visual pull distance (px)
-const PULL_ARM=0.78;     // fraction of PULL_MAX to trigger armed state
-const PULL_SNAP_MS=320;  // must match .app.pull-snap transition duration
-
-// Rubber-band easing: fast start, asymptotically approaches PULL_MAX
-function rubberBand(raw){
-  return PULL_MAX*(1-Math.exp(-raw/PULL_MAX));
-}
-
-function setPullDistance(px){
-  document.documentElement.style.setProperty('--pull',`${px.toFixed(2)}px`);
-}
-
-function setPullRotation(fraction){
-  // Rotate icon 0→180deg as pull progresses, snaps to 360 when armed
-  const deg=state.pull.armed?180:fraction*180;
-  dom.pullInd.style.setProperty('--pull-rotate',`${deg.toFixed(1)}deg`);
-}
-
-function resetPull(){
-  Object.assign(state.pull,{active:false,armed:false,startY:0,dist:0,pointerId:null,input:'',touchId:null});
-  // Re-enable app transition BEFORE zeroing --pull so snap-back animates
-  dom.app.classList.remove('pull-live');
-  dom.app.classList.add('pull-snap');
-  requestAnimationFrame(()=>{
-    setPullDistance(0);
-    dom.pullInd.classList.remove('active','armed');
-    dom.pullInd.style.setProperty('--pull-rotate','0deg');
-    // Remove pull-snap after animation completes
-    setTimeout(()=>dom.app.classList.remove('pull-snap'),PULL_SNAP_MS+30);
-  });
-}
-
-function isCompactPortraitPhone(){
-  return window.matchMedia('(max-width:520px) and (orientation:portrait)').matches;
-}
-
-function isWithinTopThird(y){
-  return y<=window.innerHeight/3;
-}
-
-function isExcludedPullTarget(target){
-  return !!(target.closest('#piano')
-    || target.closest('button')
-    || target.closest('.notes-strip'));
-}
-
-function shouldStartPull(e){
-  if(isCompactPortraitPhone()&&e.pointerType==='touch')return false;
-  if(isCompactPortraitPhone()){
-    return window.scrollY===0
-      &&isWithinTopThird(e.clientY)
-      &&!isExcludedPullTarget(e.target);
-  }
-  // Exclude the pill strip: it has touch-action:pan-x so horizontal drags there
-  // should scroll pills, not arm pull-to-refresh.
-  return window.scrollY===0
-    &&!isExcludedPullTarget(e.target);
-}
-
-document.addEventListener('pointerdown',e=>{
-  if(!shouldStartPull(e))return;
-  // FIX: call preventDefault() here so Chrome's compositor gesture classifier does
-  // NOT run for this touch. With passive:true (old code) Chrome was free to classify
-  // the downward swipe as a scroll/overscroll gesture and fire pointercancel before
-  // any pointermove handler could run — silently killing the pull every time.
-  // Changing to passive:false and calling preventDefault() tells the compositor the
-  // event is fully handled by JS, suppressing pointercancel on Android Chrome.
-  e.preventDefault();
-  state.pull.pointerId=e.pointerId;
-  state.pull.input='pointer';
-  state.pull.active=true;
-  state.pull.startY=e.clientY;
-  state.pull.armed=false;
-  dom.pullInd.classList.add('active');
-  dom.app.classList.add('pull-live');
-  dom.app.classList.remove('pull-snap');
-},{passive:false});
-
-document.addEventListener('pointermove',e=>{
-  if(!state.pull.active||state.pull.input!=='pointer'||e.pointerId!==state.pull.pointerId)return;
-  const raw=e.clientY-state.pull.startY;
-  if(raw<=0){
-    state.pull.dist=0;
-    if(state.pull.armed){
-      state.pull.armed=false;
-      dom.pullInd.classList.remove('armed');
-    }
-    setPullDistance(0);
-    setPullRotation(0);
-    return;
-  }
-  state.pull.dist=rubberBand(raw);
-  const fraction=state.pull.dist/PULL_MAX;
-  const wasArmed=state.pull.armed;
-  state.pull.armed=fraction>=PULL_ARM;
-  setPullDistance(state.pull.dist);
-  setPullRotation(fraction);
-  if(state.pull.armed!==wasArmed){
-    dom.pullInd.classList.toggle('armed',state.pull.armed);
-    // Haptic feedback on arm (mobile)
-    if(state.pull.armed&&navigator.vibrate)navigator.vibrate(10);
-  }
-  e.preventDefault();
-},{passive:false});
-
-document.addEventListener('pointerup',e=>{
-  if(!state.pull.active||state.pull.input!=='pointer'||e.pointerId!==state.pull.pointerId)return;
-  const armed=state.pull.armed;
-  if(armed){
-    // BUG FIX: mark pull inactive immediately so any accidental touch during the
-    // 480ms reload delay cannot re-trigger the indicator over the spinner.
-    state.pull.active=false;
-    // Spin the icon, then reload after animation
-    dom.pullInd.classList.add('spinning');
-    dom.app.classList.remove('pull-live');
-    setTimeout(()=>window.location.reload(),480);
-  }else{
-    resetPull();
-  }
-});
-
-document.addEventListener('pointercancel',e=>{
-  if(!state.pull.active||state.pull.input!=='pointer'||e.pointerId!==state.pull.pointerId)return;
-  resetPull();
-});
-
-document.addEventListener('touchstart',e=>{
-  if(!isCompactPortraitPhone())return;
-  if(state.pull.active||e.touches.length!==1)return;
-  const touch=e.touches[0];
-  if(window.scrollY!==0)return;
-  if(!isWithinTopThird(touch.clientY))return;
-  if(isExcludedPullTarget(e.target))return;
-  e.preventDefault();
-  state.pull.input='touch';
-  state.pull.touchId=touch.identifier;
-  state.pull.active=true;
-  state.pull.startY=touch.clientY;
-  state.pull.armed=false;
-  dom.pullInd.classList.add('active');
-  dom.app.classList.add('pull-live');
-  dom.app.classList.remove('pull-snap');
-},{passive:false});
-
-document.addEventListener('touchmove',e=>{
-  if(!state.pull.active||state.pull.input!=='touch')return;
-  if(e.touches.length!==1){
-    resetPull();
-    return;
-  }
-  const touch=[...e.touches].find(t=>t.identifier===state.pull.touchId);
-  if(!touch){
-    resetPull();
-    return;
-  }
-  const raw=touch.clientY-state.pull.startY;
-  if(raw<=0){
-    state.pull.dist=0;
-    if(state.pull.armed){
-      state.pull.armed=false;
-      dom.pullInd.classList.remove('armed');
-    }
-    setPullDistance(0);
-    setPullRotation(0);
-    e.preventDefault();
-    return;
-  }
-  state.pull.dist=rubberBand(raw);
-  const fraction=state.pull.dist/PULL_MAX;
-  const wasArmed=state.pull.armed;
-  state.pull.armed=fraction>=PULL_ARM;
-  setPullDistance(state.pull.dist);
-  setPullRotation(fraction);
-  if(state.pull.armed!==wasArmed){
-    dom.pullInd.classList.toggle('armed',state.pull.armed);
-    if(state.pull.armed&&navigator.vibrate)navigator.vibrate(10);
-  }
-  e.preventDefault();
-},{passive:false});
-
-document.addEventListener('touchend',e=>{
-  if(!state.pull.active||state.pull.input!=='touch')return;
-  if(e.touches.length>0)return;
-  const armed=state.pull.armed;
-  if(armed){
-    state.pull.active=false;
-    dom.pullInd.classList.add('spinning');
-    dom.app.classList.remove('pull-live');
-    setTimeout(()=>window.location.reload(),480);
-  }else{
-    resetPull();
-  }
-},{passive:false});
-
-document.addEventListener('touchcancel',()=>{
-  if(!state.pull.active||state.pull.input!=='touch')return;
-  resetPull();
-},{passive:false});
-
 // === MIDI ===
 
 function clearMidiHeld(){
-  // BUG FIX: removed redundant updateMidiButton() call here — it reset the label
-  // to "MIDI connect" (off) for a single frame before refreshMidiInputs() in
-  // handleMidiStateChange immediately corrected it, causing a visible flicker.
   state.midi.clear();
   update();
 }
@@ -1192,17 +851,15 @@ function refreshMidiInputs(){
     count++;
   }
   updateMidiButton(
-    !state.midiSupported?'MIDI unsupported':count?`MIDI live ${count}`:'MIDI no device',
+    count?`MIDI live ${count}`:'MIDI no device',
     count>0,
-    !state.midiSupported
+    false
   );
 }
 
 function handleMidiMessage(e){
   const [status,data1,data2]=e.data;
   const cmd=status&0xf0;
-  // Ignore notes outside the 88-key range — a DAW or soft-synth can send any MIDI note
-  // (0-127) and unclamped values would corrupt getCenteredWindowMidi0 scroll targeting.
   if(data1<MIN_MIDI||data1>MAX_MIDI)return;
   if(cmd===0x90&&data2>0)state.midi.add(data1);
   else if(cmd===0x80||(cmd===0x90&&data2===0))state.midi.delete(data1);
@@ -1211,7 +868,6 @@ function handleMidiMessage(e){
 
 function handleMidiStateChange(e){
   if(e.port.type==='input'){
-    if(e.port.state==='connected')e.port.onmidimessage=handleMidiMessage;
     if(e.port.state==='disconnected')clearMidiHeld();
     refreshMidiInputs();
   }
@@ -1220,25 +876,18 @@ function handleMidiStateChange(e){
 async function connectMidi(){
   if(!state.midiSupported){
     updateMidiButton('MIDI unsupported',false,true);
-    dom.fmsg.textContent='Web MIDI not supported here';
     return;
   }
-  // BUG FIX: if we already hold a midiAccess object, just refresh the input list
-  // instead of re-requesting access (which re-assigned onstatechange unnecessarily).
   if(state.midiAccess){
     refreshMidiInputs();
-    const count=[...state.midiAccess.inputs.values()].length;
-    dom.fmsg.textContent=count?'midi keyboard connected':'midi ready - connect a device';
     return;
   }
   try{
     state.midiAccess=await navigator.requestMIDIAccess({sysex:false});
     state.midiAccess.onstatechange=handleMidiStateChange;
     refreshMidiInputs();
-    dom.fmsg.textContent=[...state.midiAccess.inputs.values()].length?'midi keyboard connected':'midi ready - connect a device';
   }catch(e){
     updateMidiButton('MIDI denied',false,false);
-    dom.fmsg.textContent=navigator.onLine?'midi access denied':'midi unavailable offline';
   }
 }
 
@@ -1253,34 +902,28 @@ function registerPwa(){
 
 // === INIT ===
 
+function clearNotes(){state.manual.clear();state.midi.clear();update();}
+
 dom.midiBtn.addEventListener('click',connectMidi);
+dom.flatBtn.addEventListener('click',()=>{
+  state.useFlats=!state.useFlats;
+  dom.flatBtn.textContent=state.useFlats?'♯':'♭';
+  dom.flatBtn.classList.toggle('on',state.useFlats);
+  update();
+});
 dom.octDn.addEventListener('click',()=>shiftWindow(-12));
 dom.octUp.addEventListener('click',()=>shiftWindow(12));
-// BUG FIX: was using document.getElementById('clrBtn') — now uses the dom cache
-dom.clrBtn.addEventListener('click',()=>{
-  state.manual.clear();state.midi.clear();
-  update();
-});
-dom.portraitClr.addEventListener('click',()=>{
-  state.manual.clear();state.midi.clear();
-  update();
-});
+dom.clrBtn.addEventListener('click',clearNotes);
+dom.portraitClr.addEventListener('click',clearNotes);
 
 if(!state.midiSupported){
   updateMidiButton('MIDI unsupported',false,true);
 }else{
-  // Auto-connect on load: if permission was already granted (e.g. after a reload)
-  // requestMIDIAccess resolves immediately with no user prompt.
-  // If never granted it will prompt once; subsequent loads are silent.
   connectMidi();
 }
 update(true);
-updateConnectivityStatus();
 updateOctBtns();
-requestAnimationFrame(()=>dom.app.classList.remove('no-trans'));
 window.addEventListener('resize',onResize);
-window.addEventListener('online',updateConnectivityStatus);
-window.addEventListener('offline',updateConnectivityStatus);
 registerPwa();
 </script>
 </body>
