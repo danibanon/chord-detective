@@ -16,7 +16,9 @@ No build step or local setup is required to use the live version.
 
 ### Phone Portrait
 
-![Chord Detective phone portrait](<./phone portrait.png>)
+<p align="center">
+  <img src="./phone portrait.png" alt="Chord Detective phone portrait" width="320" />
+</p>
 
 ### Phone Landscape
 
