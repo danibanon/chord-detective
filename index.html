@@ -135,6 +135,14 @@ header{
   text-shadow:0 0 22px rgba(255,155,56,.15);
   transition:opacity .2s;
 }
+.chord-sym sup{font-size:.62em;vertical-align:2em;line-height:0;font-weight:600}
+.chord-slash{
+  font-size:80px;font-weight:700;color:var(--accent-strong);
+  letter-spacing:-.03em;line-height:.88;
+  text-shadow:0 0 26px rgba(255,155,56,.16);
+  transition:opacity .2s,transform .2s;
+  padding-bottom:0;
+}
 .hidden{opacity:0;pointer-events:none}
 .chord-ph{
   font-size:13px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;
@@ -206,6 +214,7 @@ header{
   .chord-zone{min-height:154px;padding:20px 14px 16px}
   .chord-root{font-size:64px}
   .chord-sym{font-size:28px;padding-bottom:7px}
+  .chord-slash{font-size:64px}
   .pill{min-height:32px;padding:7px 14px;font-size:12px}
   .controls{gap:6px}
   .midi-btn,.clear{padding:6px 10px;font-size:9px}
@@ -269,15 +278,15 @@ header{
 
   .topbar{gap:4px}
   .notes-strip{
-    min-height:32px;max-height:40px;padding:4px 10px;gap:6px;
-    border-radius:12px;
+    height:36px;min-height:36px;max-height:36px;padding:4px 10px;gap:6px;
+    border-radius:12px;overflow:hidden;
   }
   .notes-strip.empty::before{font-size:9px}
   .pill{min-height:24px;padding:4px 11px;font-size:11px;border-radius:999px}
 
   /* Chord zone: row layout — name on left, clear button on right */
   .chord-zone{
-    min-height:0;
+    min-height:0;height:56px;
     flex-shrink:0;
     padding:5px 10px 5px 14px;
     border-radius:16px;
@@ -285,6 +294,7 @@ header{
     align-items:center;
     justify-content:flex-start;
     gap:8px;
+    overflow:hidden;
   }
   .chord-zone::after{display:none}
   .chord-inner{flex-direction:column;align-items:center;justify-content:center;gap:1px}
@@ -293,6 +303,7 @@ header{
 
   .chord-root{font-size:36px;line-height:1}
   .chord-sym{font-size:17px;padding-bottom:2px}
+  .chord-slash{font-size:36px}
 
   .piano-wrap{
     flex:1 1 auto;
@@ -306,8 +317,9 @@ header{
 @media (max-width:520px) and (max-height:680px) and (orientation:portrait){
   .chord-root{font-size:28px}
   .chord-sym{font-size:14px;padding-bottom:3px}
-  .chord-zone{padding:4px 10px 4px}
-  .notes-strip{min-height:26px;max-height:32px;padding:3px 8px}
+  .chord-slash{font-size:28px}
+  .chord-zone{padding:4px 10px 4px;height:48px;min-height:0}
+  .notes-strip{height:28px;min-height:28px;max-height:28px;padding:3px 8px;overflow:hidden}
   .pill{min-height:20px;padding:3px 9px;font-size:10px}
   .app{gap:4px;padding:5px}
 }
@@ -380,6 +392,7 @@ header{
   .chord-main{line-height:1;gap:1px}
   .chord-root{font-size:72px;line-height:.88}
   .chord-sym{font-size:30px;padding-bottom:4px}
+  .chord-slash{font-size:72px}
   .chord-type{margin-top:4px;font-size:10px;letter-spacing:.1em;text-align:center}
 
   /* Clear button: absolutely pinned to right edge in compact landscape */
@@ -414,6 +427,7 @@ header{
 @media (max-height:200px) and (orientation:landscape) and (max-width:960px){
   .chord-root{font-size:min(72px,36vh)}
   .chord-sym{font-size:min(30px,15vh)}
+  .chord-slash{font-size:min(72px,36vh)}
   .chord-type{font-size:min(10px,5vh)}
 }
 </style>
@@ -438,6 +452,7 @@ header{
     <div class="chord-main">
       <div class="chord-root hidden" id="croot"></div>
       <div class="chord-sym hidden" id="csym"></div>
+      <div class="chord-slash hidden" id="cslash"></div>
     </div>
     <div class="chord-type" id="ctype"></div>
   </div>
@@ -460,7 +475,7 @@ const PATTERNS=[
   {sym:'+',    name:'Augmented',           intervals:[0,4,8]},
   {sym:'sus2', name:'Suspended 2nd',       intervals:[0,2,7]},
   {sym:'sus4', name:'Suspended 4th',       intervals:[0,5,7]},
-  {sym:'maj7', name:'Major 7th',           intervals:[0,4,7,11]},
+  {sym:'M7', name:'Major 7th',           intervals:[0,4,7,11]},
   {sym:'m7',   name:'Minor 7th',           intervals:[0,3,7,10]},
   {sym:'7',    name:'Dominant 7th',        intervals:[0,4,7,10]},
   {sym:'°7',   name:'Diminished 7th',      intervals:[0,3,6,9]},
@@ -474,7 +489,7 @@ const PATTERNS=[
   {sym:'madd9',name:'Minor add 9',         intervals:[0,2,3,7]},
   {sym:'7sus4',name:'Dominant 7 sus4',     intervals:[0,5,7,10]},
   {sym:'9',    name:'Dominant 9th',        intervals:[0,2,4,7,10]},
-  {sym:'maj9', name:'Major 9th',           intervals:[0,2,4,7,11]},
+  {sym:'M9',   name:'Major 9th',           intervals:[0,2,4,7,11]},
   {sym:'m9',   name:'Minor 9th',           intervals:[0,2,3,7,10]},
   {sym:'6/9',  name:'Six-nine',            intervals:[0,2,4,7,9]},
 ];
@@ -539,6 +554,7 @@ const dom={
   pills:       document.getElementById('pills'),
   croot:       document.getElementById('croot'),
   csym:        document.getElementById('csym'),
+  cslash:      document.getElementById('cslash'),
   cph:         document.getElementById('cph'),
   ctype:       document.getElementById('ctype'),
   piano:       document.getElementById('piano'),
@@ -720,9 +736,22 @@ function onResize(){
 
 // === RENDER ===
 
+function formatSym(sym){
+  if(!sym)return'';
+  const s=sym.replace(/°/g,'o');
+  if(s.length>1&&s[0]==='m')return'm<sup>'+s.slice(1)+'</sup>';
+  return'<sup>'+s+'</sup>';
+}
+
 function showChord(root,sym,typeCls,typeText){
+  // Split slash note from quality suffix: e.g. sym="6/G" → quality="6", slash="/G"
+  const slashIdx=sym.lastIndexOf('/');
+  const quality=slashIdx>-1?sym.slice(0,slashIdx):sym;
+  const slashPart=slashIdx>-1?sym.slice(slashIdx):''; // includes the '/'
+
   dom.croot.className='chord-root';dom.croot.textContent=root;
-  dom.csym.className='chord-sym'+(sym?'':' hidden');dom.csym.textContent=sym||'';
+  dom.csym.className='chord-sym'+(quality?'':' hidden');dom.csym.innerHTML=formatSym(quality);
+  dom.cslash.className='chord-slash'+(slashPart?'':' hidden');dom.cslash.textContent=slashPart||'';
   dom.cph.classList.add('hidden');
   dom.ctype.className='chord-type'+(typeCls?' '+typeCls:'');dom.ctype.textContent=typeText;
 }
@@ -737,6 +766,7 @@ function render(notes=activeNotes()){
   if(notes.length===0){
     dom.croot.className='chord-root hidden';dom.croot.textContent='';
     dom.csym.className='chord-sym hidden';dom.csym.textContent='';
+    dom.cslash.className='chord-slash hidden';dom.cslash.textContent='';
     dom.cph.classList.remove('hidden');
     dom.ctype.className='chord-type';dom.ctype.textContent='';
   }else if(notes.length===1){
