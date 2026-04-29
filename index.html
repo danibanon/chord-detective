@@ -10,12 +10,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Chord Detective">
+<meta name="color-scheme" content="only light">
 <meta name="theme-color" content="#140804">
 <meta name="description" content="Detect chords from the on-screen piano or a connected MIDI keyboard.">
 <title>Chord Detective</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
+  color-scheme:only light;
   --bg:#140804;
   --border:rgba(255,177,104,.16);--border-strong:rgba(255,183,102,.3);
   --text:#f2dfcb;--text-soft:#c8a98b;--dim:#8b684f;
@@ -286,24 +288,29 @@ header{
 
   /* Chord zone: row layout — name on left, clear button on right */
   .chord-zone{
-    min-height:0;height:56px;
+    height:64px;min-height:64px;max-height:64px;
     flex-shrink:0;
-    padding:5px 10px 5px 14px;
+    padding:6px 10px 6px 14px;
     border-radius:16px;
     flex-direction:row;
     align-items:center;
-    justify-content:flex-start;
+    justify-content:center;
     gap:8px;
     overflow:hidden;
   }
   .chord-zone::after{display:none}
-  .chord-inner{flex-direction:column;align-items:center;justify-content:center;gap:1px}
+  .chord-inner{
+    position:absolute;left:50%;top:41%;transform:translate(-50%,-50%);
+    flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    width:max-content;max-width:calc(100% - 28px);
+  }
   .chord-ph{font-size:10px;letter-spacing:.08em;position:static;transform:none}
   .chord-main{line-height:1}
+  .chord-type{margin-top:0;min-height:12px;line-height:1;text-align:center}
 
-  .chord-root{font-size:36px;line-height:1}
-  .chord-sym{font-size:17px;padding-bottom:2px}
-  .chord-slash{font-size:36px}
+  .chord-root{font-size:38px;line-height:1}
+  .chord-sym{font-size:18px;padding-bottom:2px}
+  .chord-slash{font-size:38px}
 
   .piano-wrap{
     flex:1 1 auto;
@@ -315,10 +322,11 @@ header{
 
 /* Very short portrait (iPhone SE ~667px, older androids) */
 @media (max-width:520px) and (max-height:680px) and (orientation:portrait){
-  .chord-root{font-size:28px}
-  .chord-sym{font-size:14px;padding-bottom:3px}
-  .chord-slash{font-size:28px}
-  .chord-zone{padding:4px 10px 4px;height:48px;min-height:0}
+  .chord-root{font-size:30px}
+  .chord-sym{font-size:15px;padding-bottom:2px}
+  .chord-slash{font-size:30px}
+  .chord-zone{height:58px;min-height:58px;max-height:58px;padding:4px 10px 4px 14px}
+  .chord-type{margin-top:0;min-height:11px;font-size:10px}
   .notes-strip{height:28px;min-height:28px;max-height:28px;padding:3px 8px;overflow:hidden}
   .pill{min-height:20px;padding:3px 9px;font-size:10px}
   .app{gap:4px;padding:5px}
