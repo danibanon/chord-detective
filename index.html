@@ -471,116 +471,138 @@ header{
 </div>
 </div>
 <script>
-// === MUSIC ENGINE ===
+// === AppConfig ===
 
-const PATTERNS=[
-  {sym:'5',    name:'Power chord',         intervals:[0,7]},
-  {sym:'',     name:'Major',               intervals:[0,4,7]},
-  {sym:'m',    name:'Minor',               intervals:[0,3,7]},
-  {sym:'°',    name:'Diminished',          intervals:[0,3,6]},
-  {sym:'+',    name:'Augmented',           intervals:[0,4,8]},
-  {sym:'sus2', name:'Suspended 2nd',       intervals:[0,2,7]},
-  {sym:'sus4', name:'Suspended 4th',       intervals:[0,5,7]},
-  {sym:'M7', name:'Major 7th',           intervals:[0,4,7,11]},
-  {sym:'m7',   name:'Minor 7th',           intervals:[0,3,7,10]},
-  {sym:'7',    name:'Dominant 7th',        intervals:[0,4,7,10]},
-  {sym:'°7',   name:'Diminished 7th',      intervals:[0,3,6,9]},
-  {sym:'ø7',   name:'Half-diminished',     intervals:[0,3,6,10]},
-  {sym:'mM7',  name:'Minor major 7th',     intervals:[0,3,7,11]},
-  {sym:'+M7',  name:'Augmented major 7th', intervals:[0,4,8,11]},
-  {sym:'+7',   name:'Augmented 7th',       intervals:[0,4,8,10]},
-  {sym:'6',    name:'Major 6th',           intervals:[0,4,7,9]},
-  {sym:'m6',   name:'Minor 6th',           intervals:[0,3,7,9]},
-  {sym:'add9', name:'Add 9',               intervals:[0,2,4,7]},
-  {sym:'madd9',name:'Minor add 9',         intervals:[0,2,3,7]},
-  {sym:'7sus4',name:'Dominant 7 sus4',     intervals:[0,5,7,10]},
-  {sym:'9',    name:'Dominant 9th',        intervals:[0,2,4,7,10]},
-  {sym:'M9',   name:'Major 9th',           intervals:[0,2,4,7,11]},
-  {sym:'m9',   name:'Minor 9th',           intervals:[0,2,3,7,10]},
-  {sym:'6/9',  name:'Six-nine',            intervals:[0,2,4,7,9]},
-];
+const AppConfig={
+  minMidi:21,
+  maxMidi:108,
+  blackSemitones:new Set([1,3,6,8,10]),
+  sharpNames:['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'],
+  flatNames:['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'],
+  chordPatterns:[
+    {sym:'5',    name:'Power chord',         intervals:[0,7]},
+    {sym:'',     name:'Major',               intervals:[0,4,7]},
+    {sym:'m',    name:'Minor',               intervals:[0,3,7]},
+    {sym:'°',    name:'Diminished',          intervals:[0,3,6]},
+    {sym:'+',    name:'Augmented',           intervals:[0,4,8]},
+    {sym:'sus2', name:'Suspended 2nd',       intervals:[0,2,7]},
+    {sym:'sus4', name:'Suspended 4th',       intervals:[0,5,7]},
+    {sym:'M7',   name:'Major 7th',           intervals:[0,4,7,11]},
+    {sym:'m7',   name:'Minor 7th',           intervals:[0,3,7,10]},
+    {sym:'7',    name:'Dominant 7th',        intervals:[0,4,7,10]},
+    {sym:'°7',   name:'Diminished 7th',      intervals:[0,3,6,9]},
+    {sym:'ø7',   name:'Half-diminished',     intervals:[0,3,6,10]},
+    {sym:'mM7',  name:'Minor major 7th',     intervals:[0,3,7,11]},
+    {sym:'+M7',  name:'Augmented major 7th', intervals:[0,4,8,11]},
+    {sym:'+7',   name:'Augmented 7th',       intervals:[0,4,8,10]},
+    {sym:'6',    name:'Major 6th',           intervals:[0,4,7,9]},
+    {sym:'m6',   name:'Minor 6th',           intervals:[0,3,7,9]},
+    {sym:'add9', name:'Add 9',               intervals:[0,2,4,7]},
+    {sym:'madd9',name:'Minor add 9',         intervals:[0,2,3,7]},
+    {sym:'7sus4',name:'Dominant 7 sus4',     intervals:[0,5,7,10]},
+    {sym:'9',    name:'Dominant 9th',        intervals:[0,2,4,7,10]},
+    {sym:'M9',   name:'Major 9th',           intervals:[0,2,4,7,11]},
+    {sym:'m9',   name:'Minor 9th',           intervals:[0,2,3,7,10]},
+    {sym:'6/9',  name:'Six-nine',            intervals:[0,2,4,7,9]},
+  ],
+  domIds:{
+    pills:'pills',
+    croot:'croot',
+    csym:'csym',
+    cslash:'cslash',
+    cph:'cph',
+    ctype:'ctype',
+    piano:'piano',
+    flatBtn:'flatBtn',
+    midiBtn:'midiBtn',
+    clrBtn:'clrBtn',
+    octDn:'octDn',
+    octUp:'octUp',
+    portraitClr:'portraitClrBtn',
+  },
+  swipe:{
+    minDistance:40,
+    tapMaxDistance:10,
+  },
+  resizeDebounceMs:120,
+};
 
-const NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-const FLAT_NAMES=['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
-function noteNames(){return state.useFlats?FLAT_NAMES:NAMES;}
+// === MusicTheory ===
 
-// Which semitones within an octave are black keys
-const BLACK_SEMIS=new Set([1,3,6,8,10]);
-const pc=n=>((n%12)+12)%12;
-
-function formatMidiName(midi){
-  return `${noteNames()[pc(midi)]}${Math.floor(midi/12)-1}`;
+function getPitchClass(note){
+  return ((note%12)+12)%12;
 }
 
-function detect(midis){
-  if(midis.length<2)return null;
-  const pcs=[...new Set(midis.map(n=>pc(n)))].sort((a,b)=>a-b);
-  // Try the bass note's pitch class as root first so e.g. A-C-E-G
-  // identifies as Am7 rather than C6/A.
-  const bassPC=pc(Math.min(...midis));
-  const tryOrder=[bassPC,...pcs.filter(p=>p!==bassPC)];
-  for(const rootPc of tryOrder){
-    const iv=pcs.map(p=>(p-rootPc+12)%12).sort((a,b)=>a-b);
-    const m=PATTERNS.find(p=>p.intervals.length===iv.length&&p.intervals.every((v,i)=>v===iv[i]));
-    if(m){
-      const inv=bassPC!==rootPc;
-      const names=noteNames();
-      // rootPc (number 0–11) is returned alongside rootName (string) so callers
-      // never need to reverse-look up the pitch class from the name string.
-      return{rootPc,rootName:names[rootPc],sym:m.sym,name:m.name,slash:inv?'/'+names[bassPC]:'',inv};
+function getNoteNames(useFlats){
+  return useFlats?AppConfig.flatNames:AppConfig.sharpNames;
+}
+
+function formatMidiNoteName(midi,useFlats){
+  const noteNames=getNoteNames(useFlats);
+  return `${noteNames[getPitchClass(midi)]}${Math.floor(midi/12)-1}`;
+}
+
+function detectChord(notes,useFlats){
+  if(notes.length<2)return null;
+
+  const pitchClasses=[...new Set(notes.map(getPitchClass))].sort((a,b)=>a-b);
+  const bassPitchClass=getPitchClass(Math.min(...notes));
+  const candidateRoots=[bassPitchClass,...pitchClasses.filter(pc=>pc!==bassPitchClass)];
+  const noteNames=getNoteNames(useFlats);
+
+  for(const rootPc of candidateRoots){
+    const intervals=pitchClasses
+      .map(pc=>(pc-rootPc+12)%12)
+      .sort((a,b)=>a-b);
+
+    const match=AppConfig.chordPatterns.find(pattern=>
+      pattern.intervals.length===intervals.length
+      && pattern.intervals.every((value,index)=>value===intervals[index])
+    );
+
+    if(match){
+      const inversion=bassPitchClass!==rootPc;
+      return{
+        rootPc,
+        rootName:noteNames[rootPc],
+        sym:match.sym,
+        name:match.name,
+        slash:inversion?`/${noteNames[bassPitchClass]}`:'',
+        inv:inversion,
+      };
     }
   }
+
   return null;
 }
 
-// === STATE ===
-
-const MIN_MIDI=21, MAX_MIDI=108;
-
-const state={
-  manual:new Set(),    // notes toggled by clicking the piano
-  midi:new Set(),      // notes held via MIDI input
-  keys:new Map(),      // midi -> {el, gWi, isBlack}
-  piano:{windowMidi0:null,nocts:2},
-  midiAccess:null,
-  midiSupported:'requestMIDIAccess' in navigator,
-  useFlats:false,
-  resizeTimer:null,
-};
-
-// manual and midi are always disjoint (clicking a MIDI-held note is not meaningful),
-// so a plain merge is sufficient — no dedup needed.
-function activeNotes(){
-  return [...state.manual,...state.midi].sort((a,b)=>a-b);
+function formatChordQualityHtml(symbol){
+  if(!symbol)return'';
+  const normalized=symbol.replace(/°/g,'o');
+  if(normalized.length>1&&normalized[0]==='m'){
+    return `m<sup>${normalized.slice(1)}</sup>`;
+  }
+  return `<sup>${normalized}</sup>`;
 }
 
-// === DOM CACHE ===
-
-const dom={
-  pills:       document.getElementById('pills'),
-  croot:       document.getElementById('croot'),
-  csym:        document.getElementById('csym'),
-  cslash:      document.getElementById('cslash'),
-  cph:         document.getElementById('cph'),
-  ctype:       document.getElementById('ctype'),
-  piano:       document.getElementById('piano'),
-  flatBtn:     document.getElementById('flatBtn'),
-  midiBtn:     document.getElementById('midiBtn'),
-  clrBtn:      document.getElementById('clrBtn'),
-  octDn:       document.getElementById('octDn'),
-  octUp:       document.getElementById('octUp'),
-  portraitClr: document.getElementById('portraitClrBtn'),
-};
-
-// === MIDI UI ===
-
-function updateMidiButton(label,on=false,disabled=false){
-  dom.midiBtn.textContent=label;
-  dom.midiBtn.classList.toggle('on',on);
-  dom.midiBtn.disabled=disabled;
+function splitChordSymbol(symbol){
+  if(!symbol)return{quality:'',slashPart:''};
+  const match=symbol.match(/\/([A-G](?:#|♭)?)$/);
+  if(!match)return{quality:symbol,slashPart:''};
+  return{
+    quality:symbol.slice(0,-match[0].length),
+    slashPart:match[0],
+  };
 }
 
-// === PIANO LAYOUT ===
+// === PianoLayout ===
+
+function getViewport(){
+  return{
+    width:window.innerWidth,
+    height:window.innerHeight,
+  };
+}
 
 function getVisibleOctaves(width){
   if(width<520)return 2;
@@ -589,348 +611,443 @@ function getVisibleOctaves(width){
   return 5;
 }
 
-function getDefaultMidi0(width){
+function getDefaultWindowMidi0(width){
   return width<1260?48:36;
 }
 
-function clampMidi0(midi0,nocts){
+function clampWindowMidi0(midi0,nocts){
   const span=nocts*12;
-  const maxStart=Math.max(MIN_MIDI,MAX_MIDI-span+1);
+  const maxStart=Math.max(AppConfig.minMidi,AppConfig.maxMidi-span+1);
   const octaveAligned=Math.round(midi0/12)*12;
-  if(midi0<=MIN_MIDI)return MIN_MIDI;
-  return Math.max(MIN_MIDI,Math.min(octaveAligned,maxStart));
+
+  if(midi0<=AppConfig.minMidi)return AppConfig.minMidi;
+  return Math.max(AppConfig.minMidi,Math.min(octaveAligned,maxStart));
 }
 
 function getCenteredWindowMidi0(notes,nocts,currentMidi0){
-  if(!notes.length)return clampMidi0(currentMidi0,nocts);
-  const min=Math.min(...notes),max=Math.max(...notes);
+  if(!notes.length)return clampWindowMidi0(currentMidi0,nocts);
+
+  const minNote=Math.min(...notes);
+  const maxNote=Math.max(...notes);
   const span=nocts*12;
-  const currentStart=clampMidi0(currentMidi0,nocts);
-  if(min>=currentStart&&max<=currentStart+span-1)return currentStart;
+  const currentStart=clampWindowMidi0(currentMidi0,nocts);
 
-  const unclampedIdeal=(min+max)/2-span/2+6;
-  const centeredStart=clampMidi0(unclampedIdeal,nocts);
-  if(max-min+1>span)return centeredStart;
-
-  const maxStart=Math.max(MIN_MIDI,MAX_MIDI-span+1);
-  const starts=[];
-  // Candidates must be C-aligned (multiples of 12); MIN_MIDI=21 is A, so start from C1=24
-  const C1=Math.ceil(MIN_MIDI/12)*12;
-  for(let s=C1;s<=maxStart;s+=12){
-    if(s>=Math.max(MIN_MIDI,max-span+1)&&s<=Math.min(maxStart,min))starts.push(s);
+  if(minNote>=currentStart&&maxNote<=currentStart+span-1){
+    return currentStart;
   }
-  if(!starts.length)return centeredStart;
-  return starts.reduce((best,s)=>Math.abs(s-unclampedIdeal)<Math.abs(best-unclampedIdeal)?s:best,starts[0]);
+
+  const unclampedIdeal=(minNote+maxNote)/2-span/2+6;
+  const centeredStart=clampWindowMidi0(unclampedIdeal,nocts);
+  if(maxNote-minNote+1>span)return centeredStart;
+
+  const maxStart=Math.max(AppConfig.minMidi,AppConfig.maxMidi-span+1);
+  const candidateStarts=[];
+  const firstCAlignedStart=Math.ceil(AppConfig.minMidi/12)*12;
+
+  for(let start=firstCAlignedStart;start<=maxStart;start+=12){
+    const coversRange=
+      start>=Math.max(AppConfig.minMidi,maxNote-span+1)
+      && start<=Math.min(maxStart,minNote);
+
+    if(coversRange)candidateStarts.push(start);
+  }
+
+  if(!candidateStarts.length)return centeredStart;
+
+  return candidateStarts.reduce((best,start)=>
+    Math.abs(start-unclampedIdeal)<Math.abs(best-unclampedIdeal)?start:best,
+  candidateStarts[0]);
 }
 
-// === PIANO BUILD ===
+function getKeyDimensions(nocts,viewport,wrapWidth){
+  const isPortrait=viewport.width<520&&viewport.height>viewport.width;
+  const isLandscapePhone=viewport.height<480&&viewport.width>viewport.height&&viewport.width<960;
+  const whiteKeyWidth=Math.min((wrapWidth-80)/(7*nocts),78);
 
-// Compute key dimensions from available space — returns {wW, wH, bW, bH}
-function keyDims(nocts){
-  const wrap=dom.piano.parentElement;
-  const isPortrait=window.innerWidth<520&&window.innerHeight>window.innerWidth;
-  const isLandscapePhone=window.innerHeight<480&&window.innerWidth>window.innerHeight&&window.innerWidth<960;
-  const wW=Math.min((wrap.clientWidth-80)/(7*nocts),78);
+  let maxWhiteKeyHeight;
+  let minWhiteKeyHeight;
 
-  let maxWH,minWH;
   if(isLandscapePhone){
-    maxWH=Math.min(window.innerHeight*.42,220);
-    minWH=80;
+    maxWhiteKeyHeight=Math.min(viewport.height*.42,220);
+    minWhiteKeyHeight=80;
   }else if(isPortrait){
-    maxWH=Math.min(window.innerHeight*.30,430);
-    minWH=120;
+    maxWhiteKeyHeight=Math.min(viewport.height*.30,430);
+    minWhiteKeyHeight=120;
   }else{
-    maxWH=Math.min(window.innerHeight*.58,430);
-    minWH=220;
+    maxWhiteKeyHeight=Math.min(viewport.height*.58,430);
+    minWhiteKeyHeight=220;
   }
-  const wH=Math.max(minWH,Math.min(wW*5.2,maxWH));
-  return{wW,wH,bW:wW*.6,bH:wH*.64};
-}
 
-// Apply computed key dimensions as CSS vars and element size to #piano
-function applyPianoDims({wW,wH,bW,bH},nocts){
-  const p=dom.piano;
-  p.style.setProperty('--ww',`${wW}px`);
-  p.style.setProperty('--wh',`${wH}px`);
-  p.style.setProperty('--bw',`${bW}px`);
-  p.style.setProperty('--bh',`${bH}px`);
-  p.style.width=`${wW*7*nocts}px`;
-  p.style.height=`${wH}px`;
-}
-
-// Set CSS variable sizes on #piano — keys scale via CSS transition, no DOM rebuild
-function resizeKeys(nocts){
-  const dims=keyDims(nocts);
-  const{wW,bW}=dims;
-  for(const[midi,{el,gWi,isBlack}] of state.keys){
-    el.style.left=isBlack
-      ?`${(gWi+1)*wW-bW/2}px`
-      :`${gWi*wW}px`;
-  }
-  applyPianoDims(dims,nocts);
-}
-
-// Full rebuild — only called when octave count or window position changes
-function build(){
-  dom.piano.innerHTML='';
-  state.keys.clear();
-  const{windowMidi0:midi0,nocts}=state.piano;
-  const dims=keyDims(nocts);
-  const{wW,bW}=dims;
-  applyPianoDims(dims,nocts);
-
-  let whiteIndex=0;
-  const midiEnd=Math.min(midi0+nocts*12-1,MAX_MIDI);
-  for(let midi=midi0;midi<=midiEnd;midi++){
-    const isBlack=BLACK_SEMIS.has(pc(midi));
-    const gWi=isBlack?Math.max(0,whiteIndex-1):whiteIndex;
-    const el=document.createElement('div');
-    if(isBlack){
-      el.className='key black';
-      el.style.left=`${(gWi+1)*wW-bW/2}px`;
-    }else{
-      el.className='key white';
-      el.style.left=`${gWi*wW}px`;
-      if(pc(midi)===0||midi===MIN_MIDI){
-        const lb=document.createElement('div');
-        lb.className='klabel';
-        lb.textContent=formatMidiName(midi);
-        el.appendChild(lb);
-      }
-      whiteIndex++;
-    }
-    el.addEventListener('pointerdown',e=>{e.preventDefault();toggle(midi);});
-    dom.piano.appendChild(el);
-    state.keys.set(midi,{el,gWi,isBlack});
-  }
-  updateKeyStates();
-}
-
-function updateKeyStates(){
-  for(const[midi,{el}] of state.keys){
-    el.classList.toggle('on',state.manual.has(midi)||state.midi.has(midi));
-  }
-}
-
-function update(force=false){
-  const notes=activeNotes();
-  const nocts=getVisibleOctaves(window.innerWidth);
-  const defaultMidi0=getDefaultMidi0(window.innerWidth);
-  const nextMidi0=notes.length
-    ?getCenteredWindowMidi0(notes,nocts,state.piano.windowMidi0)
-    :clampMidi0(state.piano.windowMidi0??defaultMidi0,nocts);
-  const structureChanged=force
-    ||state.piano.nocts!==nocts
-    ||state.piano.windowMidi0!==nextMidi0;
-  state.piano.windowMidi0=nextMidi0;
-  state.piano.nocts=nocts;
-  if(structureChanged){build();updateOctBtns();}
-  else updateKeyStates();
-  render(notes);
-}
-
-// On resize: immediately reposition keys (smooth), then debounce a full rebuild for octave count changes
-function onResize(){
-  const nocts=getVisibleOctaves(window.innerWidth);
-  if(nocts!==state.piano.nocts){
-    clearTimeout(state.resizeTimer);
-    state.resizeTimer=setTimeout(()=>update(),120);
-  }else{
-    resizeKeys(nocts);
-  }
-}
-
-// === RENDER ===
-
-function formatSym(sym){
-  if(!sym)return'';
-  const s=sym.replace(/°/g,'o');
-  if(s.length>1&&s[0]==='m')return'm<sup>'+s.slice(1)+'</sup>';
-  return'<sup>'+s+'</sup>';
-}
-
-function splitChordSymbol(sym){
-  if(!sym)return{quality:'',slashPart:''};
-  const match=sym.match(/\/([A-G](?:#|♭)?)$/);
-  if(!match)return{quality:sym,slashPart:''};
+  const whiteKeyHeight=Math.max(minWhiteKeyHeight,Math.min(whiteKeyWidth*5.2,maxWhiteKeyHeight));
   return{
-    quality:sym.slice(0,-match[0].length),
-    slashPart:match[0],
+    whiteKeyWidth,
+    whiteKeyHeight,
+    blackKeyWidth:whiteKeyWidth*.6,
+    blackKeyHeight:whiteKeyHeight*.64,
   };
 }
 
-function showChord(root,sym,typeCls,typeText){
-  // Split only true slash-bass suffixes so chord qualities like 6/9 stay intact.
-  const {quality,slashPart}=splitChordSymbol(sym);
+function getDisplayModel(currentState,viewport,forceStructure=false){
+  const activeNotes=getActiveNotes(currentState);
+  const visibleOctaves=getVisibleOctaves(viewport.width);
+  const defaultWindowMidi0=getDefaultWindowMidi0(viewport.width);
+  const nextWindowMidi0=activeNotes.length
+    ?getCenteredWindowMidi0(activeNotes,visibleOctaves,currentState.piano.windowMidi0)
+    :clampWindowMidi0(currentState.piano.windowMidi0??defaultWindowMidi0,visibleOctaves);
 
-  dom.croot.className='chord-root';dom.croot.textContent=root;
-  dom.csym.className='chord-sym'+(quality?'':' hidden');dom.csym.innerHTML=formatSym(quality);
-  dom.cslash.className='chord-slash'+(slashPart?'':' hidden');dom.cslash.textContent=slashPart||'';
+  const chord=activeNotes.length>1?detectChord(activeNotes,currentState.useFlats):null;
+  const singleNoteRootPc=activeNotes.length===1?getPitchClass(activeNotes[0]):null;
+  const highlightedRootPc=chord?chord.rootPc:singleNoteRootPc;
+
+  return{
+    viewport,
+    noteNames:getNoteNames(currentState.useFlats),
+    activeNotes,
+    chord,
+    highlightedRootPc,
+    piano:{
+      nocts:visibleOctaves,
+      windowMidi0:nextWindowMidi0,
+      structureChanged:
+        forceStructure
+        || currentState.piano.nocts!==visibleOctaves
+        || currentState.piano.windowMidi0!==nextWindowMidi0,
+    },
+  };
+}
+
+// === State ===
+
+function createInitialState(){
+  return{
+    manual:new Set(),
+    midi:new Set(),
+    keys:new Map(),
+    piano:{windowMidi0:null,nocts:2},
+    midiAccess:null,
+    midiSupported:'requestMIDIAccess' in navigator,
+    useFlats:false,
+    resizeTimer:null,
+  };
+}
+
+const state=createInitialState();
+
+function getActiveNotes(currentState){
+  return [...currentState.manual,...currentState.midi].sort((a,b)=>a-b);
+}
+
+function isMidiActive(currentState,midi){
+  return currentState.manual.has(midi)||currentState.midi.has(midi);
+}
+
+function toggleManualNote(currentState,midi){
+  if(currentState.manual.has(midi))currentState.manual.delete(midi);
+  else currentState.manual.add(midi);
+}
+
+function clearAllNotes(currentState){
+  currentState.manual.clear();
+  currentState.midi.clear();
+}
+
+function clearMidiHeldNotes(currentState){
+  currentState.midi.clear();
+}
+
+function setMidiHeld(currentState,midi,isHeld){
+  if(isHeld)currentState.midi.add(midi);
+  else currentState.midi.delete(midi);
+}
+
+function setMidiAccess(currentState,midiAccess){
+  currentState.midiAccess=midiAccess;
+}
+
+function setUseFlats(currentState,useFlats){
+  currentState.useFlats=useFlats;
+}
+
+function updatePianoState(currentState,pianoModel){
+  currentState.piano.windowMidi0=pianoModel.windowMidi0;
+  currentState.piano.nocts=pianoModel.nocts;
+}
+
+// === DOM ===
+
+function createDomCache(){
+  const elements={};
+  for(const [key,id] of Object.entries(AppConfig.domIds)){
+    elements[key]=document.getElementById(id);
+  }
+  elements.pianoWrap=elements.piano.parentElement;
+  return elements;
+}
+
+const dom=createDomCache();
+
+function updateMidiButton(label,on=false,disabled=false){
+  dom.midiBtn.textContent=label;
+  dom.midiBtn.classList.toggle('on',on);
+  dom.midiBtn.disabled=disabled;
+}
+
+function updateFlatsButton(useFlats){
+  dom.flatBtn.textContent=useFlats?'♯':'♭';
+  dom.flatBtn.classList.toggle('on',useFlats);
+}
+
+function setChordText(root,symbol,typeClass,typeText){
+  const {quality,slashPart}=splitChordSymbol(symbol);
+
+  dom.croot.className='chord-root';
+  dom.croot.textContent=root;
+  dom.csym.className=`chord-sym${quality?'':' hidden'}`;
+  dom.csym.innerHTML=formatChordQualityHtml(quality);
+  dom.cslash.className=`chord-slash${slashPart?'':' hidden'}`;
+  dom.cslash.textContent=slashPart||'';
   dom.cph.classList.add('hidden');
-  dom.ctype.className='chord-type'+(typeCls?' '+typeCls:'');dom.ctype.textContent=typeText;
+  dom.ctype.className=`chord-type${typeClass?` ${typeClass}`:''}`;
+  dom.ctype.textContent=typeText;
 }
 
-function render(notes=activeNotes()){
-  let detectedRoot=null,detected=null;
+function resetChordText(){
+  dom.croot.className='chord-root hidden';
+  dom.croot.textContent='';
+  dom.csym.className='chord-sym hidden';
+  dom.csym.textContent='';
+  dom.cslash.className='chord-slash hidden';
+  dom.cslash.textContent='';
+  dom.cph.classList.remove('hidden');
+  dom.ctype.className='chord-type';
+  dom.ctype.textContent='';
+}
 
-  dom.pills.innerHTML='';
-  dom.pills.classList.toggle('empty',notes.length===0);
+// === PianoView ===
 
-  // — Chord display —
-  if(notes.length===0){
-    dom.croot.className='chord-root hidden';dom.croot.textContent='';
-    dom.csym.className='chord-sym hidden';dom.csym.textContent='';
-    dom.cslash.className='chord-slash hidden';dom.cslash.textContent='';
-    dom.cph.classList.remove('hidden');
-    dom.ctype.className='chord-type';dom.ctype.textContent='';
-  }else if(notes.length===1){
-    const p0=pc(notes[0]);
-    detectedRoot=p0;
-    showChord(noteNames()[p0],'','','add more notes...');
-  }else{
-    detected=detect(notes);
-    dom.cph.classList.add('hidden');
-    if(detected){
-      detectedRoot=detected.rootPc;
-      showChord(detected.rootName,detected.sym+(detected.slash||''),
-        detected.inv?'inv':'known',
-        detected.name+(detected.inv?' - inversion':''));
-    }else{
-      showChord('?','','','chord not recognised');
+function applyPianoDimensions(dimensions,nocts){
+  dom.piano.style.setProperty('--ww',`${dimensions.whiteKeyWidth}px`);
+  dom.piano.style.setProperty('--wh',`${dimensions.whiteKeyHeight}px`);
+  dom.piano.style.setProperty('--bw',`${dimensions.blackKeyWidth}px`);
+  dom.piano.style.setProperty('--bh',`${dimensions.blackKeyHeight}px`);
+  dom.piano.style.width=`${dimensions.whiteKeyWidth*7*nocts}px`;
+  dom.piano.style.height=`${dimensions.whiteKeyHeight}px`;
+}
+
+function getKeyLeftOffset(keyMeta,dimensions){
+  if(keyMeta.isBlack){
+    return `${(keyMeta.gWi+1)*dimensions.whiteKeyWidth-dimensions.blackKeyWidth/2}px`;
+  }
+  return `${keyMeta.gWi*dimensions.whiteKeyWidth}px`;
+}
+
+function createKeyLabel(midi,useFlats){
+  const label=document.createElement('div');
+  label.className='klabel';
+  label.textContent=formatMidiNoteName(midi,useFlats);
+  return label;
+}
+
+function bindPianoKeyInteraction(keyElement,midi){
+  keyElement.addEventListener('pointerdown',event=>{
+    event.preventDefault();
+    toggleNote(midi);
+  });
+}
+
+function rebuildPiano(pianoModel,useFlats){
+  dom.piano.innerHTML='';
+  state.keys.clear();
+
+  const dimensions=getKeyDimensions(pianoModel.nocts,getViewport(),dom.pianoWrap.clientWidth);
+  applyPianoDimensions(dimensions,pianoModel.nocts);
+
+  let whiteIndex=0;
+  const midiEnd=Math.min(pianoModel.windowMidi0+pianoModel.nocts*12-1,AppConfig.maxMidi);
+
+  for(let midi=pianoModel.windowMidi0;midi<=midiEnd;midi++){
+    const isBlack=AppConfig.blackSemitones.has(getPitchClass(midi));
+    const gWi=isBlack?Math.max(0,whiteIndex-1):whiteIndex;
+    const keyElement=document.createElement('div');
+    const keyMeta={el:keyElement,gWi,isBlack};
+
+    keyElement.className=isBlack?'key black':'key white';
+    keyElement.style.left=getKeyLeftOffset(keyMeta,dimensions);
+
+    if(!isBlack){
+      if(getPitchClass(midi)===0||midi===AppConfig.minMidi){
+        keyElement.appendChild(createKeyLabel(midi,useFlats));
+      }
+      whiteIndex++;
     }
-  }
 
-  // — Note pills —
-  const frag=document.createDocumentFragment();
-  for(const m of notes){
-    const p0=pc(m);
-    const p=document.createElement('div');
-    let cls='neutral';
-    if(detectedRoot!==null&&p0===detectedRoot)cls='root';
-    else if(detected||notes.length===1)cls='note';
-    p.className='pill '+cls;
-    p.textContent=noteNames()[p0];
-    frag.appendChild(p);
+    bindPianoKeyInteraction(keyElement,midi);
+    dom.piano.appendChild(keyElement);
+    state.keys.set(midi,keyMeta);
   }
-  dom.pills.appendChild(frag);
 }
 
-// === OCTAVE NAVIGATION ===
+function resizePianoKeys(nocts){
+  const dimensions=getKeyDimensions(nocts,getViewport(),dom.pianoWrap.clientWidth);
 
-function shiftWindow(delta){
-  const nocts=state.piano.nocts;
-  const next=clampMidi0(state.piano.windowMidi0+delta,nocts);
-  if(next===state.piano.windowMidi0)return;
-  state.piano.windowMidi0=next;
-  build();
-  updateOctBtns();
+  for(const [,keyMeta] of state.keys){
+    keyMeta.el.style.left=getKeyLeftOffset(keyMeta,dimensions);
+  }
+
+  applyPianoDimensions(dimensions,nocts);
 }
 
-function updateOctBtns(){
-  const nocts=state.piano.nocts;
-  const atMin=clampMidi0(state.piano.windowMidi0-12,nocts)===state.piano.windowMidi0;
-  const atMax=clampMidi0(state.piano.windowMidi0+12,nocts)===state.piano.windowMidi0;
+function renderPianoKeyStates(currentState){
+  for(const [midi,keyMeta] of currentState.keys){
+    keyMeta.el.classList.toggle('on',isMidiActive(currentState,midi));
+  }
+}
+
+function updateOctaveButtons(pianoModel){
+  const atMin=clampWindowMidi0(pianoModel.windowMidi0-12,pianoModel.nocts)===pianoModel.windowMidi0;
+  const atMax=clampWindowMidi0(pianoModel.windowMidi0+12,pianoModel.nocts)===pianoModel.windowMidi0;
   dom.octDn.classList.toggle('disabled',atMin);
   dom.octUp.classList.toggle('disabled',atMax);
 }
 
-// Swipe on the piano wrap to shift octaves
-(function(){
-  const wrap=document.querySelector('.piano-wrap');
-  let sx=0,sy=0,pid=null,moved=false;
-  const SWIPE_MIN=40; // px horizontal to count as swipe
-  const TAP_MAX=10;   // px — if moved less than this it's a tap, not a swipe
+// === ChordView ===
 
-  wrap.addEventListener('pointerdown',e=>{
-    if(pid!==null)return;
-    if(e.target.closest('.key')||e.target.closest('.oct-btn'))return;
-    pid=e.pointerId; sx=e.clientX; sy=e.clientY; moved=false;
-  },{passive:true});
+function renderChordDisplay(displayModel){
+  const {activeNotes,chord,noteNames,highlightedRootPc}=displayModel;
 
-  wrap.addEventListener('pointermove',e=>{
-    if(e.pointerId!==pid)return;
-    if(Math.abs(e.clientX-sx)>TAP_MAX||Math.abs(e.clientY-sy)>TAP_MAX)moved=true;
-  },{passive:true});
+  if(activeNotes.length===0){
+    resetChordText();
+    return;
+  }
 
-  wrap.addEventListener('pointerup',e=>{
-    if(e.pointerId!==pid)return;
-    pid=null;
-    if(!moved)return;
-    const dx=e.clientX-sx, dy=e.clientY-sy;
-    if(Math.abs(dx)>SWIPE_MIN&&Math.abs(dx)>Math.abs(dy)*1.4){
-      shiftWindow(dx<0?12:-12); // swipe left = higher octave, swipe right = lower
-    }
-  },{passive:true});
+  if(activeNotes.length===1){
+    setChordText(noteNames[highlightedRootPc],'','','add more notes...');
+    return;
+  }
 
-  wrap.addEventListener('pointercancel',()=>{pid=null;},{passive:true});
+  if(chord){
+    setChordText(
+      chord.rootName,
+      chord.sym+(chord.slash||''),
+      chord.inv?'inv':'known',
+      chord.name+(chord.inv?' - inversion':'')
+    );
+    return;
+  }
 
-  // Hold Alt while wheeling over the piano to shift octaves without scrolling the page
-  wrap.addEventListener('wheel',e=>{
-    if(!e.altKey)return;
-    e.preventDefault();
-    shiftWindow(e.deltaY>0?12:-12);
-  },{passive:false});
-})();
-
-// === PIANO INTERACTION ===
-
-function toggle(midi){
-  if(state.manual.has(midi))state.manual.delete(midi);
-  else state.manual.add(midi);
-  update();
+  setChordText('?','','','chord not recognised');
 }
 
-// === MIDI ===
+function renderNotePills(displayModel){
+  const {activeNotes,chord,noteNames,highlightedRootPc}=displayModel;
+  const fragment=document.createDocumentFragment();
 
-function clearMidiHeld(){
-  state.midi.clear();
-  update();
+  dom.pills.innerHTML='';
+  dom.pills.classList.toggle('empty',activeNotes.length===0);
+
+  for(const midi of activeNotes){
+    const pitchClass=getPitchClass(midi);
+    const pill=document.createElement('div');
+    let pillClass='neutral';
+
+    if(highlightedRootPc!==null&&pitchClass===highlightedRootPc)pillClass='root';
+    else if(chord||activeNotes.length===1)pillClass='note';
+
+    pill.className=`pill ${pillClass}`;
+    pill.textContent=noteNames[pitchClass];
+    fragment.appendChild(pill);
+  }
+
+  dom.pills.appendChild(fragment);
+}
+
+function renderAppState(displayModel){
+  renderChordDisplay(displayModel);
+  renderNotePills(displayModel);
+}
+
+function syncAppToState(forceStructure=false){
+  const displayModel=getDisplayModel(state,getViewport(),forceStructure);
+  updatePianoState(state,displayModel.piano);
+
+  if(displayModel.piano.structureChanged){
+    rebuildPiano(displayModel.piano,state.useFlats);
+  }
+
+  renderPianoKeyStates(state);
+  renderAppState(displayModel);
+  updateOctaveButtons(displayModel.piano);
+}
+
+// === MidiController ===
+
+function translateMidiMessage(message){
+  const [status,data1,data2]=message.data;
+  const command=status&0xf0;
+
+  if(data1<AppConfig.minMidi||data1>AppConfig.maxMidi)return null;
+
+  if(command===0x90&&data2>0){
+    return{midi:data1,isHeld:true};
+  }
+
+  if(command===0x80||(command===0x90&&data2===0)){
+    return{midi:data1,isHeld:false};
+  }
+
+  return null;
 }
 
 function refreshMidiInputs(){
   if(!state.midiAccess)return;
-  let count=0;
+
+  let inputCount=0;
   for(const input of state.midiAccess.inputs.values()){
     input.onmidimessage=handleMidiMessage;
-    count++;
+    inputCount++;
   }
+
   updateMidiButton(
-    count?`MIDI live ${count}`:'MIDI no device',
-    count>0,
+    inputCount?`MIDI live ${inputCount}`:'MIDI no device',
+    inputCount>0,
     false
   );
 }
 
-function handleMidiMessage(e){
-  const [status,data1,data2]=e.data;
-  const cmd=status&0xf0;
-  if(data1<MIN_MIDI||data1>MAX_MIDI)return;
-  if(cmd===0x90&&data2>0)state.midi.add(data1);
-  else if(cmd===0x80||(cmd===0x90&&data2===0))state.midi.delete(data1);
-  update();
+function handleMidiMessage(message){
+  const noteChange=translateMidiMessage(message);
+  if(!noteChange)return;
+
+  setMidiHeld(state,noteChange.midi,noteChange.isHeld);
+  syncAppToState();
 }
 
-function handleMidiStateChange(e){
-  if(e.port.type==='input'){
-    if(e.port.state==='disconnected')clearMidiHeld();
-    refreshMidiInputs();
+function handleMidiStateChange(event){
+  if(event.port.type!=='input')return;
+  if(event.port.state==='disconnected'){
+    clearMidiHeldNotes(state);
+    syncAppToState();
   }
+  refreshMidiInputs();
 }
 
-async function connectMidi(){
+async function initializeMidi(){
   if(!state.midiSupported){
     updateMidiButton('MIDI unsupported',false,true);
     return;
   }
+
   if(state.midiAccess){
     refreshMidiInputs();
     return;
   }
+
   try{
-    state.midiAccess=await navigator.requestMIDIAccess({sysex:false});
+    const midiAccess=await navigator.requestMIDIAccess({sysex:false});
+    setMidiAccess(state,midiAccess);
     state.midiAccess.onstatechange=handleMidiStateChange;
     refreshMidiInputs();
-  }catch(e){
+  }catch(error){
     updateMidiButton('MIDI denied',false,false);
   }
 }
@@ -939,36 +1056,132 @@ function registerPwa(){
   if(!('serviceWorker' in navigator))return;
   if(location.protocol==='file:')return;
   if(!(window.isSecureContext||location.hostname==='localhost'||location.hostname==='127.0.0.1'))return;
+
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
   },{once:true});
 }
 
-// === INIT ===
+// === Interactions ===
 
-function clearNotes(){state.manual.clear();state.midi.clear();update();}
-
-dom.midiBtn.addEventListener('click',connectMidi);
-dom.flatBtn.addEventListener('click',()=>{
-  state.useFlats=!state.useFlats;
-  dom.flatBtn.textContent=state.useFlats?'♯':'♭';
-  dom.flatBtn.classList.toggle('on',state.useFlats);
-  update();
-});
-dom.octDn.addEventListener('click',()=>shiftWindow(-12));
-dom.octUp.addEventListener('click',()=>shiftWindow(12));
-dom.clrBtn.addEventListener('click',clearNotes);
-dom.portraitClr.addEventListener('click',clearNotes);
-
-if(!state.midiSupported){
-  updateMidiButton('MIDI unsupported',false,true);
-}else{
-  connectMidi();
+function toggleNote(midi){
+  toggleManualNote(state,midi);
+  syncAppToState();
 }
-update(true);
-updateOctBtns();
-window.addEventListener('resize',onResize);
-registerPwa();
+
+function clearNotes(){
+  clearAllNotes(state);
+  syncAppToState();
+}
+
+function shiftWindow(delta){
+  const nextWindowMidi0=clampWindowMidi0(state.piano.windowMidi0+delta,state.piano.nocts);
+  if(nextWindowMidi0===state.piano.windowMidi0)return;
+
+  state.piano.windowMidi0=nextWindowMidi0;
+  rebuildPiano(state.piano,state.useFlats);
+  renderPianoKeyStates(state);
+  updateOctaveButtons(state.piano);
+}
+
+function handleResize(){
+  const nextVisibleOctaves=getVisibleOctaves(window.innerWidth);
+
+  if(nextVisibleOctaves!==state.piano.nocts){
+    clearTimeout(state.resizeTimer);
+    state.resizeTimer=setTimeout(()=>syncAppToState(),AppConfig.resizeDebounceMs);
+    return;
+  }
+
+  resizePianoKeys(nextVisibleOctaves);
+}
+
+function bindPianoGestures(){
+  let startX=0;
+  let startY=0;
+  let pointerId=null;
+  let moved=false;
+
+  dom.pianoWrap.addEventListener('pointerdown',event=>{
+    if(pointerId!==null)return;
+    if(event.target.closest('.key')||event.target.closest('.oct-btn'))return;
+
+    pointerId=event.pointerId;
+    startX=event.clientX;
+    startY=event.clientY;
+    moved=false;
+  },{passive:true});
+
+  dom.pianoWrap.addEventListener('pointermove',event=>{
+    if(event.pointerId!==pointerId)return;
+
+    if(
+      Math.abs(event.clientX-startX)>AppConfig.swipe.tapMaxDistance
+      || Math.abs(event.clientY-startY)>AppConfig.swipe.tapMaxDistance
+    ){
+      moved=true;
+    }
+  },{passive:true});
+
+  dom.pianoWrap.addEventListener('pointerup',event=>{
+    if(event.pointerId!==pointerId)return;
+    pointerId=null;
+    if(!moved)return;
+
+    const deltaX=event.clientX-startX;
+    const deltaY=event.clientY-startY;
+
+    if(
+      Math.abs(deltaX)>AppConfig.swipe.minDistance
+      && Math.abs(deltaX)>Math.abs(deltaY)*1.4
+    ){
+      shiftWindow(deltaX<0?12:-12);
+    }
+  },{passive:true});
+
+  dom.pianoWrap.addEventListener('pointercancel',()=>{
+    pointerId=null;
+  },{passive:true});
+
+  dom.pianoWrap.addEventListener('wheel',event=>{
+    if(!event.altKey)return;
+    event.preventDefault();
+    shiftWindow(event.deltaY>0?12:-12);
+  },{passive:false});
+}
+
+function bindControls(){
+  dom.midiBtn.addEventListener('click',initializeMidi);
+  dom.flatBtn.addEventListener('click',()=>{
+    setUseFlats(state,!state.useFlats);
+    updateFlatsButton(state.useFlats);
+    syncAppToState();
+  });
+  dom.octDn.addEventListener('click',()=>shiftWindow(-12));
+  dom.octUp.addEventListener('click',()=>shiftWindow(12));
+  dom.clrBtn.addEventListener('click',clearNotes);
+  dom.portraitClr.addEventListener('click',clearNotes);
+  window.addEventListener('resize',handleResize);
+}
+
+// === Bootstrap ===
+
+function bootstrap(){
+  updateFlatsButton(state.useFlats);
+  bindControls();
+  bindPianoGestures();
+
+  if(!state.midiSupported){
+    updateMidiButton('MIDI unsupported',false,true);
+  }else{
+    initializeMidi();
+  }
+
+  syncAppToState(true);
+  registerPwa();
+}
+
+bootstrap();
 </script>
 </body>
 </html>
