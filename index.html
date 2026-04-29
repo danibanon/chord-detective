@@ -109,7 +109,7 @@ header{
 .midi-btn:disabled{opacity:.55;cursor:default;box-shadow:none}
 .chord-zone{
   flex-shrink:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  display:grid;place-items:center;
   padding:22px 18px 18px;
   position:relative;min-height:178px;
   border:1px solid var(--border);border-radius:28px;
@@ -124,23 +124,26 @@ header{
   background:linear-gradient(90deg,transparent,rgba(255,173,82,.35),transparent);
   opacity:.7;pointer-events:none;
 }
-.chord-main{display:flex;align-items:flex-end;gap:2px;line-height:1;position:relative;z-index:1}
+.chord-main{
+  display:flex;align-items:baseline;justify-content:center;
+  gap:.04em;line-height:1;position:relative;z-index:1;
+}
 .chord-root{
   font-size:80px;font-weight:700;color:var(--accent-strong);
-  letter-spacing:-.03em;line-height:.88;
+  letter-spacing:-.03em;line-height:1;
   text-shadow:0 0 26px rgba(255,155,56,.16);
   transition:opacity .2s,transform .2s;
 }
 .chord-sym{
   font-size:34px;font-weight:600;color:var(--accent-strong);
-  padding-bottom:9px;letter-spacing:.01em;
+  padding-bottom:.28em;letter-spacing:.01em;
   text-shadow:0 0 22px rgba(255,155,56,.15);
   transition:opacity .2s;
 }
 .chord-sym sup{font-size:.62em;vertical-align:2em;line-height:0;font-weight:600}
 .chord-slash{
   font-size:80px;font-weight:700;color:var(--accent-strong);
-  letter-spacing:-.03em;line-height:.88;
+  letter-spacing:-.03em;line-height:1;
   text-shadow:0 0 26px rgba(255,155,56,.16);
   transition:opacity .2s,transform .2s;
   padding-bottom:0;
@@ -251,6 +254,9 @@ header{
 .chord-inner{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   position:relative;z-index:1;flex:1 1 auto;
+  grid-area:1/1;
+  width:max-content;max-width:100%;
+  min-width:0;
 }
 /* Portrait-only clear button — hidden by default, shown in portrait via media query */
 .portrait-clear{
@@ -259,6 +265,9 @@ header{
   border-radius:10px;font-family:inherit;font-size:16px;cursor:pointer;
   padding:6px 10px;flex-shrink:0;align-self:center;
   transition:background .12s,border-color .12s;
+  grid-area:1/1;
+  justify-self:end;
+  z-index:2;
 }
 .portrait-clear:active{background:rgba(255,173,82,.22);border-color:var(--border-strong)}
 
@@ -290,21 +299,16 @@ header{
   .chord-zone{
     height:64px;min-height:64px;max-height:64px;
     flex-shrink:0;
-    padding:6px 10px 6px 14px;
+    padding:6px 42px 6px 14px;
     border-radius:16px;
-    flex-direction:row;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
     overflow:hidden;
   }
   .chord-zone::after{display:none}
   .chord-inner{
-    position:absolute;left:50%;top:41%;transform:translate(-50%,-50%);
-    flex-direction:column;align-items:center;justify-content:center;gap:1px;
-    width:max-content;max-width:calc(100% - 28px);
+    gap:1px;
+    max-width:calc(100% - 32px);
   }
-  .chord-ph{font-size:10px;letter-spacing:.08em;position:static;transform:none}
+  .chord-ph{font-size:10px;letter-spacing:.08em}
   .chord-main{line-height:1}
   .chord-type{margin-top:0;min-height:12px;line-height:1;text-align:center}
 
@@ -375,8 +379,7 @@ header{
   .chord-zone{
     grid-area:chord;
     position:relative;
-    display:flex;align-items:center;justify-content:center;
-    padding:8px 14px 8px 14px;
+    padding:8px 50px 8px 14px;
     border-radius:14px;min-height:0;
     background:
       radial-gradient(circle at top right,rgba(255,160,64,.22),transparent 55%),
@@ -385,28 +388,23 @@ header{
   .chord-zone::after{display:none}
 
   .chord-inner{
-    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    display:flex;flex-direction:column;
-    align-items:center;
     gap:2px;
-    width:max-content;max-width:calc(100% - 60px);
+    max-width:calc(100% - 44px);
   }
 
   .chord-ph{
-    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     font-size:10px;letter-spacing:.08em;white-space:nowrap;text-align:center;
   }
 
   .chord-main{line-height:1;gap:1px}
-  .chord-root{font-size:72px;line-height:.88}
+  .chord-root{font-size:72px;line-height:1}
   .chord-sym{font-size:30px;padding-bottom:4px}
-  .chord-slash{font-size:72px}
+  .chord-slash{font-size:72px;line-height:1}
   .chord-type{margin-top:4px;font-size:10px;letter-spacing:.1em;text-align:center}
 
-  /* Clear button: absolutely pinned to right edge in compact landscape */
+  /* Clear button stays at the edge without shifting the centered chord stack. */
   .portrait-clear{
     display:flex;
-    position:absolute;right:10px;top:50%;transform:translateY(-50%);
     font-size:13px;padding:5px 10px;
     border-radius:8px;
     flex-shrink:0;
@@ -751,11 +749,19 @@ function formatSym(sym){
   return'<sup>'+s+'</sup>';
 }
 
+function splitChordSymbol(sym){
+  if(!sym)return{quality:'',slashPart:''};
+  const match=sym.match(/\/([A-G](?:#|♭)?)$/);
+  if(!match)return{quality:sym,slashPart:''};
+  return{
+    quality:sym.slice(0,-match[0].length),
+    slashPart:match[0],
+  };
+}
+
 function showChord(root,sym,typeCls,typeText){
-  // Split slash note from quality suffix: e.g. sym="6/G" → quality="6", slash="/G"
-  const slashIdx=sym.lastIndexOf('/');
-  const quality=slashIdx>-1?sym.slice(0,slashIdx):sym;
-  const slashPart=slashIdx>-1?sym.slice(slashIdx):''; // includes the '/'
+  // Split only true slash-bass suffixes so chord qualities like 6/9 stay intact.
+  const {quality,slashPart}=splitChordSymbol(sym);
 
   dom.croot.className='chord-root';dom.croot.textContent=root;
   dom.csym.className='chord-sym'+(quality?'':' hidden');dom.csym.innerHTML=formatSym(quality);
