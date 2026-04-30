@@ -8,6 +8,12 @@ The app is also installable as a Progressive Web App (PWA), so supported browser
 
 [https://danibanon.github.io/chord-detective/](https://danibanon.github.io/chord-detective/)
 
+## Demo
+
+Tap notes on the on-screen piano, watch the chord name resolve in real time, pan the keyboard to explore nearby notes, and clear everything to start over.
+
+![Chord Detective D-flat diminished seventh demo](./docs/demo/dbo7-demo.gif)
+
 ## Screenshots
 
 ![Chord Detective landscape](./docs/screenshots/landscape.png)
@@ -77,6 +83,7 @@ Notes:
 ```text
 .
 |-- docs/
+|   |-- demo/
 |   `-- screenshots/
 |-- icons/
 |-- index.html
@@ -88,6 +95,7 @@ Notes:
 
 - `index.html` contains the UI, styles, piano behavior, MIDI handling, and chord detection logic.
 - `icons/` contains the favicon and install icons.
+- `docs/demo/dbo7-demo.gif` is the short animated README demo.
 - `docs/screenshots/landscape.png` is the current README screenshot.
 
 ## License
