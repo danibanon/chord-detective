@@ -10,11 +10,7 @@ The app is also installable as a Progressive Web App (PWA), so supported browser
 
 ## Screenshots
 
-Portrait view is auto-rotated into a landscape presentation when the browser does not honor the PWA landscape lock.
-
-![Chord Detective phone landscape](./docs/screenshots/phone-landscape.png)
-
-![Chord Detective desktop landscape](./docs/screenshots/desktop-landscape.png)
+![Chord Detective landscape](./landscape.png)
 
 ## Features
 
@@ -80,10 +76,9 @@ Notes:
 
 ```text
 .
-|-- docs/
-|   `-- screenshots/
 |-- icons/
 |-- index.html
+|-- landscape.png
 |-- manifest.webmanifest
 |-- sw.js
 |-- LICENSE
@@ -92,7 +87,7 @@ Notes:
 
 - `index.html` contains the UI, styles, piano behavior, MIDI handling, and chord detection logic.
 - `icons/` contains the favicon and install icons.
-- `docs/screenshots/` contains README screenshots.
+- `landscape.png` is the current README screenshot.
 
 ## License
 
