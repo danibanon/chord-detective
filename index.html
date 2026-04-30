@@ -38,43 +38,37 @@ body{
     radial-gradient(circle at top,rgba(255,136,40,.13),transparent 28%),
     radial-gradient(circle at bottom,rgba(186,87,16,.1),transparent 32%),
     linear-gradient(180deg,#1d0b05 0%,#110603 48%,#090302 100%);
-  overflow-x:hidden;overflow-y:auto;
+  overflow:hidden;
 }
 .app{
-  display:flex;flex-direction:column;min-height:100dvh;width:100%;
-  padding:14px;gap:10px;
+  display:grid;min-height:100dvh;width:100%;
+  padding:10px;gap:8px;
+  grid-template-columns:minmax(160px,1.1fr) minmax(220px,1.4fr) minmax(120px,.7fr);
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr);
+  grid-template-areas:
+    "notes chord controls"
+    "piano piano piano";
   background:
     linear-gradient(180deg,rgba(255,255,255,.01),rgba(255,255,255,0)),
     linear-gradient(90deg,rgba(255,173,82,.03),transparent 18%,transparent 82%,rgba(255,173,82,.03));
-  overflow:visible;
+  overflow:hidden;
   touch-action:manipulation;
 }
-.topbar{display:flex;flex-direction:column;gap:8px}
-header{
-  display:flex;align-items:center;gap:8px;
-  padding:0 14px;height:52px;flex-shrink:0;
-  background:linear-gradient(180deg,rgba(34,16,10,.94),rgba(19,10,7,.92));
-  border:1px solid var(--border);border-radius:16px;
-  box-shadow:var(--shadow),var(--glow);
-  backdrop-filter:blur(14px);
-}
-.brand{font-size:11px;color:var(--text-soft);letter-spacing:.08em;white-space:nowrap;text-transform:uppercase}
-.brand b{color:var(--accent-strong);font-weight:700}
-.sep{width:1px;height:18px;background:var(--border);flex-shrink:0;margin-right:auto}
-.controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .notes-strip{
-  display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:10px;min-height:56px;padding:10px 14px;
+  grid-area:notes;
+  display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:10px;min-height:0;min-width:0;padding:10px 12px;
   background:linear-gradient(180deg,rgba(34,16,10,.86),rgba(19,10,7,.84));
   border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow),var(--glow);
   overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
   touch-action:pan-x;
 }
 .notes-strip::-webkit-scrollbar{display:none}
-.notes-strip.empty{align-items:center}
+.notes-strip.empty{align-items:center;justify-content:center}
 .notes-strip.empty::before{
   content:'No notes selected';
-  font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  font-size:13px;letter-spacing:.08em;text-transform:uppercase;
   color:var(--dim);
+  text-align:center;
 }
 .pill{
   min-height:36px;padding:8px 16px;border-radius:999px;font-size:14px;white-space:nowrap;flex-shrink:0;letter-spacing:.05em;
@@ -107,22 +101,113 @@ header{
   box-shadow:0 0 18px rgba(255,148,41,.14)
 }
 .midi-btn:disabled{opacity:.55;cursor:default;box-shadow:none}
+.controls-panel{
+  grid-area:controls;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-start;
+  min-width:0;
+  gap:6px;
+  padding:10px;
+  border:1px solid var(--border);border-radius:16px;
+  background:linear-gradient(180deg,rgba(34,16,10,.9),rgba(19,10,7,.86));
+  box-shadow:var(--shadow),var(--glow);
+}
+.panel-brand{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 10px;
+  border:1px solid rgba(255,177,104,.12);
+  border-radius:14px;
+  background:linear-gradient(180deg,rgba(43,19,12,.82),rgba(28,12,8,.76));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+  overflow:hidden;
+}
+.panel-brand-inner{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(5px,1vw,10px);
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+.panel-brand-icon{
+  width:clamp(16px,2vw,24px);height:clamp(16px,2vw,24px);
+  border-radius:clamp(4px,.5vw,6px);
+  display:block;
+  flex-shrink:0;
+}
+.panel-brand-icon img{
+  display:block;
+  width:100%;
+  height:100%;
+}
+.panel-brand-copy{
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:clamp(3px,.8vw,7px);
+  flex-wrap:nowrap;
+  white-space:nowrap;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  line-height:1;
+  min-width:0;
+}
+.panel-brand-copy b{
+  color:var(--accent-strong);
+  font-size:clamp(8px,1.1vw,13px);
+  font-weight:700;
+}
+.panel-brand-copy span{
+  color:var(--text-soft);
+  font-size:clamp(7px,.95vw,11px);
+}
+.ctl{
+  min-width:0;min-height:0;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  flex:0 0 auto;
+  width:100%;
+  padding:9px 12px;border-radius:12px;border:1px solid var(--border);
+  background:rgba(255,173,82,.06);color:var(--text-soft);
+  font:inherit;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;transition:border-color .12s,color .12s,transform .12s,background .12s;
+}
+.ctl:hover{border-color:rgba(255,196,124,.6);color:var(--accent-strong)}
+.ctl:active{transform:translateY(1px)}
+.ctl.on{
+  background:rgba(255,176,88,.12);
+  border-color:var(--border-strong);color:#fff2e4;
+}
+.ctl:disabled{opacity:.55;cursor:default;box-shadow:none}
+.ctl-label{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.midi-indicator{
+  width:8px;height:8px;border-radius:999px;flex-shrink:0;
+  background:rgba(255,214,176,.18);
+  box-shadow:0 0 0 1px rgba(255,183,102,.22);
+}
+.midi-btn[data-state="live"] .midi-indicator{background:#8be68d;box-shadow:0 0 14px rgba(139,230,141,.45)}
+.midi-btn[data-state="pending"] .midi-indicator{background:#ffbf75;box-shadow:0 0 14px rgba(255,191,117,.36)}
+.midi-btn[data-state="denied"] .midi-indicator,
+.midi-btn[data-state="unsupported"] .midi-indicator{background:#ff7d7d;box-shadow:0 0 14px rgba(255,125,125,.34)}
+.midi-btn[data-state="idle"] .midi-indicator{background:#d0b296}
+.midi-btn .ctl-label{min-width:auto}
 .chord-zone{
+  grid-area:chord;
   flex-shrink:0;
   display:grid;place-items:center;
-  padding:22px 18px 18px;
-  position:relative;min-height:178px;
-  border:1px solid var(--border);border-radius:28px;
+  padding:14px 18px 12px;
+  position:relative;min-height:0;min-width:0;
+  border:1px solid var(--border);border-radius:18px;
   background:
     radial-gradient(circle at top center,rgba(255,160,64,.2),transparent 34%),
     linear-gradient(180deg,rgba(10,4,2,.96),rgba(20,10,6,.94));
   box-shadow:var(--shadow),var(--glow);
   overflow:hidden;
-}
-.chord-zone::after{
-  content:'';position:absolute;left:14%;right:14%;bottom:12px;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,173,82,.35),transparent);
-  opacity:.7;pointer-events:none;
 }
 .chord-main{
   display:flex;align-items:baseline;justify-content:center;
@@ -161,12 +246,13 @@ header{
 }
 .chord-type.known{color:var(--text)}
 .chord-type.inv{color:var(--accent)}
-.piano-wrap{display:flex;align-items:center;justify-content:center;
+.piano-wrap{display:flex;align-items:center;justify-content:flex-start;
   flex:1 1 auto;
   padding:16px 40px 12px;overflow:hidden;border:1px solid var(--border);border-radius:30px;
   background:linear-gradient(180deg,rgba(33,15,10,.92),rgba(14,7,5,.96));
   box-shadow:var(--shadow),var(--glow);
-  position:relative}
+  position:relative;touch-action:none;cursor:grab}
+.piano-wrap.dragging{cursor:grabbing}
 .oct-btn{
   position:absolute;top:50%;transform:translateY(-50%);
   width:28px;height:48px;border-radius:8px;border:1px solid var(--border);
@@ -184,11 +270,11 @@ header{
 .oct-btn-r{right:6px}
 /* Piano key sizing via CSS vars — resizeKeys() updates them; CSS transitions handle smooth resize */
 #piano{
-  position:relative;filter:drop-shadow(0 18px 28px rgba(0,0,0,.36));max-width:100%;
+  position:relative;filter:drop-shadow(0 18px 28px rgba(0,0,0,.36));
   --ww:33px;--wh:172px;--bw:20px;--bh:110px;
   transition:width .12s ease,height .12s ease;
 }
-.key{position:absolute;top:0;cursor:pointer;border-radius:0 0 4px 4px;touch-action:none}
+.key{position:absolute;top:0;cursor:inherit;border-radius:0 0 4px 4px;touch-action:none}
 .key.white{
   width:var(--ww);height:var(--wh);
   background:linear-gradient(180deg,#fff5e7 0%,#eed8bc 55%,#e0c5a3 100%);
@@ -212,45 +298,7 @@ header{
 .key.white.on .klabel{color:#381c07;font-weight:700}
 .key.black .klabel,.key.black.on .klabel{display:none}
 
-@media (max-width:720px){
-  .app{padding:10px;gap:8px}
-  .topbar{gap:6px}
-  header{height:48px;padding:0 12px}
-  .chord-zone{min-height:154px;padding:20px 14px 16px}
-  .chord-root{font-size:64px}
-  .chord-sym{font-size:28px;padding-bottom:7px}
-  .chord-slash{font-size:64px}
-  .pill{min-height:32px;padding:7px 14px;font-size:12px}
-  .controls{gap:6px}
-  .midi-btn,.clear{padding:6px 10px;font-size:9px}
-  .notes-strip{gap:8px;padding:8px 10px;min-height:48px}
-}
-
-@media (max-width:430px){
-  header{
-    height:auto;
-    padding:10px 12px;
-    flex-direction:column;
-    align-items:stretch;
-    gap:10px;
-  }
-  .brand{
-    white-space:normal;
-    text-align:center;
-  }
-  .sep{display:none}
-  .controls{
-    width:100%;
-    justify-content:center;
-    flex-wrap:wrap;
-  }
-  .midi-btn,.clear{
-    flex:1 1 140px;
-    min-width:0;
-  }
-}
-
-/* chord-inner: wraps the chord name + type; in portrait the chord-zone flips to row */
+/* chord-inner keeps the chord stack centered inside the universal landscape panel */
 .chord-inner{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   position:relative;z-index:1;flex:1 1 auto;
@@ -258,200 +306,122 @@ header{
   width:max-content;max-width:100%;
   min-width:0;
 }
-/* Portrait-only clear button — hidden by default, shown in portrait via media query */
-.portrait-clear{
-  display:none;
-  background:rgba(255,173,82,.10);border:1px solid var(--border);color:var(--text-soft);
-  border-radius:10px;font-family:inherit;font-size:16px;cursor:pointer;
-  padding:6px 10px;flex-shrink:0;align-self:center;
-  transition:background .12s,border-color .12s;
-  grid-area:1/1;
-  justify-self:end;
-  z-index:2;
+.piano-wrap{grid-area:piano;min-width:0}
+.orientation-overlay{
+  position:fixed;inset:0;z-index:50;
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+  background:rgba(9,3,2,.9);
+  backdrop-filter:blur(12px);
+  transition:opacity .18s ease;
 }
-.portrait-clear:active{background:rgba(255,173,82,.22);border-color:var(--border-strong)}
+.orientation-overlay.hidden{opacity:0;pointer-events:none}
+.orientation-card{
+  width:min(420px,100%);
+  padding:22px 18px;
+  border-radius:20px;
+  border:1px solid var(--border-strong);
+  background:linear-gradient(180deg,rgba(31,14,9,.96),rgba(16,8,5,.94));
+  box-shadow:var(--shadow),var(--glow);
+  text-align:center;
+}
+.orientation-icon{
+  font-size:44px;line-height:1;margin-bottom:10px;color:var(--accent-strong);
+}
+.orientation-copy{
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-soft);
+}
 
-/* ============================================================
-   PORTRAIT PHONE — compact layout tweaks only.
-   Keep the full UI visible; do not hide sections based on screen size.
-   ============================================================ */
-@media (max-width:520px) and (orientation:portrait){
-  html,body{height:auto;min-height:100%}
-  body{overflow-y:auto;overflow-x:hidden}
-
+@media (max-width:980px){
   .app{
-    height:auto;
-    min-height:100dvh;
-    overflow:visible;
-    touch-action:manipulation;
-    padding:6px;gap:5px
+    grid-template-columns:minmax(130px,.95fr) minmax(190px,1.3fr) minmax(108px,.72fr);
+    padding:8px;gap:6px;
   }
-
-  .topbar{gap:4px}
-  .notes-strip{
-    height:36px;min-height:36px;max-height:36px;padding:4px 10px;gap:6px;
-    border-radius:12px;overflow:hidden;
-  }
-  .notes-strip.empty::before{font-size:9px}
-  .pill{min-height:24px;padding:4px 11px;font-size:11px;border-radius:999px}
-
-  /* Chord zone: row layout — name on left, clear button on right */
-  .chord-zone{
-    height:64px;min-height:64px;max-height:64px;
-    flex-shrink:0;
-    padding:6px 42px 6px 14px;
-    border-radius:16px;
-    overflow:hidden;
-  }
-  .chord-zone::after{display:none}
-  .chord-inner{
-    gap:1px;
-    max-width:calc(100% - 32px);
-  }
-  .chord-ph{font-size:10px;letter-spacing:.08em}
-  .chord-main{line-height:1}
-  .chord-type{margin-top:0;min-height:12px;line-height:1;text-align:center}
-
-  .chord-root{font-size:38px;line-height:1}
-  .chord-sym{font-size:18px;padding-bottom:2px}
-  .chord-slash{font-size:38px}
-
-  .piano-wrap{
-    flex:1 1 auto;
-    min-height:0;
-    padding:8px 6px 6px;
-    border-radius:20px;
-  }
+  .notes-strip,.controls-panel,.chord-zone,.piano-wrap{border-radius:14px}
+  .notes-strip{padding:8px 10px;gap:8px}
+  .controls-panel{padding:8px;gap:5px}
+  .panel-brand{padding:7px 8px}
+  .ctl{padding:8px 10px;font-size:9px}
+  .pill{min-height:30px;padding:6px 12px;font-size:12px}
+  .chord-zone{padding:10px 14px}
+  .chord-root{font-size:min(72px,16vw)}
+  .chord-sym{font-size:min(30px,7vw);padding-bottom:3px}
+  .chord-slash{font-size:min(72px,16vw)}
 }
 
-/* Very short portrait (iPhone SE ~667px, older androids) */
-@media (max-width:520px) and (max-height:680px) and (orientation:portrait){
-  .chord-root{font-size:30px}
-  .chord-sym{font-size:15px;padding-bottom:2px}
-  .chord-slash{font-size:30px}
-  .chord-zone{height:58px;min-height:58px;max-height:58px;padding:4px 10px 4px 14px}
-  .chord-type{margin-top:0;min-height:11px;font-size:10px}
-  .notes-strip{height:28px;min-height:28px;max-height:28px;padding:3px 8px;overflow:hidden}
-  .pill{min-height:20px;padding:3px 9px;font-size:10px}
-  .app{gap:4px;padding:5px}
-}
-
-/* ============================================================
-   LANDSCAPE PHONE — small screen landscape layout
-   Targets phones in landscape: height < 480px, width < 960px.
-   Layout: top half = [chord name | note pills], bottom half = piano.
-   ============================================================ */
-@media (max-height:480px) and (orientation:landscape) and (max-width:960px){
-  html,body{height:100dvh;overflow:hidden}
-  body{overflow:hidden}
-
-  /* App becomes a 2×2 grid:
-     ┌──────────────┬──────────────────────┐
-     │  notes-strip │      chord-zone      │  ← top 50%
-     ├──────────────┴──────────────────────┤
-     │            piano-wrap               │  ← bottom 50%
-     └─────────────────────────────────────┘  */
+@media (max-width:700px){
   .app{
-    height:100dvh;min-height:unset;overflow:hidden;
+    grid-template-columns:minmax(92px,.95fr) minmax(132px,1.3fr) minmax(86px,.76fr);
+    grid-template-rows:minmax(0,1fr) minmax(0,1fr);
     padding:5px;gap:5px;
-    display:grid;
-    grid-template-rows:1fr 1fr;
-    grid-template-columns:minmax(90px,auto) 1fr;
-    grid-template-areas:
-      "notes chord"
-      "piano piano";
   }
-
-  .topbar{display:contents}
-  header{display:none}
-
-  .notes-strip{
-    grid-area:notes;
-    min-height:0;max-height:none;height:100%;
-    flex-wrap:wrap;align-content:flex-start;
-    overflow-y:auto;overflow-x:hidden;
-    padding:8px 8px;gap:5px;
-    border-radius:14px;
-    touch-action:pan-y;
-  }
-  .notes-strip.empty::before{font-size:10px}
-
-  .chord-zone{
-    grid-area:chord;
-    position:relative;
-    padding:8px 50px 8px 14px;
-    border-radius:14px;min-height:0;
-    background:
-      radial-gradient(circle at top right,rgba(255,160,64,.22),transparent 55%),
-      linear-gradient(180deg,rgba(10,4,2,.96),rgba(20,10,6,.94));
-  }
+  .notes-strip{padding:6px 7px;gap:5px}
+  .controls-panel{padding:5px;gap:4px}
+  .panel-brand{padding:6px 7px}
+  .panel-brand-copy b{font-size:10px}
+  .panel-brand-copy span{font-size:8px}
+  .ctl{padding:6px 8px;font-size:8px;border-radius:10px}
+  .midi-btn{gap:6px}
+  .pill{min-height:22px;padding:4px 8px;font-size:9px}
+  .chord-zone{padding:8px 8px}
   .chord-zone::after{display:none}
+  .notes-strip.empty::before{font-size:9px;letter-spacing:.08em}
+  .chord-ph{font-size:9px;letter-spacing:.08em}
+  .chord-root{font-size:min(44px,12vw)}
+  .chord-sym{font-size:min(17px,5vw);padding-bottom:1px}
+  .chord-slash{font-size:min(44px,12vw)}
+  .chord-type{margin-top:3px;min-height:11px;font-size:9px}
+}
 
-  .chord-inner{
-    gap:2px;
-    max-width:calc(100% - 44px);
+@media (max-height:520px){
+  .app{
+    grid-template-columns:minmax(96px,.9fr) minmax(160px,1.45fr) minmax(104px,.78fr);
+    grid-template-rows:minmax(0,1fr) minmax(0,1fr);
+    padding:5px;gap:5px;
   }
-
-  .chord-ph{
-    font-size:10px;letter-spacing:.08em;white-space:nowrap;text-align:center;
-  }
-
-  .chord-main{line-height:1;gap:1px}
-  .chord-root{font-size:72px;line-height:1}
-  .chord-sym{font-size:30px;padding-bottom:4px}
-  .chord-slash{font-size:72px;line-height:1}
-  .chord-type{margin-top:4px;font-size:10px;letter-spacing:.1em;text-align:center}
-
-  /* Clear button stays at the edge without shifting the centered chord stack. */
-  .portrait-clear{
-    display:flex;
-    font-size:13px;padding:5px 10px;
-    border-radius:8px;
-    flex-shrink:0;
-  }
-
-  .piano-wrap{
-    grid-area:piano;
-    min-height:0;
-    padding:4px 36px 4px;
-    border-radius:14px;
-    flex:unset;
-  }
-
+  .notes-strip{padding:7px 8px;gap:6px}
+  .notes-strip.empty::before{font-size:10px}
+  .pill{min-height:24px;padding:4px 10px;font-size:10px}
+  .controls-panel{padding:6px;gap:4px}
+  .panel-brand{padding:6px 8px}
+  .panel-brand-copy b{font-size:11px}
+  .panel-brand-copy span{font-size:9px}
+  .ctl{padding:6px 8px;font-size:8px;border-radius:10px}
+  .midi-indicator{width:7px;height:7px}
+  .chord-zone{padding:8px 10px;border-radius:14px}
+  .chord-zone::after{display:none}
+  .chord-inner{gap:2px}
+  .notes-strip.empty::before{font-size:10px;letter-spacing:.08em}
+  .chord-ph{font-size:10px;letter-spacing:.08em}
+  .chord-root{font-size:min(58px,20vh)}
+  .chord-sym{font-size:min(23px,9vh);padding-bottom:2px}
+  .chord-slash{font-size:min(58px,20vh)}
+  .chord-type{margin-top:4px;min-height:12px;font-size:10px}
+  .piano-wrap{padding:4px 34px 4px;border-radius:14px}
   .oct-btn{
+    width:24px;height:42px;border-radius:8px;
     background:rgba(12,5,3,.97);
     border-color:rgba(255,183,102,.32);
     box-shadow:0 2px 10px rgba(0,0,0,.7),0 0 0 1px rgba(0,0,0,.4);
     opacity:1;
   }
   .oct-btn.disabled{opacity:.25}
-
-  .pill{min-height:26px;padding:5px 12px;font-size:12px}
 }
 
-/* Landscape phone — reduce chord font only below 200px viewport height */
-@media (max-height:200px) and (orientation:landscape) and (max-width:960px){
-  .chord-root{font-size:min(72px,36vh)}
-  .chord-sym{font-size:min(30px,15vh)}
-  .chord-slash{font-size:min(72px,36vh)}
-  .chord-type{font-size:min(10px,5vh)}
+@media (max-height:280px){
+  .app{grid-template-columns:minmax(82px,.82fr) minmax(130px,1.5fr) minmax(92px,.82fr)}
+  .ctl{padding:5px 6px;font-size:7px;border-radius:9px}
+  .pill{min-height:20px;padding:3px 8px;font-size:9px}
+  .chord-root{font-size:min(46px,18vh)}
+  .chord-sym{font-size:min(18px,8vh)}
+  .chord-slash{font-size:min(46px,18vh)}
+  .chord-type{font-size:9px}
 }
 </style>
 </head>
 <body>
 <div class="app" id="app">
-<div class="topbar">
-  <header>
-    <div class="brand">🎹 <b>Chord</b> Detective</div>
-    <div class="sep"></div>
-    <div class="controls">
-      <button type="button" class="midi-btn" id="flatBtn" aria-label="Toggle sharps and flats">♭</button>
-      <button type="button" class="midi-btn" id="midiBtn" aria-label="Connect MIDI device">MIDI connect</button>
-      <button type="button" class="clear" id="clrBtn" aria-label="Clear all notes">⌫ clear</button>
-    </div>
-  </header>
-  <div class="notes-strip" id="pills"></div>
-</div>
+<div class="notes-strip" id="pills"></div>
 <div class="chord-zone">
   <div class="chord-inner">
     <div class="chord-ph" id="cph">tap keys to start</div>
@@ -462,13 +432,33 @@ header{
     </div>
     <div class="chord-type" id="ctype"></div>
   </div>
-  <button type="button" class="portrait-clear" id="portraitClrBtn" aria-label="Clear all notes">⌫</button>
+ </div>
+<div class="controls-panel" aria-label="App controls">
+  <div class="panel-brand" aria-hidden="true">
+    <div class="panel-brand-inner">
+      <div class="panel-brand-icon"><img src="./icons/icon.svg" alt=""></div>
+      <div class="panel-brand-copy">
+        <b>Chord</b>
+        <span>Detective</span>
+      </div>
+    </div>
+  </div>
+  <button type="button" class="ctl clear" id="clrBtn" aria-label="Clear all notes"><span class="ctl-label">Clear notes</span></button>
+  <button type="button" class="ctl" id="flatBtn" aria-label="Toggle sharps and flats"><span class="ctl-label">Flats</span></button>
+  <button type="button" class="ctl midi-btn" id="midiBtn" aria-label="Connect MIDI device" data-state="idle">
+    <span class="midi-indicator" aria-hidden="true"></span>
+    <span class="ctl-label" id="midiBtnLabel">MIDI</span>
+  </button>
 </div>
 <div class="piano-wrap">
-  <button type="button" class="oct-btn oct-btn-l" id="octDn" aria-label="Shift piano down one octave">&#8249;</button>
   <div id="piano"></div>
-  <button type="button" class="oct-btn oct-btn-r" id="octUp" aria-label="Shift piano up one octave">&#8250;</button>
 </div>
+</div>
+<div class="orientation-overlay hidden" id="orientationOverlay" aria-hidden="true">
+  <div class="orientation-card" role="alert" aria-live="polite">
+    <div class="orientation-icon" aria-hidden="true">⤾</div>
+    <div class="orientation-copy" id="orientationCopy">Rotate to landscape</div>
+  </div>
 </div>
 <script>
 // === AppConfig ===
@@ -480,30 +470,30 @@ const AppConfig={
   sharpNames:['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'],
   flatNames:['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'],
   chordPatterns:[
-    {sym:'5',    name:'Power chord',         intervals:[0,7]},
-    {sym:'',     name:'Major',               intervals:[0,4,7]},
-    {sym:'m',    name:'Minor',               intervals:[0,3,7]},
-    {sym:'°',    name:'Diminished',          intervals:[0,3,6]},
-    {sym:'+',    name:'Augmented',           intervals:[0,4,8]},
-    {sym:'sus2', name:'Suspended 2nd',       intervals:[0,2,7]},
-    {sym:'sus4', name:'Suspended 4th',       intervals:[0,5,7]},
-    {sym:'M7',   name:'Major 7th',           intervals:[0,4,7,11]},
-    {sym:'m7',   name:'Minor 7th',           intervals:[0,3,7,10]},
-    {sym:'7',    name:'Dominant 7th',        intervals:[0,4,7,10]},
-    {sym:'°7',   name:'Diminished 7th',      intervals:[0,3,6,9]},
-    {sym:'ø7',   name:'Half-diminished',     intervals:[0,3,6,10]},
-    {sym:'mM7',  name:'Minor major 7th',     intervals:[0,3,7,11]},
-    {sym:'+M7',  name:'Augmented major 7th', intervals:[0,4,8,11]},
-    {sym:'+7',   name:'Augmented 7th',       intervals:[0,4,8,10]},
-    {sym:'6',    name:'Major 6th',           intervals:[0,4,7,9]},
-    {sym:'m6',   name:'Minor 6th',           intervals:[0,3,7,9]},
-    {sym:'add9', name:'Add 9',               intervals:[0,2,4,7]},
-    {sym:'madd9',name:'Minor add 9',         intervals:[0,2,3,7]},
-    {sym:'7sus4',name:'Dominant 7 sus4',     intervals:[0,5,7,10]},
-    {sym:'9',    name:'Dominant 9th',        intervals:[0,2,4,7,10]},
-    {sym:'M9',   name:'Major 9th',           intervals:[0,2,4,7,11]},
-    {sym:'m9',   name:'Minor 9th',           intervals:[0,2,3,7,10]},
-    {sym:'6/9',  name:'Six-nine',            intervals:[0,2,4,7,9]},
+    {sym:'5',    name:'Power chord',         longName:'5',                      intervals:[0,7]},
+    {sym:'',     name:'Major',               longName:'major',                 intervals:[0,4,7]},
+    {sym:'m',    name:'Minor',               longName:'minor',                 intervals:[0,3,7]},
+    {sym:'°',    name:'Diminished',          longName:'diminished',            intervals:[0,3,6]},
+    {sym:'+',    name:'Augmented',           longName:'augmented',             intervals:[0,4,8]},
+    {sym:'sus2', name:'Suspended 2nd',       longName:'suspended second',      intervals:[0,2,7]},
+    {sym:'sus4', name:'Suspended 4th',       longName:'suspended fourth',      intervals:[0,5,7]},
+    {sym:'M7',   name:'Major 7th',           longName:'major seventh',         intervals:[0,4,7,11]},
+    {sym:'m7',   name:'Minor 7th',           longName:'minor seventh',         intervals:[0,3,7,10]},
+    {sym:'7',    name:'Dominant 7th',        longName:'7',                      intervals:[0,4,7,10]},
+    {sym:'°7',   name:'Diminished 7th',      longName:'diminished seventh',    intervals:[0,3,6,9]},
+    {sym:'ø7',   name:'Half-diminished',     longName:'half-diminished seventh',intervals:[0,3,6,10]},
+    {sym:'mM7',  name:'Minor major 7th',     longName:'minor major seventh',   intervals:[0,3,7,11]},
+    {sym:'+M7',  name:'Augmented major 7th', longName:'augmented major seventh',intervals:[0,4,8,11]},
+    {sym:'+7',   name:'Augmented 7th',       longName:'augmented 7',           intervals:[0,4,8,10]},
+    {sym:'6',    name:'Major 6th',           longName:'major sixth',           intervals:[0,4,7,9]},
+    {sym:'m6',   name:'Minor 6th',           longName:'minor sixth',           intervals:[0,3,7,9]},
+    {sym:'add9', name:'Add 9',               longName:'add 9',                 intervals:[0,2,4,7]},
+    {sym:'madd9',name:'Minor add 9',         longName:'minor add 9',           intervals:[0,2,3,7]},
+    {sym:'7sus4',name:'Dominant 7 sus4',     longName:'7 suspended fourth',    intervals:[0,5,7,10]},
+    {sym:'9',    name:'Dominant 9th',        longName:'9',                      intervals:[0,2,4,7,10]},
+    {sym:'M9',   name:'Major 9th',           longName:'major ninth',           intervals:[0,2,4,7,11]},
+    {sym:'m9',   name:'Minor 9th',           longName:'minor ninth',           intervals:[0,2,3,7,10]},
+    {sym:'6/9',  name:'Six-nine',            longName:'six-nine',              intervals:[0,2,4,7,9]},
   ],
   domIds:{
     pills:'pills',
@@ -515,14 +505,16 @@ const AppConfig={
     piano:'piano',
     flatBtn:'flatBtn',
     midiBtn:'midiBtn',
+    midiBtnLabel:'midiBtnLabel',
     clrBtn:'clrBtn',
-    octDn:'octDn',
-    octUp:'octUp',
-    portraitClr:'portraitClrBtn',
+    orientationOverlay:'orientationOverlay',
+    orientationCopy:'orientationCopy',
   },
-  swipe:{
-    minDistance:40,
+  drag:{
+    startDistance:8,
     tapMaxDistance:10,
+    dominanceRatio:1.2,
+    holdDelayMs:120,
   },
   resizeDebounceMs:120,
 };
@@ -562,14 +554,15 @@ function detectChord(notes,useFlats){
 
     if(match){
       const inversion=bassPitchClass!==rootPc;
-      return{
-        rootPc,
-        rootName:noteNames[rootPc],
-        sym:match.sym,
-        name:match.name,
-        slash:inversion?`/${noteNames[bassPitchClass]}`:'',
-        inv:inversion,
-      };
+    return{
+      rootPc,
+      rootName:noteNames[rootPc],
+      sym:match.sym,
+      name:match.name,
+      longName:match.longName,
+      slash:inversion?`/${noteNames[bassPitchClass]}`:'',
+      inv:inversion,
+    };
     }
   }
 
@@ -579,8 +572,11 @@ function detectChord(notes,useFlats){
 function formatChordQualityHtml(symbol){
   if(!symbol)return'';
   const normalized=symbol.replace(/°/g,'o');
+  if(normalized==='m'){
+    return 'm';
+  }
   if(normalized.length>1&&normalized[0]==='m'){
-    return `m<sup>${normalized.slice(1)}</sup>`;
+    return `m${formatChordQualityHtml(normalized.slice(1))}`;
   }
   return `<sup>${normalized}</sup>`;
 }
@@ -593,6 +589,26 @@ function splitChordSymbol(symbol){
     quality:symbol.slice(0,-match[0].length),
     slashPart:match[0],
   };
+}
+
+function formatSpokenNoteName(noteName){
+  return noteName
+    .replace(/#/g,' sharp')
+    .replace(/♭/g,' flat')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+function formatChordSubtitle(chord){
+  const rootText=formatSpokenNoteName(chord.rootName);
+  const qualityText=chord.longName||chord.name.toLowerCase();
+  const bassText=chord.slash
+    ?formatSpokenNoteName(chord.slash.slice(1))
+    :'';
+
+  return bassText
+    ?`${rootText} ${qualityText} over ${bassText}`
+    :`${rootText} ${qualityText}`;
 }
 
 // === PianoLayout ===
@@ -615,13 +631,50 @@ function getDefaultWindowMidi0(width){
   return width<1260?48:36;
 }
 
-function clampWindowMidi0(midi0,nocts){
-  const span=nocts*12;
-  const maxStart=Math.max(AppConfig.minMidi,AppConfig.maxMidi-span+1);
-  const octaveAligned=Math.round(midi0/12)*12;
+function buildPianoRange(){
+  let whiteIndex=0;
+  const keys=[];
 
-  if(midi0<=AppConfig.minMidi)return AppConfig.minMidi;
-  return Math.max(AppConfig.minMidi,Math.min(octaveAligned,maxStart));
+  for(let midi=AppConfig.minMidi;midi<=AppConfig.maxMidi;midi++){
+    const isBlack=AppConfig.blackSemitones.has(getPitchClass(midi));
+    const gWi=isBlack?Math.max(0,whiteIndex-1):whiteIndex;
+    keys.push({midi,isBlack,gWi});
+    if(!isBlack)whiteIndex++;
+  }
+
+  return{keys,totalWhiteKeys:whiteIndex};
+}
+
+const PianoRange=buildPianoRange();
+const allowedWindowStartsCache=new Map();
+
+function getMaxWindowStart(nocts){
+  return Math.max(AppConfig.minMidi,AppConfig.maxMidi-nocts*12+1);
+}
+
+function getAllowedWindowStarts(nocts){
+  if(allowedWindowStartsCache.has(nocts))return allowedWindowStartsCache.get(nocts);
+
+  const maxStart=getMaxWindowStart(nocts);
+  const starts=[];
+
+  for(let midi=AppConfig.minMidi;midi<=maxStart;midi++){
+    if(!AppConfig.blackSemitones.has(getPitchClass(midi))){
+      starts.push(midi);
+    }
+  }
+
+  allowedWindowStartsCache.set(nocts,starts);
+  return starts;
+}
+
+function clampWindowMidi0(midi0,nocts){
+  const starts=getAllowedWindowStarts(nocts);
+  if(!starts.length)return AppConfig.minMidi;
+
+  return starts.reduce((best,start)=>
+    Math.abs(start-midi0)<Math.abs(best-midi0)?start:best,
+  starts[0]);
 }
 
 function getCenteredWindowMidi0(notes,nocts,currentMidi0){
@@ -640,17 +693,11 @@ function getCenteredWindowMidi0(notes,nocts,currentMidi0){
   const centeredStart=clampWindowMidi0(unclampedIdeal,nocts);
   if(maxNote-minNote+1>span)return centeredStart;
 
-  const maxStart=Math.max(AppConfig.minMidi,AppConfig.maxMidi-span+1);
-  const candidateStarts=[];
-  const firstCAlignedStart=Math.ceil(AppConfig.minMidi/12)*12;
-
-  for(let start=firstCAlignedStart;start<=maxStart;start+=12){
-    const coversRange=
-      start>=Math.max(AppConfig.minMidi,maxNote-span+1)
-      && start<=Math.min(maxStart,minNote);
-
-    if(coversRange)candidateStarts.push(start);
-  }
+  const maxStart=getMaxWindowStart(nocts);
+  const candidateStarts=getAllowedWindowStarts(nocts).filter(start=>
+    start>=Math.max(AppConfig.minMidi,maxNote-span+1)
+    && start<=Math.min(maxStart,minNote)
+  );
 
   if(!candidateStarts.length)return centeredStart;
 
@@ -660,23 +707,9 @@ function getCenteredWindowMidi0(notes,nocts,currentMidi0){
 }
 
 function getKeyDimensions(nocts,viewport,wrapWidth){
-  const isPortrait=viewport.width<520&&viewport.height>viewport.width;
-  const isLandscapePhone=viewport.height<480&&viewport.width>viewport.height&&viewport.width<960;
   const whiteKeyWidth=Math.min((wrapWidth-80)/(7*nocts),78);
-
-  let maxWhiteKeyHeight;
-  let minWhiteKeyHeight;
-
-  if(isLandscapePhone){
-    maxWhiteKeyHeight=Math.min(viewport.height*.42,220);
-    minWhiteKeyHeight=80;
-  }else if(isPortrait){
-    maxWhiteKeyHeight=Math.min(viewport.height*.30,430);
-    minWhiteKeyHeight=120;
-  }else{
-    maxWhiteKeyHeight=Math.min(viewport.height*.58,430);
-    minWhiteKeyHeight=220;
-  }
+  const maxWhiteKeyHeight=Math.min(viewport.height*.46,430);
+  const minWhiteKeyHeight=viewport.height<520?80:140;
 
   const whiteKeyHeight=Math.max(minWhiteKeyHeight,Math.min(whiteKeyWidth*5.2,maxWhiteKeyHeight));
   return{
@@ -687,13 +720,26 @@ function getKeyDimensions(nocts,viewport,wrapWidth){
   };
 }
 
-function getDisplayModel(currentState,viewport,forceStructure=false){
+function getDisplayModel(currentState,viewport,reason='auto',forceStructure=false){
   const activeNotes=getActiveNotes(currentState);
   const visibleOctaves=getVisibleOctaves(viewport.width);
   const defaultWindowMidi0=getDefaultWindowMidi0(viewport.width);
-  const nextWindowMidi0=activeNotes.length
-    ?getCenteredWindowMidi0(activeNotes,visibleOctaves,currentState.piano.windowMidi0)
-    :clampWindowMidi0(currentState.piano.windowMidi0??defaultWindowMidi0,visibleOctaves);
+  const currentWindowMidi0=currentState.piano.windowMidi0??defaultWindowMidi0;
+  let nextWindowMidi0;
+
+  if(reason==='resize'||reason==='clear'){
+    nextWindowMidi0=activeNotes.length
+      ?getCenteredWindowMidi0(activeNotes,visibleOctaves,currentWindowMidi0)
+      :clampWindowMidi0(defaultWindowMidi0,visibleOctaves);
+  }else if(reason==='midi'&&activeNotes.length){
+    nextWindowMidi0=getCenteredWindowMidi0(activeNotes,visibleOctaves,currentWindowMidi0);
+  }else if(activeNotes.length&&currentState.piano.hasManualPan){
+    nextWindowMidi0=clampWindowMidi0(currentWindowMidi0,visibleOctaves);
+  }else if(activeNotes.length){
+    nextWindowMidi0=getCenteredWindowMidi0(activeNotes,visibleOctaves,currentWindowMidi0);
+  }else{
+    nextWindowMidi0=clampWindowMidi0(currentWindowMidi0,visibleOctaves);
+  }
 
   const chord=activeNotes.length>1?detectChord(activeNotes,currentState.useFlats):null;
   const singleNoteRootPc=activeNotes.length===1?getPitchClass(activeNotes[0]):null;
@@ -711,7 +757,7 @@ function getDisplayModel(currentState,viewport,forceStructure=false){
       structureChanged:
         forceStructure
         || currentState.piano.nocts!==visibleOctaves
-        || currentState.piano.windowMidi0!==nextWindowMidi0,
+        || currentState.keys.size===0,
     },
   };
 }
@@ -721,12 +767,14 @@ function getDisplayModel(currentState,viewport,forceStructure=false){
 function createInitialState(){
   return{
     manual:new Set(),
-    midi:new Set(),
+    midiHeld:new Set(),
+    midiActive:new Set(),
+    sustainPedalDown:false,
     keys:new Map(),
-    piano:{windowMidi0:null,nocts:2},
+    piano:{windowMidi0:null,nocts:2,translateX:0,hasManualPan:false},
     midiAccess:null,
     midiSupported:'requestMIDIAccess' in navigator,
-    useFlats:false,
+    useFlats:true,
     resizeTimer:null,
   };
 }
@@ -734,11 +782,11 @@ function createInitialState(){
 const state=createInitialState();
 
 function getActiveNotes(currentState){
-  return [...currentState.manual,...currentState.midi].sort((a,b)=>a-b);
+  return [...currentState.manual,...currentState.midiActive].sort((a,b)=>a-b);
 }
 
 function isMidiActive(currentState,midi){
-  return currentState.manual.has(midi)||currentState.midi.has(midi);
+  return currentState.manual.has(midi)||currentState.midiActive.has(midi);
 }
 
 function toggleManualNote(currentState,midi){
@@ -748,16 +796,37 @@ function toggleManualNote(currentState,midi){
 
 function clearAllNotes(currentState){
   currentState.manual.clear();
-  currentState.midi.clear();
+  clearMidiHeldNotes(currentState);
 }
 
 function clearMidiHeldNotes(currentState){
-  currentState.midi.clear();
+  currentState.midiHeld.clear();
+  currentState.midiActive.clear();
+  currentState.sustainPedalDown=false;
 }
 
 function setMidiHeld(currentState,midi,isHeld){
-  if(isHeld)currentState.midi.add(midi);
-  else currentState.midi.delete(midi);
+  if(isHeld){
+    currentState.midiHeld.add(midi);
+    currentState.midiActive.add(midi);
+    return;
+  }
+
+  currentState.midiHeld.delete(midi);
+  if(!currentState.sustainPedalDown){
+    currentState.midiActive.delete(midi);
+  }
+}
+
+function setSustainPedal(currentState,isDown){
+  currentState.sustainPedalDown=isDown;
+  if(isDown)return;
+
+  for(const midi of [...currentState.midiActive]){
+    if(!currentState.midiHeld.has(midi)){
+      currentState.midiActive.delete(midi);
+    }
+  }
 }
 
 function setMidiAccess(currentState,midiAccess){
@@ -771,6 +840,7 @@ function setUseFlats(currentState,useFlats){
 function updatePianoState(currentState,pianoModel){
   currentState.piano.windowMidi0=pianoModel.windowMidi0;
   currentState.piano.nocts=pianoModel.nocts;
+  currentState.piano.translateX=pianoModel.translateX;
 }
 
 // === DOM ===
@@ -787,14 +857,35 @@ function createDomCache(){
 const dom=createDomCache();
 
 function updateMidiButton(label,on=false,disabled=false){
-  dom.midiBtn.textContent=label;
+  const stateLabel=label||'MIDI';
+  dom.midiBtnLabel.textContent='MIDI';
+  dom.midiBtn.setAttribute('aria-label',`MIDI ${stateLabel}`);
+  dom.midiBtn.title=`MIDI ${stateLabel}`;
   dom.midiBtn.classList.toggle('on',on);
   dom.midiBtn.disabled=disabled;
+  dom.midiBtn.dataset.state=
+    disabled&&stateLabel==='Unsupported'?'unsupported'
+    :stateLabel==='Denied'?'denied'
+    :stateLabel==='Live'?'live'
+    :stateLabel==='Listening'?'pending'
+    :'idle';
 }
 
 function updateFlatsButton(useFlats){
-  dom.flatBtn.textContent=useFlats?'♯':'♭';
-  dom.flatBtn.classList.toggle('on',useFlats);
+  dom.flatBtn.querySelector('.ctl-label').textContent=useFlats?'♭':'♯';
+  dom.flatBtn.setAttribute('aria-label',useFlats?'Show sharp note names':'Show flat note names');
+}
+
+function isLandscapeViewport(){
+  return window.innerWidth>=window.innerHeight;
+}
+
+function updateOrientationOverlay(){
+  const blocked=!isLandscapeViewport();
+  const copy=window.innerWidth<700?'Rotate to landscape':'Widen to landscape';
+  dom.orientationCopy.textContent=copy;
+  dom.orientationOverlay.classList.toggle('hidden',!blocked);
+  dom.orientationOverlay.setAttribute('aria-hidden',String(!blocked));
 }
 
 function setChordText(root,symbol,typeClass,typeText){
@@ -825,20 +916,61 @@ function resetChordText(){
 
 // === PianoView ===
 
-function applyPianoDimensions(dimensions,nocts){
-  dom.piano.style.setProperty('--ww',`${dimensions.whiteKeyWidth}px`);
-  dom.piano.style.setProperty('--wh',`${dimensions.whiteKeyHeight}px`);
-  dom.piano.style.setProperty('--bw',`${dimensions.blackKeyWidth}px`);
-  dom.piano.style.setProperty('--bh',`${dimensions.blackKeyHeight}px`);
-  dom.piano.style.width=`${dimensions.whiteKeyWidth*7*nocts}px`;
-  dom.piano.style.height=`${dimensions.whiteKeyHeight}px`;
-}
-
 function getKeyLeftOffset(keyMeta,dimensions){
   if(keyMeta.isBlack){
     return `${(keyMeta.gWi+1)*dimensions.whiteKeyWidth-dimensions.blackKeyWidth/2}px`;
   }
   return `${keyMeta.gWi*dimensions.whiteKeyWidth}px`;
+}
+
+function getKeyboardWidth(dimensions){
+  return PianoRange.totalWhiteKeys*dimensions.whiteKeyWidth;
+}
+
+function getViewportWidth(dimensions,nocts){
+  return dimensions.whiteKeyWidth*7*nocts;
+}
+
+function getTranslateBounds(dimensions,nocts){
+  const minTranslate=Math.min(0,getViewportWidth(dimensions,nocts)-getKeyboardWidth(dimensions));
+  return{minTranslate,maxTranslate:0};
+}
+
+function clampTranslateX(translateX,dimensions,nocts){
+  const bounds=getTranslateBounds(dimensions,nocts);
+  return Math.max(bounds.minTranslate,Math.min(bounds.maxTranslate,translateX));
+}
+
+function getTranslateForWindowMidi0(midi0,dimensions,nocts){
+  const keyMeta=state.keys.get(midi0)||PianoRange.keys.find(key=>key.midi===midi0);
+  const leftOffset=keyMeta?parseFloat(getKeyLeftOffset(keyMeta,dimensions)):0;
+  return clampTranslateX(-leftOffset,dimensions,nocts);
+}
+
+function getNearestWindowMidi0ForTranslate(translateX,dimensions,nocts){
+  const clampedTranslate=clampTranslateX(translateX,dimensions,nocts);
+  const starts=getAllowedWindowStarts(nocts);
+
+  return starts.reduce((best,start)=>{
+    const bestTranslate=getTranslateForWindowMidi0(best,dimensions,nocts);
+    const nextTranslate=getTranslateForWindowMidi0(start,dimensions,nocts);
+    return Math.abs(nextTranslate-clampedTranslate)<Math.abs(bestTranslate-clampedTranslate)
+      ?start
+      :best;
+  },starts[0]);
+}
+
+function applyPianoDimensions(dimensions){
+  dom.piano.style.setProperty('--ww',`${dimensions.whiteKeyWidth}px`);
+  dom.piano.style.setProperty('--wh',`${dimensions.whiteKeyHeight}px`);
+  dom.piano.style.setProperty('--bw',`${dimensions.blackKeyWidth}px`);
+  dom.piano.style.setProperty('--bh',`${dimensions.blackKeyHeight}px`);
+  dom.piano.style.width=`${getKeyboardWidth(dimensions)}px`;
+  dom.piano.style.height=`${dimensions.whiteKeyHeight}px`;
+}
+
+function applyPianoOffset(translateX){
+  dom.piano.style.transform=`translateX(${translateX}px)`;
 }
 
 function createKeyLabel(midi,useFlats){
@@ -848,11 +980,9 @@ function createKeyLabel(midi,useFlats){
   return label;
 }
 
-function bindPianoKeyInteraction(keyElement,midi){
-  keyElement.addEventListener('pointerdown',event=>{
-    event.preventDefault();
-    toggleNote(midi);
-  });
+function getMidiAtPoint(clientX,clientY){
+  const keyElement=document.elementFromPoint(clientX,clientY)?.closest('.key');
+  return keyElement?Number(keyElement.dataset.midi):null;
 }
 
 function rebuildPiano(pianoModel,useFlats){
@@ -860,54 +990,49 @@ function rebuildPiano(pianoModel,useFlats){
   state.keys.clear();
 
   const dimensions=getKeyDimensions(pianoModel.nocts,getViewport(),dom.pianoWrap.clientWidth);
-  applyPianoDimensions(dimensions,pianoModel.nocts);
+  applyPianoDimensions(dimensions);
 
-  let whiteIndex=0;
-  const midiEnd=Math.min(pianoModel.windowMidi0+pianoModel.nocts*12-1,AppConfig.maxMidi);
-
-  for(let midi=pianoModel.windowMidi0;midi<=midiEnd;midi++){
-    const isBlack=AppConfig.blackSemitones.has(getPitchClass(midi));
-    const gWi=isBlack?Math.max(0,whiteIndex-1):whiteIndex;
+  for(const key of PianoRange.keys){
+    const {midi,isBlack,gWi}=key;
     const keyElement=document.createElement('div');
     const keyMeta={el:keyElement,gWi,isBlack};
 
     keyElement.className=isBlack?'key black':'key white';
+    keyElement.dataset.midi=String(midi);
     keyElement.style.left=getKeyLeftOffset(keyMeta,dimensions);
 
     if(!isBlack){
       if(getPitchClass(midi)===0||midi===AppConfig.minMidi){
         keyElement.appendChild(createKeyLabel(midi,useFlats));
       }
-      whiteIndex++;
     }
 
-    bindPianoKeyInteraction(keyElement,midi);
     dom.piano.appendChild(keyElement);
     state.keys.set(midi,keyMeta);
   }
+
+  const translateX=getTranslateForWindowMidi0(pianoModel.windowMidi0,dimensions,pianoModel.nocts);
+  applyPianoOffset(translateX);
+  state.piano.translateX=translateX;
 }
 
-function resizePianoKeys(nocts){
-  const dimensions=getKeyDimensions(nocts,getViewport(),dom.pianoWrap.clientWidth);
+function resizePianoKeys(pianoModel){
+  const dimensions=getKeyDimensions(pianoModel.nocts,getViewport(),dom.pianoWrap.clientWidth);
 
   for(const [,keyMeta] of state.keys){
     keyMeta.el.style.left=getKeyLeftOffset(keyMeta,dimensions);
   }
 
-  applyPianoDimensions(dimensions,nocts);
+  applyPianoDimensions(dimensions);
+  const translateX=getTranslateForWindowMidi0(pianoModel.windowMidi0,dimensions,pianoModel.nocts);
+  applyPianoOffset(translateX);
+  state.piano.translateX=translateX;
 }
 
 function renderPianoKeyStates(currentState){
   for(const [midi,keyMeta] of currentState.keys){
     keyMeta.el.classList.toggle('on',isMidiActive(currentState,midi));
   }
-}
-
-function updateOctaveButtons(pianoModel){
-  const atMin=clampWindowMidi0(pianoModel.windowMidi0-12,pianoModel.nocts)===pianoModel.windowMidi0;
-  const atMax=clampWindowMidi0(pianoModel.windowMidi0+12,pianoModel.nocts)===pianoModel.windowMidi0;
-  dom.octDn.classList.toggle('disabled',atMin);
-  dom.octUp.classList.toggle('disabled',atMax);
 }
 
 // === ChordView ===
@@ -921,7 +1046,12 @@ function renderChordDisplay(displayModel){
   }
 
   if(activeNotes.length===1){
-    setChordText(noteNames[highlightedRootPc],'','','add more notes...');
+    setChordText(
+      noteNames[highlightedRootPc],
+      '',
+      '',
+      `${formatSpokenNoteName(noteNames[highlightedRootPc])} note`
+    );
     return;
   }
 
@@ -930,7 +1060,7 @@ function renderChordDisplay(displayModel){
       chord.rootName,
       chord.sym+(chord.slash||''),
       chord.inv?'inv':'known',
-      chord.name+(chord.inv?' - inversion':'')
+      formatChordSubtitle(chord)
     );
     return;
   }
@@ -966,17 +1096,18 @@ function renderAppState(displayModel){
   renderNotePills(displayModel);
 }
 
-function syncAppToState(forceStructure=false){
-  const displayModel=getDisplayModel(state,getViewport(),forceStructure);
+function syncAppToState(reason='auto',forceStructure=false){
+  const displayModel=getDisplayModel(state,getViewport(),reason,forceStructure);
   updatePianoState(state,displayModel.piano);
 
   if(displayModel.piano.structureChanged){
     rebuildPiano(displayModel.piano,state.useFlats);
+  }else{
+    resizePianoKeys(displayModel.piano);
   }
 
   renderPianoKeyStates(state);
   renderAppState(displayModel);
-  updateOctaveButtons(displayModel.piano);
 }
 
 // === MidiController ===
@@ -985,14 +1116,18 @@ function translateMidiMessage(message){
   const [status,data1,data2]=message.data;
   const command=status&0xf0;
 
-  if(data1<AppConfig.minMidi||data1>AppConfig.maxMidi)return null;
-
   if(command===0x90&&data2>0){
+    if(data1<AppConfig.minMidi||data1>AppConfig.maxMidi)return null;
     return{midi:data1,isHeld:true};
   }
 
   if(command===0x80||(command===0x90&&data2===0)){
+    if(data1<AppConfig.minMidi||data1>AppConfig.maxMidi)return null;
     return{midi:data1,isHeld:false};
+  }
+
+  if(command===0xb0&&data1===64){
+    return{isSustainPedal:true,isDown:data2>=64};
   }
 
   return null;
@@ -1008,32 +1143,37 @@ function refreshMidiInputs(){
   }
 
   updateMidiButton(
-    inputCount?`MIDI live ${inputCount}`:'MIDI no device',
+    inputCount?'Live':'Off',
     inputCount>0,
     false
   );
 }
 
 function handleMidiMessage(message){
-  const noteChange=translateMidiMessage(message);
-  if(!noteChange)return;
+  const midiChange=translateMidiMessage(message);
+  if(!midiChange)return;
 
-  setMidiHeld(state,noteChange.midi,noteChange.isHeld);
-  syncAppToState();
+  if(midiChange.isSustainPedal){
+    setSustainPedal(state,midiChange.isDown);
+  }else{
+    setMidiHeld(state,midiChange.midi,midiChange.isHeld);
+  }
+
+  syncAppToState('midi');
 }
 
 function handleMidiStateChange(event){
   if(event.port.type!=='input')return;
   if(event.port.state==='disconnected'){
     clearMidiHeldNotes(state);
-    syncAppToState();
+    syncAppToState('midi');
   }
   refreshMidiInputs();
 }
 
 async function initializeMidi(){
   if(!state.midiSupported){
-    updateMidiButton('MIDI unsupported',false,true);
+    updateMidiButton('Unsupported',false,true);
     return;
   }
 
@@ -1043,12 +1183,13 @@ async function initializeMidi(){
   }
 
   try{
+    updateMidiButton('Listening',false,true);
     const midiAccess=await navigator.requestMIDIAccess({sysex:false});
     setMidiAccess(state,midiAccess);
     state.midiAccess.onstatechange=handleMidiStateChange;
     refreshMidiInputs();
   }catch(error){
-    updateMidiButton('MIDI denied',false,false);
+    updateMidiButton('Denied',false,false);
   }
 }
 
@@ -1066,88 +1207,147 @@ function registerPwa(){
 
 function toggleNote(midi){
   toggleManualNote(state,midi);
-  syncAppToState();
+  syncAppToState('manual');
 }
 
 function clearNotes(){
+  state.piano.hasManualPan=false;
   clearAllNotes(state);
-  syncAppToState();
-}
-
-function shiftWindow(delta){
-  const nextWindowMidi0=clampWindowMidi0(state.piano.windowMidi0+delta,state.piano.nocts);
-  if(nextWindowMidi0===state.piano.windowMidi0)return;
-
-  state.piano.windowMidi0=nextWindowMidi0;
-  rebuildPiano(state.piano,state.useFlats);
-  renderPianoKeyStates(state);
-  updateOctaveButtons(state.piano);
+  syncAppToState('clear');
 }
 
 function handleResize(){
-  const nextVisibleOctaves=getVisibleOctaves(window.innerWidth);
-
-  if(nextVisibleOctaves!==state.piano.nocts){
-    clearTimeout(state.resizeTimer);
-    state.resizeTimer=setTimeout(()=>syncAppToState(),AppConfig.resizeDebounceMs);
-    return;
-  }
-
-  resizePianoKeys(nextVisibleOctaves);
+  updateOrientationOverlay();
+  clearTimeout(state.resizeTimer);
+  state.resizeTimer=setTimeout(()=>{
+    state.piano.hasManualPan=false;
+    syncAppToState('resize',true);
+  },AppConfig.resizeDebounceMs);
 }
 
 function bindPianoGestures(){
-  let startX=0;
-  let startY=0;
-  let pointerId=null;
-  let moved=false;
+  const interaction={
+    pointerId:null,
+    startX:0,
+    startY:0,
+    startTranslateX:0,
+    dragging:false,
+    panArmed:false,
+    startMidi:null,
+    panAllowed:true,
+    holdTimer:null,
+  };
+
+  const clearHoldTimer=()=>{
+    if(interaction.holdTimer===null)return;
+    clearTimeout(interaction.holdTimer);
+    interaction.holdTimer=null;
+  };
+
+  const armPanMode=()=>{
+    if(!interaction.panAllowed||interaction.pointerId===null||interaction.panArmed)return;
+    interaction.panArmed=true;
+    dom.pianoWrap.classList.add('dragging');
+  };
+
+  const finishPointer=()=>{
+    clearHoldTimer();
+    interaction.pointerId=null;
+    interaction.dragging=false;
+    interaction.panArmed=false;
+    interaction.startMidi=null;
+    interaction.panAllowed=true;
+    dom.pianoWrap.classList.remove('dragging');
+  };
 
   dom.pianoWrap.addEventListener('pointerdown',event=>{
-    if(pointerId!==null)return;
-    if(event.target.closest('.key')||event.target.closest('.oct-btn'))return;
+    if(interaction.pointerId!==null)return;
 
-    pointerId=event.pointerId;
-    startX=event.clientX;
-    startY=event.clientY;
-    moved=false;
-  },{passive:true});
+    interaction.pointerId=event.pointerId;
+    interaction.startX=event.clientX;
+    interaction.startY=event.clientY;
+    interaction.startTranslateX=state.piano.translateX;
+    interaction.dragging=false;
+    interaction.panArmed=false;
+    interaction.startMidi=event.target.closest('.key')?.dataset.midi??null;
+    interaction.panAllowed=state.midiHeld.size===0&&!state.sustainPedalDown;
+    clearHoldTimer();
+    if(interaction.panAllowed){
+      interaction.holdTimer=setTimeout(armPanMode,AppConfig.drag.holdDelayMs);
+    }
+
+    dom.pianoWrap.setPointerCapture(event.pointerId);
+  });
 
   dom.pianoWrap.addEventListener('pointermove',event=>{
-    if(event.pointerId!==pointerId)return;
+    if(event.pointerId!==interaction.pointerId)return;
+
+    const deltaX=event.clientX-interaction.startX;
+    const deltaY=event.clientY-interaction.startY;
+    const absDeltaX=Math.abs(deltaX);
+    const absDeltaY=Math.abs(deltaY);
 
     if(
-      Math.abs(event.clientX-startX)>AppConfig.swipe.tapMaxDistance
-      || Math.abs(event.clientY-startY)>AppConfig.swipe.tapMaxDistance
+      !interaction.panArmed
+      && interaction.panAllowed
+      && absDeltaX>=AppConfig.drag.startDistance
+      && absDeltaX>absDeltaY*AppConfig.drag.dominanceRatio
     ){
-      moved=true;
+      armPanMode();
     }
-  },{passive:true});
+
+    if(!interaction.panArmed)return;
+
+    event.preventDefault();
+    interaction.dragging=true;
+    state.piano.hasManualPan=true;
+    const dimensions=getKeyDimensions(state.piano.nocts,getViewport(),dom.pianoWrap.clientWidth);
+    const nextTranslateX=clampTranslateX(interaction.startTranslateX+deltaX,dimensions,state.piano.nocts);
+    applyPianoOffset(nextTranslateX);
+    state.piano.translateX=nextTranslateX;
+  });
 
   dom.pianoWrap.addEventListener('pointerup',event=>{
-    if(event.pointerId!==pointerId)return;
-    pointerId=null;
-    if(!moved)return;
+    if(event.pointerId!==interaction.pointerId)return;
 
-    const deltaX=event.clientX-startX;
-    const deltaY=event.clientY-startY;
+    const deltaX=event.clientX-interaction.startX;
+    const deltaY=event.clientY-interaction.startY;
+    const absDeltaX=Math.abs(deltaX);
+    const absDeltaY=Math.abs(deltaY);
+    const startedMidi=interaction.startMidi!==null?Number(interaction.startMidi):null;
+    const releasedMidi=getMidiAtPoint(event.clientX,event.clientY);
+    const wasDragging=interaction.dragging;
+    const wasPanArmed=interaction.panArmed;
 
-    if(
-      Math.abs(deltaX)>AppConfig.swipe.minDistance
-      && Math.abs(deltaX)>Math.abs(deltaY)*1.4
+    if(wasDragging){
+      const dimensions=getKeyDimensions(state.piano.nocts,getViewport(),dom.pianoWrap.clientWidth);
+      const snappedWindowMidi0=getNearestWindowMidi0ForTranslate(state.piano.translateX,dimensions,state.piano.nocts);
+      state.piano.windowMidi0=snappedWindowMidi0;
+      state.piano.translateX=getTranslateForWindowMidi0(snappedWindowMidi0,dimensions,state.piano.nocts);
+      applyPianoOffset(state.piano.translateX);
+      syncAppToState('pan');
+    }else if(
+      startedMidi!==null
+      && releasedMidi===startedMidi
+      && absDeltaX<=AppConfig.drag.tapMaxDistance
+      && absDeltaY<=AppConfig.drag.tapMaxDistance
     ){
-      shiftWindow(deltaX<0?12:-12);
+      toggleNote(startedMidi);
     }
-  },{passive:true});
 
-  dom.pianoWrap.addEventListener('pointercancel',()=>{
-    pointerId=null;
-  },{passive:true});
+    if(dom.pianoWrap.hasPointerCapture(event.pointerId)){
+      dom.pianoWrap.releasePointerCapture(event.pointerId);
+    }
+    finishPointer();
+  });
 
-  dom.pianoWrap.addEventListener('wheel',event=>{
-    if(!event.altKey)return;
-    event.preventDefault();
-    shiftWindow(event.deltaY>0?12:-12);
-  },{passive:false});
+  dom.pianoWrap.addEventListener('pointercancel',event=>{
+    if(event.pointerId!==interaction.pointerId)return;
+    if(dom.pianoWrap.hasPointerCapture(event.pointerId)){
+      dom.pianoWrap.releasePointerCapture(event.pointerId);
+    }
+    finishPointer();
+  });
 }
 
 function bindControls(){
@@ -1155,12 +1355,9 @@ function bindControls(){
   dom.flatBtn.addEventListener('click',()=>{
     setUseFlats(state,!state.useFlats);
     updateFlatsButton(state.useFlats);
-    syncAppToState();
+    syncAppToState('manual',true);
   });
-  dom.octDn.addEventListener('click',()=>shiftWindow(-12));
-  dom.octUp.addEventListener('click',()=>shiftWindow(12));
   dom.clrBtn.addEventListener('click',clearNotes);
-  dom.portraitClr.addEventListener('click',clearNotes);
   window.addEventListener('resize',handleResize);
 }
 
@@ -1168,16 +1365,17 @@ function bindControls(){
 
 function bootstrap(){
   updateFlatsButton(state.useFlats);
+  updateOrientationOverlay();
   bindControls();
   bindPianoGestures();
 
   if(!state.midiSupported){
-    updateMidiButton('MIDI unsupported',false,true);
+    updateMidiButton('Unsupported',false,true);
   }else{
     initializeMidi();
   }
 
-  syncAppToState(true);
+  syncAppToState('resize',true);
   registerPwa();
 }
 
