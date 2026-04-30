@@ -54,6 +54,17 @@ body{
   overflow:hidden;
   touch-action:manipulation;
 }
+body.force-landscape .app{
+  position:fixed;
+  top:50%;
+  left:50%;
+  width:100dvh;
+  height:100dvw;
+  min-height:0;
+  padding:5px;
+  transform:translate(-50%,-50%) rotate(90deg);
+  transform-origin:center center;
+}
 .notes-strip{
   grid-area:notes;
   display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:10px;min-height:0;min-width:0;padding:10px 12px;
@@ -246,6 +257,49 @@ body{
 }
 .chord-type.known{color:var(--text)}
 .chord-type.inv{color:var(--accent)}
+.chord-alts{
+  margin-top:7px;
+  max-width:100%;
+  min-height:20px;
+  padding-top:4px;
+  font-size:10px;
+  letter-spacing:.08em;
+  color:var(--text-soft);
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:12px;
+  white-space:nowrap;
+  overflow:visible;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  text-align:center;
+}
+.chord-alts::-webkit-scrollbar{display:none}
+.chord-alts.hidden{display:none}
+.chord-alt-item{
+  display:inline-flex;
+  align-items:baseline;
+  gap:.04em;
+  flex:0 0 auto;
+  line-height:1.2;
+  padding-top:2px;
+}
+.chord-alt-root,.chord-alt-slash{
+  color:inherit;
+}
+.chord-alt-quality{
+  color:inherit;
+}
+.chord-alt-quality sup{
+  font-size:.62em;
+  vertical-align:1.25em;
+  line-height:0;
+  font-weight:600;
+}
 .piano-wrap{display:flex;align-items:center;justify-content:flex-start;
   flex:1 1 auto;
   padding:16px 40px 12px;overflow:hidden;border:1px solid var(--border);border-radius:30px;
@@ -330,6 +384,7 @@ body{
 .orientation-copy{
   font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-soft);
 }
+body.force-landscape .orientation-overlay{display:none}
 
 @media (max-width:980px){
   .app{
@@ -430,6 +485,7 @@ body{
       <div class="chord-slash hidden" id="cslash"></div>
     </div>
     <div class="chord-type" id="ctype"></div>
+    <div class="chord-alts hidden" id="calts"></div>
   </div>
  </div>
 <div class="controls-panel" aria-label="App controls">
@@ -465,6 +521,7 @@ body{
 const AppConfig={
   minMidi:21,
   maxMidi:108,
+  landscapeLock:'landscape',
   blackSemitones:new Set([1,3,6,8,10]),
   sharpNames:['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'],
   flatNames:['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'],
@@ -479,19 +536,48 @@ const AppConfig={
     {sym:'M7',   name:'Major 7th',           longName:'major seven',           intervals:[0,4,7,11]},
     {sym:'m7',   name:'Minor 7th',           longName:'minor seven',           intervals:[0,3,7,10]},
     {sym:'7',    name:'Dominant 7th',        longName:'seven',                 intervals:[0,4,7,10]},
+    {sym:'7b5',  name:'Seven flat 5',        longName:'seven flat five',       intervals:[0,4,6,10]},
     {sym:'°7',   name:'Diminished 7th',      longName:'diminished seven',      intervals:[0,3,6,9]},
     {sym:'ø7',   name:'Half-diminished',     longName:'half diminished seven', intervals:[0,3,6,10]},
+    {sym:'oM7',  name:'Diminished major 7th',longName:'diminished major seven',intervals:[0,3,6,11]},
     {sym:'mM7',  name:'Minor major 7th',     longName:'minor major seven',     intervals:[0,3,7,11]},
+    {sym:'M7b5', name:'Major 7 flat 5',      longName:'major seven flat five', intervals:[0,4,6,11]},
     {sym:'+M7',  name:'Augmented major 7th', longName:'augmented major seven', intervals:[0,4,8,11]},
     {sym:'+7',   name:'Augmented 7th',       longName:'augmented seven',       intervals:[0,4,8,10]},
     {sym:'6',    name:'Major 6th',           longName:'major six',             intervals:[0,4,7,9]},
     {sym:'m6',   name:'Minor 6th',           longName:'minor six',             intervals:[0,3,7,9]},
     {sym:'add9', name:'Add 9',               longName:'add nine',              intervals:[0,2,4,7]},
+    {sym:'add11',name:'Add 11',              longName:'add eleven',            intervals:[0,4,5,7]},
+    {sym:'add#11',name:'Add sharp 11',       longName:'add sharp eleven',      intervals:[0,4,6,7]},
     {sym:'madd9',name:'Minor add 9',         longName:'minor add nine',        intervals:[0,2,3,7]},
+    {sym:'addb9',name:'Add flat 9',          longName:'add flat nine',         intervals:[0,1,4,7]},
+    {sym:'7b9',  name:'Dominant flat 9',     longName:'seven flat nine',       intervals:[0,1,4,7,10]},
+    {sym:'M7b9', name:'Major 7 flat 9',      longName:'major seven flat nine', intervals:[0,1,4,7,11]},
+    {sym:'addb9b5',name:'Add flat 9 flat 5', longName:'add flat nine flat five',intervals:[0,1,4,6]},
+    {sym:'7b5b9',name:'Seven flat 5 flat 9', longName:'seven flat five flat nine',intervals:[0,1,4,6,10]},
+    {sym:'M7b5b9',name:'Major 7 flat 5 flat 9',longName:'major seven flat five flat nine',intervals:[0,1,4,6,11]},
+    {sym:'addb9#5',name:'Add flat 9 sharp 5',longName:'add flat nine sharp five',intervals:[0,1,4,8]},
+    {sym:'+7b9', name:'Augmented 7th flat 9',longName:'augmented seven flat nine',intervals:[0,1,4,8,10]},
+    {sym:'+M7b9',name:'Augmented major 7th flat 9',longName:'augmented major seven flat nine',intervals:[0,1,4,8,11]},
+    {sym:'add#9',name:'Add sharp 9',         longName:'add sharp nine',        intervals:[0,3,4,7]},
+    {sym:'7#9',  name:'Dominant sharp 9',    longName:'seven sharp nine',      intervals:[0,3,4,7,10]},
+    {sym:'M7#9', name:'Major 7 sharp 9',     longName:'major seven sharp nine',intervals:[0,3,4,7,11]},
+    {sym:'add#9b5',name:'Add sharp 9 flat 5',longName:'add sharp nine flat five',intervals:[0,3,4,6]},
+    {sym:'7b5#9',name:'Seven flat 5 sharp 9',longName:'seven flat five sharp nine',intervals:[0,3,4,6,10]},
+    {sym:'M7b5#9',name:'Major 7 flat 5 sharp 9',longName:'major seven flat five sharp nine',intervals:[0,3,4,6,11]},
+    {sym:'add#9#5',name:'Add sharp 9 sharp 5',longName:'add sharp nine sharp five',intervals:[0,3,4,8]},
+    {sym:'+7#9', name:'Augmented 7th sharp 9',longName:'augmented seven sharp nine',intervals:[0,3,4,8,10]},
+    {sym:'+M7#9',name:'Augmented major 7th sharp 9',longName:'augmented major seven sharp nine',intervals:[0,3,4,8,11]},
     {sym:'7sus4',name:'Dominant 7 sus4',     longName:'seven suspended four',  intervals:[0,5,7,10]},
     {sym:'9',    name:'Dominant 9th',        longName:'nine',                  intervals:[0,2,4,7,10]},
     {sym:'M9',   name:'Major 9th',           longName:'major nine',            intervals:[0,2,4,7,11]},
     {sym:'m9',   name:'Minor 9th',           longName:'minor nine',            intervals:[0,2,3,7,10]},
+    {sym:'11',   name:'Dominant 11th',       longName:'eleven',                intervals:[0,2,4,5,7,10]},
+    {sym:'M11',  name:'Major 11th',          longName:'major eleven',          intervals:[0,2,4,5,7,11]},
+    {sym:'m11',  name:'Minor 11th',          longName:'minor eleven',          intervals:[0,2,3,5,7,10]},
+    {sym:'13',   name:'Dominant 13th',       longName:'thirteen',              intervals:[0,2,4,7,9,10]},
+    {sym:'M13',  name:'Major 13th',          longName:'major thirteen',        intervals:[0,2,4,7,9,11]},
+    {sym:'m13',  name:'Minor 13th',          longName:'minor thirteen',        intervals:[0,2,3,7,9,10]},
     {sym:'6/9',  name:'Six-nine',            longName:'six nine',              intervals:[0,2,4,7,9]},
   ],
   domIds:{
@@ -501,6 +587,7 @@ const AppConfig={
     cslash:'cslash',
     cph:'cph',
     ctype:'ctype',
+    calts:'calts',
     piano:'piano',
     flatBtn:'flatBtn',
     midiBtn:'midiBtn',
@@ -533,39 +620,169 @@ function formatMidiNoteName(midi,useFlats){
   return `${noteNames[getPitchClass(midi)]}${Math.floor(midi/12)-1}`;
 }
 
-function detectChord(notes,useFlats){
-  if(notes.length<2)return null;
-
+function getCandidateRoots(notes){
   const pitchClasses=[...new Set(notes.map(getPitchClass))].sort((a,b)=>a-b);
   const bassPitchClass=getPitchClass(Math.min(...notes));
-  const candidateRoots=[bassPitchClass,...pitchClasses.filter(pc=>pc!==bassPitchClass)];
+  return{
+    pitchClasses,
+    bassPitchClass,
+    candidateRoots:[bassPitchClass,...pitchClasses.filter(pc=>pc!==bassPitchClass)],
+  };
+}
+
+function arraysEqual(valuesA,valuesB){
+  return valuesA.length===valuesB.length
+    && valuesA.every((value,index)=>value===valuesB[index]);
+}
+
+function getIntervalsForRoot(pitchClasses,rootPc){
+  return pitchClasses
+    .map(pc=>(pc-rootPc+12)%12)
+    .sort((a,b)=>a-b);
+}
+
+function getOmittedFifthIntervals(pattern){
+  const fifthIndex=pattern.intervals.findIndex(interval=>interval===7);
+  if(fifthIndex<0)return null;
+  return pattern.intervals.filter((_,index)=>index!==fifthIndex);
+}
+
+function buildChordMatch(rootPc,bassPitchClass,noteNames,pattern,{omittedFifth=false}={}){
+  const inversion=bassPitchClass!==rootPc;
+  const sym=omittedFifth?`${pattern.sym}(no5)`:pattern.sym;
+  const longName=omittedFifth?`${pattern.longName} no fifth`:pattern.longName;
+
+  return{
+    rootPc,
+    rootName:noteNames[rootPc],
+    sym,
+    name:omittedFifth?`${pattern.name} no 5th`:pattern.name,
+    longName,
+    slash:inversion?`/${noteNames[bassPitchClass]}`:'',
+    inv:inversion,
+    omittedFifth,
+    displayLabel:'',
+    discoveryOrder:-1,
+  };
+}
+
+function getExplicitAlterationCount(symbol){
+  const matches=symbol.match(/[#b]\d+/g);
+  return matches?matches.length:0;
+}
+
+function getDisplayAccidentalCount(label){
+  const matches=label.match(/[#♭b]/g);
+  return matches?matches.length:0;
+}
+
+function getDecorationCount(symbol){
+  const matches=symbol.match(/[+#b°ø/()]/g);
+  return matches?matches.length:0;
+}
+
+function compareExactChordMatches(matchA,matchB){
+  const alterationDelta=getExplicitAlterationCount(matchA.sym)-getExplicitAlterationCount(matchB.sym);
+  if(alterationDelta!==0)return alterationDelta;
+
+  const accidentalDelta=getDisplayAccidentalCount(matchA.displayLabel)-getDisplayAccidentalCount(matchB.displayLabel);
+  if(accidentalDelta!==0)return accidentalDelta;
+
+  const decorationDelta=getDecorationCount(matchA.sym)-getDecorationCount(matchB.sym);
+  if(decorationDelta!==0)return decorationDelta;
+
+  const symbolLengthDelta=matchA.sym.length-matchB.sym.length;
+  if(symbolLengthDelta!==0)return symbolLengthDelta;
+
+  const labelLengthDelta=matchA.displayLabel.length-matchB.displayLabel.length;
+  if(labelLengthDelta!==0)return labelLengthDelta;
+
+  return matchA.discoveryOrder-matchB.discoveryOrder;
+}
+
+function finalizeChordMatches(matches,{preferSimplerExactNames=false}={}){
+  const seenLabels=new Set();
+  const finalized=[];
+
+  for(const [discoveryOrder,match] of matches.entries()){
+    const displayLabel=`${match.rootName}${match.sym}${match.slash||''}`;
+    if(seenLabels.has(displayLabel))continue;
+    seenLabels.add(displayLabel);
+    finalized.push({
+      ...match,
+      displayLabel,
+      discoveryOrder,
+    });
+  }
+
+  if(preferSimplerExactNames){
+    finalized.sort(compareExactChordMatches);
+  }
+
+  return finalized;
+}
+
+function findExactChordMatches(notes,useFlats){
+  if(notes.length<2)return[];
+
+  const {pitchClasses,bassPitchClass,candidateRoots}=getCandidateRoots(notes);
   const noteNames=getNoteNames(useFlats);
+  const matches=[];
 
   for(const rootPc of candidateRoots){
-    const intervals=pitchClasses
-      .map(pc=>(pc-rootPc+12)%12)
-      .sort((a,b)=>a-b);
+    const intervals=getIntervalsForRoot(pitchClasses,rootPc);
 
-    const match=AppConfig.chordPatterns.find(pattern=>
-      pattern.intervals.length===intervals.length
-      && pattern.intervals.every((value,index)=>value===intervals[index])
-    );
-
-    if(match){
-      const inversion=bassPitchClass!==rootPc;
-    return{
-      rootPc,
-      rootName:noteNames[rootPc],
-      sym:match.sym,
-      name:match.name,
-      longName:match.longName,
-      slash:inversion?`/${noteNames[bassPitchClass]}`:'',
-      inv:inversion,
-    };
+    for(const pattern of AppConfig.chordPatterns){
+      if(!arraysEqual(pattern.intervals,intervals))continue;
+      matches.push(buildChordMatch(rootPc,bassPitchClass,noteNames,pattern));
     }
   }
 
-  return null;
+  return finalizeChordMatches(matches,{preferSimplerExactNames:true});
+}
+
+function findOmittedFifthChordMatches(notes,useFlats){
+  if(notes.length<2)return[];
+
+  const {pitchClasses,bassPitchClass,candidateRoots}=getCandidateRoots(notes);
+  const noteNames=getNoteNames(useFlats);
+  const matches=[];
+
+  for(const rootPc of candidateRoots){
+    const intervals=getIntervalsForRoot(pitchClasses,rootPc);
+
+    for(const pattern of AppConfig.chordPatterns){
+      const omittedFifthIntervals=getOmittedFifthIntervals(pattern);
+      if(!omittedFifthIntervals||!arraysEqual(omittedFifthIntervals,intervals))continue;
+      matches.push(buildChordMatch(rootPc,bassPitchClass,noteNames,pattern,{omittedFifth:true}));
+    }
+  }
+
+  return finalizeChordMatches(matches);
+}
+
+function detectChordResult(notes,useFlats){
+  if(notes.length<2){
+    return{primaryChord:null,alternates:[]};
+  }
+
+  const exactMatches=findExactChordMatches(notes,useFlats);
+  if(exactMatches.length>0){
+    return{
+      primaryChord:exactMatches[0],
+      alternates:exactMatches.slice(1),
+    };
+  }
+
+  const omittedFifthMatches=findOmittedFifthChordMatches(notes,useFlats);
+  if(omittedFifthMatches.length>0){
+    return{
+      primaryChord:omittedFifthMatches[0],
+      alternates:omittedFifthMatches.slice(1),
+    };
+  }
+
+  return{primaryChord:null,alternates:[]};
 }
 
 function formatChordQualityHtml(symbol){
@@ -588,6 +805,15 @@ function splitChordSymbol(symbol){
     quality:symbol.slice(0,-match[0].length),
     slashPart:match[0],
   };
+}
+
+function formatChordLabelHtml(root,symbol){
+  const {quality,slashPart}=splitChordSymbol(symbol);
+  return [
+    `<span class="chord-alt-root">${root}</span>`,
+    quality?`<span class="chord-alt-quality">${formatChordQualityHtml(quality)}</span>`:'',
+    slashPart?`<span class="chord-alt-slash">${slashPart}</span>`:'',
+  ].join('');
 }
 
 function formatSpokenNoteName(noteName){
@@ -613,6 +839,12 @@ function formatChordSubtitle(chord){
 // === PianoLayout ===
 
 function getViewport(){
+  if(!isLandscapeViewport()){
+    return{
+      width:window.innerHeight,
+      height:window.innerWidth,
+    };
+  }
   return{
     width:window.innerWidth,
     height:window.innerHeight,
@@ -744,7 +976,10 @@ function getDisplayModel(currentState,viewport,reason='auto',forceStructure=fals
     nextWindowMidi0=clampWindowMidi0(currentWindowMidi0,visibleOctaves);
   }
 
-  const chord=activeNotes.length>1?detectChord(activeNotes,currentState.useFlats):null;
+  const chordResult=activeNotes.length>1
+    ?detectChordResult(activeNotes,currentState.useFlats)
+    :{primaryChord:null,alternates:[]};
+  const chord=chordResult.primaryChord;
   const singleNoteRootPc=activeNotes.length===1?getPitchClass(activeNotes[0]):null;
   const highlightedRootPc=chord?chord.rootPc:singleNoteRootPc;
 
@@ -753,6 +988,7 @@ function getDisplayModel(currentState,viewport,reason='auto',forceStructure=fals
     noteNames:getNoteNames(currentState.useFlats),
     activeNotes,
     chord,
+    alternates:chordResult.alternates,
     highlightedRootPc,
     piano:{
       nocts:visibleOctaves,
@@ -883,12 +1119,26 @@ function isLandscapeViewport(){
   return window.innerWidth>=window.innerHeight;
 }
 
+function applyLandscapeMode(){
+  document.body.classList.toggle('force-landscape',!isLandscapeViewport());
+}
+
 function updateOrientationOverlay(){
-  const blocked=!isLandscapeViewport();
-  const copy=window.innerWidth<700?'Rotate to landscape':'Widen to landscape';
-  dom.orientationCopy.textContent=copy;
-  dom.orientationOverlay.classList.toggle('hidden',!blocked);
-  dom.orientationOverlay.setAttribute('aria-hidden',String(!blocked));
+  dom.orientationCopy.textContent='Landscape enforced';
+  dom.orientationOverlay.classList.add('hidden');
+  dom.orientationOverlay.setAttribute('aria-hidden','true');
+}
+
+async function requestLandscapeLock(){
+  const orientationApi=screen.orientation;
+  if(!orientationApi||typeof orientationApi.lock!=='function')return false;
+
+  try{
+    await orientationApi.lock(AppConfig.landscapeLock);
+    return true;
+  }catch(error){
+    return false;
+  }
 }
 
 function setChordText(root,symbol,typeClass,typeText){
@@ -905,6 +1155,21 @@ function setChordText(root,symbol,typeClass,typeText){
   dom.ctype.textContent=typeText;
 }
 
+function setAlternateText(alternates){
+  if(alternates.length===0){
+    dom.calts.className='chord-alts hidden';
+    dom.calts.innerHTML='';
+    return;
+  }
+
+  const visibleAlternates=alternates.slice(0,2);
+
+  dom.calts.className='chord-alts';
+  dom.calts.innerHTML=visibleAlternates
+    .map(chord=>`<span class="chord-alt-item">${formatChordLabelHtml(chord.rootName,`${chord.sym}${chord.slash||''}`)}</span>`)
+    .join('');
+}
+
 function resetChordText(){
   dom.croot.className='chord-root hidden';
   dom.croot.textContent='';
@@ -915,6 +1180,8 @@ function resetChordText(){
   dom.cph.classList.remove('hidden');
   dom.ctype.className='chord-type';
   dom.ctype.textContent='';
+  dom.calts.className='chord-alts hidden';
+  dom.calts.innerHTML='';
 }
 
 // === PianoView ===
@@ -1041,7 +1308,7 @@ function renderPianoKeyStates(currentState){
 // === ChordView ===
 
 function renderChordDisplay(displayModel){
-  const {activeNotes,chord,noteNames,highlightedRootPc}=displayModel;
+  const {activeNotes,chord,alternates,noteNames,highlightedRootPc}=displayModel;
 
   if(activeNotes.length===0){
     resetChordText();
@@ -1055,6 +1322,7 @@ function renderChordDisplay(displayModel){
       '',
       `${formatSpokenNoteName(noteNames[highlightedRootPc])} note`
     );
+    setAlternateText([]);
     return;
   }
 
@@ -1065,10 +1333,12 @@ function renderChordDisplay(displayModel){
       chord.inv?'inv':'known',
       formatChordSubtitle(chord)
     );
+    setAlternateText(alternates);
     return;
   }
 
   setChordText('?','','','chord not recognised');
+  setAlternateText([]);
 }
 
 function renderNotePills(displayModel){
@@ -1220,6 +1490,7 @@ function clearNotes(){
 }
 
 function handleResize(){
+  applyLandscapeMode();
   updateOrientationOverlay();
   clearTimeout(state.resizeTimer);
   state.resizeTimer=setTimeout(()=>{
@@ -1362,15 +1633,23 @@ function bindControls(){
   });
   dom.clrBtn.addEventListener('click',clearNotes);
   window.addEventListener('resize',handleResize);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'){
+      requestLandscapeLock();
+      applyLandscapeMode();
+    }
+  });
 }
 
 // === Bootstrap ===
 
 function bootstrap(){
+  applyLandscapeMode();
   updateFlatsButton(state.useFlats);
   updateOrientationOverlay();
   bindControls();
   bindPianoGestures();
+  requestLandscapeLock();
 
   if(!state.midiSupported){
     updateMidiButton('Unsupported',false,true);

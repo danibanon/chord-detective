@@ -1,4 +1,4 @@
-const CACHE_NAME='chord-detective-v1';
+const CACHE_NAME='chord-detective-v3';
 const APP_SHELL=[
   './',
   './index.html',
