@@ -10,7 +10,7 @@ The app is also installable as a Progressive Web App (PWA), so supported browser
 
 ## Screenshots
 
-![Chord Detective landscape](./landscape.png)
+![Chord Detective landscape](./docs/screenshots/landscape.png)
 
 ## Features
 
@@ -76,9 +76,10 @@ Notes:
 
 ```text
 .
+|-- docs/
+|   `-- screenshots/
 |-- icons/
 |-- index.html
-|-- landscape.png
 |-- manifest.webmanifest
 |-- sw.js
 |-- LICENSE
@@ -87,7 +88,7 @@ Notes:
 
 - `index.html` contains the UI, styles, piano behavior, MIDI handling, and chord detection logic.
 - `icons/` contains the favicon and install icons.
-- `landscape.png` is the current README screenshot.
+- `docs/screenshots/landscape.png` is the current README screenshot.
 
 ## License
 
