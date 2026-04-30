@@ -1119,6 +1119,21 @@ function isLandscapeViewport(){
   return window.innerWidth>=window.innerHeight;
 }
 
+function isForceLandscapeMode(){
+  return document.body.classList.contains('force-landscape');
+}
+
+function getLogicalPointerPosition(clientX,clientY){
+  if(!isForceLandscapeMode()){
+    return{x:clientX,y:clientY};
+  }
+
+  return{
+    x:clientY,
+    y:window.innerWidth-clientX,
+  };
+}
+
 function applyLandscapeMode(){
   document.body.classList.toggle('force-landscape',!isLandscapeViewport());
 }
@@ -1536,10 +1551,11 @@ function bindPianoGestures(){
 
   dom.pianoWrap.addEventListener('pointerdown',event=>{
     if(interaction.pointerId!==null)return;
+    const startPoint=getLogicalPointerPosition(event.clientX,event.clientY);
 
     interaction.pointerId=event.pointerId;
-    interaction.startX=event.clientX;
-    interaction.startY=event.clientY;
+    interaction.startX=startPoint.x;
+    interaction.startY=startPoint.y;
     interaction.startTranslateX=state.piano.translateX;
     interaction.dragging=false;
     interaction.panArmed=false;
@@ -1555,9 +1571,10 @@ function bindPianoGestures(){
 
   dom.pianoWrap.addEventListener('pointermove',event=>{
     if(event.pointerId!==interaction.pointerId)return;
+    const point=getLogicalPointerPosition(event.clientX,event.clientY);
 
-    const deltaX=event.clientX-interaction.startX;
-    const deltaY=event.clientY-interaction.startY;
+    const deltaX=point.x-interaction.startX;
+    const deltaY=point.y-interaction.startY;
     const absDeltaX=Math.abs(deltaX);
     const absDeltaY=Math.abs(deltaY);
 
@@ -1583,9 +1600,10 @@ function bindPianoGestures(){
 
   dom.pianoWrap.addEventListener('pointerup',event=>{
     if(event.pointerId!==interaction.pointerId)return;
+    const point=getLogicalPointerPosition(event.clientX,event.clientY);
 
-    const deltaX=event.clientX-interaction.startX;
-    const deltaY=event.clientY-interaction.startY;
+    const deltaX=point.x-interaction.startX;
+    const deltaY=point.y-interaction.startY;
     const absDeltaX=Math.abs(deltaX);
     const absDeltaY=Math.abs(deltaY);
     const startedMidi=interaction.startMidi!==null?Number(interaction.startMidi):null;
