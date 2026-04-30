@@ -273,14 +273,14 @@ body{
   position:relative;filter:drop-shadow(0 18px 28px rgba(0,0,0,.36));
   --ww:33px;--wh:172px;--bw:20px;--bh:110px;
   transition:width .12s ease,height .12s ease;
+  will-change:transform;
 }
 .key{position:absolute;top:0;cursor:inherit;border-radius:0 0 4px 4px;touch-action:none}
 .key.white{
   width:var(--ww);height:var(--wh);
   background:linear-gradient(180deg,#fff5e7 0%,#eed8bc 55%,#e0c5a3 100%);
   border:1px solid rgba(106,74,52,.45);border-top:none;z-index:1;
-  transition:background .18s ease,box-shadow .18s ease,filter .18s ease,
-             width .12s ease,height .12s ease,left .12s ease
+  transition:background .18s ease,box-shadow .18s ease,filter .18s ease
 }
 .key.white:hover{background:linear-gradient(180deg,#fff7ea 0%,#f3e0c6 58%,#e6cbab 100%);filter:saturate(1.02)}
 .key.white.on{background:linear-gradient(180deg,#ffc879 0%,#f1a24b 60%,#d47a22 100%);border-color:rgba(120,69,27,.62);box-shadow:inset 0 0 0 1px rgba(255,244,226,.28)}
@@ -288,8 +288,7 @@ body{
   width:var(--bw);height:var(--bh);
   background:linear-gradient(180deg,#31160d 0%,#1a0a06 100%);border:1px solid #090402;border-top:none;
   box-shadow:0 8px 14px rgba(0,0,0,.72),inset 0 -1px 0 rgba(255,255,255,.06);z-index:2;
-  transition:background .18s ease,box-shadow .18s ease,filter .18s ease,
-             width .12s ease,height .12s ease,left .12s ease
+  transition:background .18s ease,box-shadow .18s ease,filter .18s ease
 }
 .key.black:hover{background:linear-gradient(180deg,#3a1a10 0%,#24100a 100%);filter:brightness(1.05)}
 .key.black.on{background:linear-gradient(180deg,#e18d37 0%,#af5b16 100%);box-shadow:0 4px 7px rgba(0,0,0,.5),0 0 22px rgba(255,133,29,.22)}
@@ -470,30 +469,30 @@ const AppConfig={
   sharpNames:['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'],
   flatNames:['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'],
   chordPatterns:[
-    {sym:'5',    name:'Power chord',         longName:'5',                      intervals:[0,7]},
+    {sym:'5',    name:'Power chord',         longName:'five',                   intervals:[0,7]},
     {sym:'',     name:'Major',               longName:'major',                 intervals:[0,4,7]},
     {sym:'m',    name:'Minor',               longName:'minor',                 intervals:[0,3,7]},
     {sym:'°',    name:'Diminished',          longName:'diminished',            intervals:[0,3,6]},
     {sym:'+',    name:'Augmented',           longName:'augmented',             intervals:[0,4,8]},
-    {sym:'sus2', name:'Suspended 2nd',       longName:'suspended second',      intervals:[0,2,7]},
-    {sym:'sus4', name:'Suspended 4th',       longName:'suspended fourth',      intervals:[0,5,7]},
-    {sym:'M7',   name:'Major 7th',           longName:'major seventh',         intervals:[0,4,7,11]},
-    {sym:'m7',   name:'Minor 7th',           longName:'minor seventh',         intervals:[0,3,7,10]},
-    {sym:'7',    name:'Dominant 7th',        longName:'7',                      intervals:[0,4,7,10]},
-    {sym:'°7',   name:'Diminished 7th',      longName:'diminished seventh',    intervals:[0,3,6,9]},
-    {sym:'ø7',   name:'Half-diminished',     longName:'half-diminished seventh',intervals:[0,3,6,10]},
-    {sym:'mM7',  name:'Minor major 7th',     longName:'minor major seventh',   intervals:[0,3,7,11]},
-    {sym:'+M7',  name:'Augmented major 7th', longName:'augmented major seventh',intervals:[0,4,8,11]},
-    {sym:'+7',   name:'Augmented 7th',       longName:'augmented 7',           intervals:[0,4,8,10]},
-    {sym:'6',    name:'Major 6th',           longName:'major sixth',           intervals:[0,4,7,9]},
-    {sym:'m6',   name:'Minor 6th',           longName:'minor sixth',           intervals:[0,3,7,9]},
-    {sym:'add9', name:'Add 9',               longName:'add 9',                 intervals:[0,2,4,7]},
-    {sym:'madd9',name:'Minor add 9',         longName:'minor add 9',           intervals:[0,2,3,7]},
-    {sym:'7sus4',name:'Dominant 7 sus4',     longName:'7 suspended fourth',    intervals:[0,5,7,10]},
-    {sym:'9',    name:'Dominant 9th',        longName:'9',                      intervals:[0,2,4,7,10]},
-    {sym:'M9',   name:'Major 9th',           longName:'major ninth',           intervals:[0,2,4,7,11]},
-    {sym:'m9',   name:'Minor 9th',           longName:'minor ninth',           intervals:[0,2,3,7,10]},
-    {sym:'6/9',  name:'Six-nine',            longName:'six-nine',              intervals:[0,2,4,7,9]},
+    {sym:'sus2', name:'Suspended 2nd',       longName:'suspended two',         intervals:[0,2,7]},
+    {sym:'sus4', name:'Suspended 4th',       longName:'suspended four',        intervals:[0,5,7]},
+    {sym:'M7',   name:'Major 7th',           longName:'major seven',           intervals:[0,4,7,11]},
+    {sym:'m7',   name:'Minor 7th',           longName:'minor seven',           intervals:[0,3,7,10]},
+    {sym:'7',    name:'Dominant 7th',        longName:'seven',                 intervals:[0,4,7,10]},
+    {sym:'°7',   name:'Diminished 7th',      longName:'diminished seven',      intervals:[0,3,6,9]},
+    {sym:'ø7',   name:'Half-diminished',     longName:'half diminished seven', intervals:[0,3,6,10]},
+    {sym:'mM7',  name:'Minor major 7th',     longName:'minor major seven',     intervals:[0,3,7,11]},
+    {sym:'+M7',  name:'Augmented major 7th', longName:'augmented major seven', intervals:[0,4,8,11]},
+    {sym:'+7',   name:'Augmented 7th',       longName:'augmented seven',       intervals:[0,4,8,10]},
+    {sym:'6',    name:'Major 6th',           longName:'major six',             intervals:[0,4,7,9]},
+    {sym:'m6',   name:'Minor 6th',           longName:'minor six',             intervals:[0,3,7,9]},
+    {sym:'add9', name:'Add 9',               longName:'add nine',              intervals:[0,2,4,7]},
+    {sym:'madd9',name:'Minor add 9',         longName:'minor add nine',        intervals:[0,2,3,7]},
+    {sym:'7sus4',name:'Dominant 7 sus4',     longName:'seven suspended four',  intervals:[0,5,7,10]},
+    {sym:'9',    name:'Dominant 9th',        longName:'nine',                  intervals:[0,2,4,7,10]},
+    {sym:'M9',   name:'Major 9th',           longName:'major nine',            intervals:[0,2,4,7,11]},
+    {sym:'m9',   name:'Minor 9th',           longName:'minor nine',            intervals:[0,2,3,7,10]},
+    {sym:'6/9',  name:'Six-nine',            longName:'six nine',              intervals:[0,2,4,7,9]},
   ],
   domIds:{
     pills:'pills',
@@ -707,16 +706,20 @@ function getCenteredWindowMidi0(notes,nocts,currentMidi0){
 }
 
 function getKeyDimensions(nocts,viewport,wrapWidth){
-  const whiteKeyWidth=Math.min((wrapWidth-80)/(7*nocts),78);
+  const rawWhiteKeyWidth=Math.min((wrapWidth-80)/(7*nocts),78);
   const maxWhiteKeyHeight=Math.min(viewport.height*.46,430);
   const minWhiteKeyHeight=viewport.height<520?80:140;
-
-  const whiteKeyHeight=Math.max(minWhiteKeyHeight,Math.min(whiteKeyWidth*5.2,maxWhiteKeyHeight));
+  const whiteKeyWidth=Math.max(1,Math.round(rawWhiteKeyWidth));
+  const whiteKeyHeight=Math.round(
+    Math.max(minWhiteKeyHeight,Math.min(whiteKeyWidth*5.2,maxWhiteKeyHeight))
+  );
+  const blackKeyWidth=Math.max(1,Math.round(whiteKeyWidth*.6));
+  const blackKeyHeight=Math.max(1,Math.round(whiteKeyHeight*.64));
   return{
     whiteKeyWidth,
     whiteKeyHeight,
-    blackKeyWidth:whiteKeyWidth*.6,
-    blackKeyHeight:whiteKeyHeight*.64,
+    blackKeyWidth,
+    blackKeyHeight,
   };
 }
 
@@ -970,7 +973,7 @@ function applyPianoDimensions(dimensions){
 }
 
 function applyPianoOffset(translateX){
-  dom.piano.style.transform=`translateX(${translateX}px)`;
+  dom.piano.style.transform=`translate3d(${Math.round(translateX)}px,0,0)`;
 }
 
 function createKeyLabel(midi,useFlats){
