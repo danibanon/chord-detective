@@ -78,6 +78,14 @@ Notes:
 - `file://` is fine for a quick visual check but not for reliable PWA or MIDI behavior.
 - Web MIDI support is browser-, OS-, and hardware-dependent. Chromium-based browsers are the safest choice.
 
+### Testing
+
+The core logic is covered by unit tests using Node.js's built-in test runner.
+
+```powershell
+npm test
+```
+
 ## Project Structure
 
 ```text
@@ -86,17 +94,22 @@ Notes:
 |   |-- demo/
 |   `-- screenshots/
 |-- icons/
+|-- tests/
+|   `-- app-logic.test.js
+|-- app-logic.js
 |-- index.html
 |-- manifest.webmanifest
+|-- package.json
 |-- sw.js
 |-- LICENSE
 `-- README.md
 ```
 
-- `index.html` contains the UI, styles, piano behavior, MIDI handling, and chord detection logic.
-- `icons/` contains the favicon and install icons.
-- `docs/demo/dbo7-demo.gif` is the short animated README demo.
-- `docs/screenshots/landscape.png` is the current README screenshot.
+- `index.html`: The application entry point, UI layout, and styles.
+- `app-logic.js`: Core chord detection logic, MIDI translation, and piano state management.
+- `tests/`: Unit tests for the core business logic.
+- `icons/`: Consolidated PWA and UI icons.
+- `sw.js`: Service Worker for offline support.
 
 ## License
 
