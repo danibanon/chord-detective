@@ -1,0 +1,8 @@
+{
+  "name": "chord-detective",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}
