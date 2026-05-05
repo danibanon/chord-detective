@@ -10,8 +10,8 @@ Landscape mode is highly recommended!
 
 ## Installable App
 
-You can install Chordetect on your phone for easy access.
-  1. Open the [URL](https://danibanon.github.io/chord-detective/) in chrome
+Install Chordetect on your phone directly from the web! No play store needed
+  1. Open the [URL](https://danibanon.github.io/chord-detective/) in Android Chrome
   2. Click top right 3 dots
   3. Add to home screen
   4. Install
