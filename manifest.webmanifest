@@ -4,7 +4,7 @@
   "description": "Lean Web MIDI chord detector with responsive piano layout.",
   "start_url": "./",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#1c1b1f",
   "theme_color": "#1c1b1f",
   "icons": [
