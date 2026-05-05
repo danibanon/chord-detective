@@ -1,4 +1,4 @@
-const CACHE = 'chordetect-v1';
+const CACHE = 'chordet-v1';
 const ASSETS = [
   './',
   'index.html',

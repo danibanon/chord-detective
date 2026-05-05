@@ -1,6 +1,6 @@
 {
-  "name": "Chordetect",
-  "short_name": "Chordetect",
+  "name": "Chordet",
+  "short_name": "Chordet",
   "description": "Lean Web MIDI chord detector with responsive piano layout.",
   "start_url": "./",
   "scope": "./",

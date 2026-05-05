@@ -1,21 +1,21 @@
 # What it does
 
-Chordetect allows you to know the chord you are playing on your piano in 3 simple steps:
+Chordet allows you to know the chord you are playing on your piano in 3 simple steps:
   1. Open with your phone the [website](https://danibanon.github.io/chord-detective/)
   2. Connect your piano to your phone via MIDI
   3. Enjoy!
 
-![Chordetect screenshot](./screenshot.png)
+![Chordet screenshot](./screenshot.png)
 Landscape mode is highly recommended!
 
 ## Installable App
 
-Install Chordetect on your phone directly from the web! No play store needed
+Install Chordet on your phone directly from the web! No play store needed
   1. Open the [URL](https://danibanon.github.io/chord-detective/) in Android Chrome
   2. Click top right 3 dots
   3. Add to home screen
   4. Install
-  5. Now you have it! Go find "Chordetect" among your apps
+  5. Now you have it! Go find "Chordet" among your apps
 
 
 ## Design goals
