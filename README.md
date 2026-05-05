@@ -39,13 +39,13 @@ The built-in detector covers:
 - `7`, `maj7`, `m7`, `7b5`
 - `°7`, `ø7`, `oM7`, `mM7`, `M7b5`, `+7`, `+M7`
 - `9`, `maj9`, `m9`, `11`, `maj11`, `m11`, `13`, `maj13`, `m13`
-- `add9`, `add11`, `madd11`, `7add11`, `M7add11`, `m7add11`, `mM7add11`, `add#11`, `madd9`
+- `add9`, `+add9`, `add11`, `madd11`, `7add11`, `M7add11`, `m7add11`, `mM7add11`, `add#11`, `madd9`
 - `addb9`, `7b9`, `M7b9`
 - `add#9`, `7#9`, `M7#9`
 - `addb9b5`, `7b5b9`, `M7b5b9`
-- `addb9#5`, `+7b9`, `+M7b9`
+- `+addb9`, `+7b9`, `+M7b9`
 - `add#9b5`, `7b5#9`, `M7b5#9`
-- `add#9#5`, `+7#9`, `+M7#9`
+- `+add#9`, `+7#9`, `+M7#9`
 
 ## How It Works
 

@@ -54,15 +54,52 @@ test('note formatting and chord label html stay unchanged',()=>{
   assert.equal(formatMidiNoteName(61,true),'D♭4');
   assert.equal(formatMidiNoteName(61,false),'C#4');
   assert.equal(formatChordQualityHtml('m7'),'m<sup>7</sup>');
+  assert.equal(formatChordQualityHtml('+addb9'),'<sup>+addb9</sup>');
   assert.equal(
     formatChordLabelHtml('B♭','m7/E♭'),
     '<span class="chord-alt-root">B♭</span><span class="chord-alt-quality">m<sup>7</sup></span><span class="chord-alt-slash">/E♭</span>'
+  );
+  assert.equal(
+    formatChordLabelHtml('C','+add#9'),
+    '<span class="chord-alt-root">C</span><span class="chord-alt-quality"><sup>+add#9</sup></span>'
   );
 });
 
 test('formatChordSubtitle preserves spoken slash-chord text',()=>{
   const result=detectChordResult([60,62,65,69],true);
   assert.equal(formatChordSubtitle(result.primaryChord),'F major six over C');
+});
+
+test('detectChordResult uses universal plus notation for major sharp-five add chords',()=>{
+  assert.equal(
+    detectChordResult([60,61,64,68],true).primaryChord?.displayLabel,
+    'C+addb9'
+  );
+  assert.equal(
+    detectChordResult([60,63,64,68],true).primaryChord?.displayLabel,
+    'C+add#9'
+  );
+});
+
+test('detectChordResult prefers root-position plus-add9 and keeps inversion as alternate',()=>{
+  const result=detectChordResult([60,62,64,68],true);
+  assert.equal(result.primaryChord?.displayLabel,'C+add9');
+  assert.deepEqual(result.alternates.map(chord=>chord.displayLabel),['E+7/C']);
+});
+
+test('formatChordSubtitle uses augmented wording for renamed plus-add chords',()=>{
+  assert.equal(
+    formatChordSubtitle(detectChordResult([60,61,64,68],true).primaryChord),
+    'C augmented add flat nine'
+  );
+  assert.equal(
+    formatChordSubtitle(detectChordResult([60,63,64,68],true).primaryChord),
+    'C augmented add sharp nine'
+  );
+  assert.equal(
+    formatChordSubtitle(detectChordResult([60,62,64,68],true).primaryChord),
+    'C augmented add nine'
+  );
 });
 
 test('buildDisplayModel preserves centered-window and manual-pan behavior',()=>{
