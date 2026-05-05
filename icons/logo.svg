@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Chordet logo">
-  <!-- Full square background so adaptive masks show a dark circle -->
-  <rect width="120" height="120" fill="#000000"/>
+  <!-- Full square background with rounded corners for a softer icon shape -->
+  <rect width="120" height="120" rx="24" fill="#000000"/>
 
   <!-- Foreground bars: three identical deep purple stripes with larger black margins for a true safe area -->
   <g fill="#8B5CF6">
