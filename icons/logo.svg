@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Chordetect logo">
   <!-- Full square background so adaptive masks show a dark circle -->
-  <rect width="120" height="120" fill="#1C1B1F"/>
+  <rect width="120" height="120" fill="#000000"/>
 
   <!-- Foreground bars: three perfectly identical stripes inside the safe circle area -->
   <g fill="#D0BCFF">
