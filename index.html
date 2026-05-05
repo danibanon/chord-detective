@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icons/icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="./icons/icon-192.png" sizes="192x192">
@@ -18,6 +18,8 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   color-scheme:only light;
+  --app-vw:100vw;
+  --app-vh:100vh;
   --bg:#140804;
   --border:rgba(255,177,104,.16);--border-strong:rgba(255,183,102,.3);
   --text:#f2dfcb;--text-soft:#c8a98b;--dim:#8b684f;
@@ -41,8 +43,8 @@ body{
   overflow:hidden;
 }
 .app{
-  display:grid;height:100dvh;min-height:100dvh;width:100%;
-  max-height:100dvh;
+  display:grid;height:var(--app-vh);min-height:var(--app-vh);width:100%;
+  max-height:var(--app-vh);
   padding:10px;gap:8px;
   grid-template-columns:minmax(190px,1.04fr) minmax(360px,2.15fr) minmax(118px,.66fr);
   grid-template-rows:minmax(0,1fr) minmax(0,1fr);
@@ -59,8 +61,8 @@ body.force-landscape .app{
   position:fixed;
   top:50%;
   left:50%;
-  width:100dvh;
-  height:100dvw;
+  width:var(--app-vh);
+  height:var(--app-vw);
   min-height:0;
   padding:5px;
   transform:translate(-50%,-50%) rotate(90deg);
@@ -506,7 +508,7 @@ body.force-landscape .orientation-overlay{display:none}
 @media (max-width:700px){
   .app{
     grid-template-columns:minmax(100px,.8fr) minmax(172px,1.92fr) minmax(86px,.62fr);
-    grid-template-rows:minmax(0,46dvh) minmax(0,1fr);
+    grid-template-rows:minmax(0,46%) minmax(0,1fr);
     padding:5px;gap:5px;
   }
   .notes-panel{padding:6px 7px;gap:4px}
@@ -538,7 +540,7 @@ body.force-landscape .orientation-overlay{display:none}
 @media (max-height:520px){
   .app{
     grid-template-columns:minmax(106px,.84fr) minmax(196px,1.96fr) minmax(92px,.66fr);
-    grid-template-rows:minmax(0,48dvh) minmax(0,1fr);
+    grid-template-rows:minmax(0,48%) minmax(0,1fr);
     padding:5px;gap:5px;
   }
   .notes-panel{padding:6px 7px;gap:4px}
@@ -712,17 +714,40 @@ function isForceLandscapeMode(){
   return document.body.classList.contains('force-landscape');
 }
 
-function getViewport(){
-  if(!isLandscapeViewport()){
+function getVisualViewportSize(){
+  const viewport=window.visualViewport;
+  if(viewport){
     return{
-      width:window.innerHeight,
-      height:window.innerWidth,
+      width:Math.round(viewport.width),
+      height:Math.round(viewport.height),
     };
   }
 
   return{
     width:window.innerWidth,
     height:window.innerHeight,
+  };
+}
+
+function syncViewportVars(){
+  const {width,height}=getVisualViewportSize();
+  document.documentElement.style.setProperty('--app-vw',`${width}px`);
+  document.documentElement.style.setProperty('--app-vh',`${height}px`);
+}
+
+function getViewport(){
+  const viewport=getVisualViewportSize();
+
+  if(viewport.width<viewport.height){
+    return{
+      width:viewport.height,
+      height:viewport.width,
+    };
+  }
+
+  return{
+    width:viewport.width,
+    height:viewport.height,
   };
 }
 
@@ -1068,6 +1093,7 @@ function clearNotes(){
 }
 
 function handleResize(){
+  syncViewportVars();
   applyLandscapeMode();
   updateOrientationOverlay();
   clearTimeout(state.resizeTimer);
@@ -1211,8 +1237,11 @@ function bindControls(){
   });
   dom.clrBtn.addEventListener('click',clearNotes);
   window.addEventListener('resize',handleResize);
+  window.visualViewport?.addEventListener('resize',handleResize);
+  window.visualViewport?.addEventListener('scroll',handleResize);
   document.addEventListener('visibilitychange',()=>{
     if(document.visibilityState==='visible'){
+      syncViewportVars();
       requestLandscapeLock();
       applyLandscapeMode();
     }
@@ -1220,6 +1249,7 @@ function bindControls(){
 }
 
 function bootstrap(){
+  syncViewportVars();
   applyLandscapeMode();
   updateFlatsButton(state.useFlats);
   updateOrientationOverlay();
