@@ -212,6 +212,7 @@ test('alternate markup and note pill models preserve output shape',()=>{
   assert.equal(alternateMarkup.className,'chord-alts');
   assert.match(alternateMarkup.html,/chord-alt-root">D</);
   assert.match(alternateMarkup.html,/m<sup>7<\/sup>/);
+  assert.match(alternateMarkup.html,/D minor seven over C/);
 
   const notePills=getNotePillModels(chord);
   assert.deepEqual(notePills.map(pill=>pill.pillClass),['note','note','root','note']);

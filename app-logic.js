@@ -645,12 +645,22 @@ export function getAlternateChordMarkup(alternates){
     };
   }
 
-  const visibleAlternates=alternates.slice(0,2);
+  const alternate=alternates[0];
+  const symbol=`${alternate.sym}${alternate.slash||''}`;
+  const {quality,slashPart}=splitChordSymbol(symbol);
+
   return{
     className:'chord-alts',
-    html:visibleAlternates
-      .map(chord=>`<span class="chord-alt-item">${formatChordLabelHtml(chord.rootName,`${chord.sym}${chord.slash||''}`)}</span>`)
-      .join(''),
+    html:[
+      '<div class="chord-alt-primary">',
+      '<div class="chord-alt-main">',
+      `<span class="chord-alt-root">${alternate.rootName}</span>`,
+      quality?`<span class="chord-alt-quality">${formatChordQualityHtml(quality)}</span>`:'',
+      slashPart?`<span class="chord-alt-slash">${slashPart}</span>`:'',
+      '</div>',
+      `<div class="chord-alt-type">${formatChordSubtitle(alternate)}</div>`,
+      '</div>',
+    ].join(''),
   };
 }
 

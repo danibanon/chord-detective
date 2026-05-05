@@ -1,6 +1,6 @@
 {
-  "name": "Chord Detective",
-  "short_name": "Chord",
+  "name": "Chordetect",
+  "short_name": "Chordetect",
   "description": "Detect chords from the on-screen piano or a connected MIDI keyboard.",
   "start_url": "./",
   "scope": "./",
