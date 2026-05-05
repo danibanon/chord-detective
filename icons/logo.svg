@@ -2,10 +2,10 @@
   <!-- Full square background so adaptive masks show a dark circle -->
   <rect width="120" height="120" fill="#1C1B1F"/>
 
-  <!-- Foreground bars: three identical purple stripes with larger dark margins -->
+  <!-- Foreground bars: three perfectly identical stripes inside the safe circle area -->
   <g fill="#D0BCFF">
-    <rect x="26" y="12" width="12" height="96" rx="5"/>
-    <rect x="54" y="12" width="12" height="96" rx="5"/>
-    <rect x="82" y="12" width="12" height="96" rx="5"/>
+    <rect x="24" y="18" width="12" height="84" rx="5"/>
+    <rect x="48" y="18" width="12" height="84" rx="5"/>
+    <rect x="72" y="18" width="12" height="84" rx="5"/>
   </g>
 </svg>
