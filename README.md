@@ -30,6 +30,5 @@ Install Chordetect on your phone directly from the web! No play store needed
 - [`index.html`](./index.html): app UI, styling, chord detection, responsive piano rendering, and MIDI integration
 - [`manifest.webmanifest`](./manifest.webmanifest): install metadata
 - [`sw.js`](./sw.js): offline cache
-- [`icons/logo.svg`](./icons/logo.svg): extracted logo source
-- [`icons/icon-192.png`](./icons/icon-192.png) and [`icons/icon-512.png`](./icons/icon-512.png): install icons
+- [`icons/logo.svg`](./icons/logo.svg): extracted logo source and app icon
 - [`screenshot.png`](./screenshot.png): README preview image
