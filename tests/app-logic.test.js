@@ -179,6 +179,15 @@ test('alternate markup and note pill models preserve output shape',()=>{
   const notePills=getNotePillModels(chord);
   assert.deepEqual(notePills.map(pill=>pill.pillClass),['note','note','root','note']);
   assert.deepEqual(notePills.map(pill=>pill.degreeText),['5','6','1','3']);
+
+  const minorChord=buildDisplayModel(createState({
+    manual:new Set([60,63,67]),
+    keys:new Map([[48,{}]]),
+  }),{width:900,height:700},'auto',false);
+  assert.deepEqual(
+    getNotePillModels(minorChord).map(pill=>pill.degreeText),
+    ['1','♭3','5']
+  );
 });
 
 test('gesture helpers preserve pan arming and tap thresholds',()=>{
@@ -204,6 +213,6 @@ test('gesture helpers preserve pan arming and tap thresholds',()=>{
 
 test('degree labels preserve mapping',()=>{
   assert.equal(getDegreeLabel(0,0),'1');
-  assert.equal(getDegreeLabel(0,3),'b3');
+  assert.equal(getDegreeLabel(0,3),'♭3');
   assert.equal(getDegreeLabel(0,8),'#5');
 });

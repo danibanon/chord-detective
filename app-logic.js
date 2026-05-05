@@ -328,16 +328,16 @@ export function getDegreeLabel(rootPc,pitchClass){
   const interval=(pitchClass-rootPc+12)%12;
   const degreeMap={
     0:'1',
-    1:'b2',
+    1:'♭2',
     2:'2',
-    3:'b3',
+    3:'♭3',
     4:'3',
     5:'4',
-    6:'b5',
+    6:'♭5',
     7:'5',
     8:'#5',
     9:'6',
-    10:'b7',
+    10:'♭7',
     11:'7',
   };
 
