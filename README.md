@@ -1,116 +1,49 @@
-# Chord Detective
+# Chordetect
 
-Chord Detective is a lightweight browser app for identifying chords from either the on-screen piano or a connected MIDI keyboard. It is a static site with no build step, no framework, and a landscape-first interface tuned for desktop, tablet, and phone use.
+Chordetect is a lean static chord detector built around a single primary file: [`index.html`](./index.html). It uses the Web MIDI API when a device is available, supports manual note toggling directly on the keyboard, and keeps the codebase intentionally small with no framework, build step, or package manager.
 
-The app is also installable as a Progressive Web App (PWA), so supported browsers can add it to the home screen and reopen it like a local app shell.
+![Chordetect screenshot](./screenshot.png)
 
-## Live App
+## What it does
 
-[https://danibanon.github.io/chord-detective/](https://danibanon.github.io/chord-detective/)
+- Detects single notes, common chords, extensions, slash chords, and selected `no5` voicings.
+- Accepts live MIDI note input and sustain pedal messages.
+- Lets you click or tap the 88-key piano to test voicings without external hardware.
+- Shows the detected chord name, descriptive chord type, and note list in real time.
+- Updates MIDI status as `off`, `waiting`, `connected`, or `denied`.
 
-## Demo
+## Design goals
 
-Tap notes on the on-screen piano, watch the chord name resolve in real time, pan the keyboard to explore nearby notes, and clear everything to start over.
+- Keep the rebuild lean and easy to audit, with as few lines of code and files as practical.
+- Preserve a clean Material 3-inspired visual language using a dark surface, soft violet accents, rounded containers, and elevated keys.
+- Stay responsive without breakpoints-heavy layout code by scaling from viewport width and height, hiding secondary UI when vertical space gets too tight, and keeping the piano horizontally scrollable when necessary.
+- Work as a no-build static site that can be opened locally or hosted from any simple web server.
 
-![Chord Detective D-flat diminished seventh demo](./docs/demo/dbo7-demo.gif)
+## Installable offline app
 
-## Screenshots
+Chordetect now includes the minimum PWA pieces required for installation and offline reuse:
 
-![Chord Detective landscape](./docs/screenshots/landscape.png)
+- `manifest.webmanifest`
+- `sw.js`
+- extracted logo and install icons in [`icons/`](./icons/)
 
-## Features
+After the app loads once in a supported browser, the service worker caches the app shell so it can reopen offline. Web MIDI itself still depends on browser and device support, so offline mode preserves the UI and manual interaction first; hardware MIDI access remains subject to platform availability and permissions.
 
-- Real-time chord detection from on-screen notes and Web MIDI input
-- Landscape-first responsive layout across desktop, tablet, and phone
-- Sharp/flat display toggle for labels and detected chord names
-- Alternate exact chord names when a voicing has multiple valid readings
-- Omitted-fifth fallback names such as `Am7(no5)` where applicable
-- Installable PWA with offline-ready app shell caching
-- Touch-friendly piano panning and octave navigation on smaller screens
+## Project structure
 
-## Supported Chords
+- [`index.html`](./index.html): app UI, styling, chord detection, responsive piano rendering, and MIDI integration
+- [`manifest.webmanifest`](./manifest.webmanifest): install metadata
+- [`sw.js`](./sw.js): offline cache
+- [`icons/logo.svg`](./icons/logo.svg): extracted logo source
+- [`icons/icon-192.png`](./icons/icon-192.png) and [`icons/icon-512.png`](./icons/icon-512.png): install icons
+- [`screenshot.png`](./screenshot.png): README preview image
 
-The built-in detector covers:
+## Running it
 
-- Power chords
-- Major, minor, diminished, augmented
-- `sus2`, `sus4`, `7sus4`
-- `6`, `m6`, `6/9`
-- `7`, `maj7`, `m7`, `7b5`
-- `°7`, `ø7`, `oM7`, `mM7`, `M7b5`, `+7`, `+M7`
-- `9`, `maj9`, `m9`, `11`, `maj11`, `m11`, `13`, `maj13`, `m13`
-- `add9`, `+add9`, `add11`, `madd11`, `7add11`, `M7add11`, `m7add11`, `mM7add11`, `add#11`, `madd9`
-- `addb9`, `7b9`, `M7b9`
-- `add#9`, `7#9`, `M7#9`
-- `addb9b5`, `7b5b9`, `M7b5b9`
-- `+addb9`, `+7b9`, `+M7b9`
-- `add#9b5`, `7b5#9`, `M7b5#9`
-- `+add#9`, `+7#9`, `+M7#9`
-
-## How It Works
-
-- Active manual and MIDI notes are merged and reduced to pitch classes.
-- Exact interval-pattern matches are preferred.
-- When no exact match exists, the app can fall back to omitted-fifth names such as `11(no5)` or `m13(no5)` for chord families with a natural fifth.
-- The bass note is used to derive inversion and slash-chord display.
-- When several exact names match, the app chooses the simplest display name and shows up to two alternates.
-
-## PWA Notes
-
-- `manifest.webmanifest` configures install metadata and landscape preference.
-- `sw.js` caches the app shell for offline reopening after the first successful load.
-- Runtime orientation locking is attempted where supported, with a rotated landscape fallback when it is not.
-
-## Local Development
-
-This repository is plain static HTML, CSS, and JavaScript.
-
-To run it locally, serve the folder with any simple HTTP server. For example:
+Because this is a static app, any lightweight local server is enough. For example:
 
 ```powershell
 python -m http.server 8000
 ```
 
-Then open `http://localhost:8000`.
-
-Notes:
-
-- `file://` is fine for a quick visual check but not for reliable PWA or MIDI behavior.
-- Web MIDI support is browser-, OS-, and hardware-dependent. Chromium-based browsers are the safest choice.
-
-### Testing
-
-The core logic is covered by unit tests using Node.js's built-in test runner.
-
-```powershell
-npm test
-```
-
-## Project Structure
-
-```text
-.
-|-- docs/
-|   |-- demo/
-|   `-- screenshots/
-|-- icons/
-|-- tests/
-|   `-- app-logic.test.js
-|-- app-logic.js
-|-- index.html
-|-- manifest.webmanifest
-|-- package.json
-|-- sw.js
-|-- LICENSE
-`-- README.md
-```
-
-- `index.html`: The application entry point, UI layout, and styles.
-- `app-logic.js`: Core chord detection logic, MIDI translation, and piano state management.
-- `tests/`: Unit tests for the core business logic.
-- `icons/`: Consolidated PWA and UI icons.
-- `sw.js`: Service Worker for offline support.
-
-## License
-
-MIT. See [LICENSE](./LICENSE).
+Then open [http://localhost:8000](http://localhost:8000) in a Chromium-based browser for Web MIDI and install support.
