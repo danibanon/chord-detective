@@ -1,11 +1,109 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" fill="none">
-  <rect x="1" y="4" width="2.2" height="10" rx="1" fill="#d0bcff"/>
-  <rect x="4.2" y="4" width="2.2" height="10" rx="1" fill="#d0bcff"/>
-  <rect x="7.4" y="4" width="2.2" height="10" rx="1" fill="#d0bcff"/>
-  <rect x="10.6" y="4" width="2.2" height="10" rx="1" fill="#d0bcff"/>
-  <rect x="13.8" y="4" width="2.2" height="10" rx="1" fill="#d0bcff"/>
-  <rect x="2.8" y="4" width="1.6" height="6" rx="0.8" fill="#1c1b1f"/>
-  <rect x="6" y="4" width="1.6" height="6" rx="0.8" fill="#1c1b1f"/>
-  <rect x="9.2" y="4" width="1.6" height="6" rx="0.8" fill="#1c1b1f"/>
-  <rect x="12.4" y="4" width="1.6" height="6" rx="0.8" fill="#1c1b1f"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 18 18"
+   fill="none"
+   version="1.1"
+   id="svg9"
+   sodipodi:docname="logo.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs9" />
+  <sodipodi:namedview
+     id="namedview9"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="23.055556"
+     inkscape:cx="4.0771084"
+     inkscape:cy="10.539759"
+     inkscape:window-width="1920"
+     inkscape:window-height="1010"
+     inkscape:window-x="-6"
+     inkscape:window-y="-6"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg9" />
+  <g
+     id="g9"
+     transform="translate(0.49999988)">
+    <rect
+       x="1"
+       y="4"
+       width="2.2"
+       height="10"
+       rx="1"
+       fill="#d0bcff"
+       id="rect1" />
+    <rect
+       x="4.1999998"
+       y="4"
+       width="2.2"
+       height="10"
+       rx="1"
+       fill="#d0bcff"
+       id="rect2" />
+    <rect
+       x="7.4000001"
+       y="4"
+       width="2.2"
+       height="10"
+       rx="1"
+       fill="#d0bcff"
+       id="rect3" />
+    <rect
+       x="10.6"
+       y="4"
+       width="2.2"
+       height="10"
+       rx="1"
+       fill="#d0bcff"
+       id="rect4" />
+    <rect
+       x="13.8"
+       y="4"
+       width="2.2"
+       height="10"
+       rx="1"
+       fill="#d0bcff"
+       id="rect5" />
+    <rect
+       x="2.8"
+       y="4"
+       width="1.6"
+       height="6"
+       rx="0.80000001"
+       fill="#1c1b1f"
+       id="rect6" />
+    <rect
+       x="6"
+       y="4"
+       width="1.6"
+       height="6"
+       rx="0.80000001"
+       fill="#1c1b1f"
+       id="rect7" />
+    <rect
+       x="9.1999998"
+       y="4"
+       width="1.6"
+       height="6"
+       rx="0.80000001"
+       fill="#1c1b1f"
+       id="rect8" />
+    <rect
+       x="12.4"
+       y="4"
+       width="1.6"
+       height="6"
+       rx="0.80000001"
+       fill="#1c1b1f"
+       id="rect9" />
+  </g>
 </svg>
