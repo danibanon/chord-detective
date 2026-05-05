@@ -2,8 +2,8 @@
   <!-- Full square background so adaptive masks show a dark circle -->
   <rect width="120" height="120" fill="#000000"/>
 
-  <!-- Foreground bars: three identical stripes with larger black margins for a true safe area -->
-  <g fill="#D0BCFF">
+  <!-- Foreground bars: three identical deep purple stripes with larger black margins for a true safe area -->
+  <g fill="#8B5CF6">
     <rect x="35" y="25" width="10" height="70" rx="5"/>
     <rect x="55" y="25" width="10" height="70" rx="5"/>
     <rect x="75" y="25" width="10" height="70" rx="5"/>
