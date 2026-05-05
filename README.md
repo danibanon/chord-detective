@@ -1,7 +1,7 @@
 # What it does
 
 Chordetect allows you to know the chord you are playing on your piano in 3 simple steps:
-  1. Open with your phone the website [URL](https://danibanon.github.io/chord-detective/)
+  1. Open with your phone the [website](https://danibanon.github.io/chord-detective/)
   2. Connect your piano to your phone via MIDI
   3. Enjoy!
 
