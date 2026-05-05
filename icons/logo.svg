@@ -1,15 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18">
-  <!-- Background color for maskable support -->
-  <rect width="18" height="18" fill="#1C1B1F"/>
-  <!-- Purple Bars -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Chordetect logo">
+  <!-- Full square background so adaptive masks show a dark circle -->
+  <rect width="120" height="120" fill="#1C1B1F"/>
+
+  <!-- Foreground bars (maximize size while keeping a small safe margin) -->
   <g fill="#D0BCFF">
-    <rect x="4.7" y="4" width="2.2" height="10" rx="1"/>
-    <rect x="7.9" y="4" width="2.2" height="10" rx="1"/>
-    <rect x="11.1" y="4" width="2.2" height="10" rx="1"/>
+    <rect x="18" y="12" width="20" height="96" rx="5"/>
+    <rect x="50" y="12" width="20" height="96" rx="5"/>
+    <rect x="82" y="12" width="20" height="96" rx="5"/>
   </g>
-  <!-- Dark Overlays -->
+
+  <!-- Dark key overlays centered on the purple bars -->
   <g fill="#1C1B1F">
-    <rect x="6.5" y="4" width="1.6" height="6" rx="0.8"/>
-    <rect x="9.7" y="4" width="1.6" height="6" rx="0.8"/>
+    <rect x="38" y="12" width="12" height="56" rx="3"/>
+    <rect x="70" y="12" width="12" height="56" rx="3"/>
   </g>
 </svg>
