@@ -2,16 +2,10 @@
   <!-- Full square background so adaptive masks show a dark circle -->
   <rect width="120" height="120" fill="#1C1B1F"/>
 
-  <!-- Foreground bars: reduced width and centered so they remain inside the circular mask -->
+  <!-- Foreground bars: three identical purple stripes with larger dark margins -->
   <g fill="#D0BCFF">
-    <rect x="29" y="12" width="14" height="96" rx="5"/>
-    <rect x="53" y="12" width="14" height="96" rx="5"/>
-    <rect x="77" y="12" width="14" height="96" rx="5"/>
-  </g>
-
-  <!-- Dark key overlays repositioned relative to the smaller bars -->
-  <g fill="#1C1B1F">
-    <rect x="42" y="12" width="10" height="56" rx="3"/>
-    <rect x="66" y="12" width="10" height="56" rx="3"/>
+    <rect x="26" y="12" width="12" height="96" rx="5"/>
+    <rect x="54" y="12" width="12" height="96" rx="5"/>
+    <rect x="82" y="12" width="12" height="96" rx="5"/>
   </g>
 </svg>
