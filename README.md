@@ -32,3 +32,34 @@ Install Chordetect on your phone directly from the web! No play store needed
 - [`sw.js`](./sw.js): offline cache
 - [`icons/logo.svg`](./icons/logo.svg): extracted logo source and app icon
 - [`screenshot.png`](./screenshot.png): README preview image
+
+## Generating maskable PNG fallbacks (optional)
+
+To ensure Android/Chrome uses a full dark circular icon, create maskable PNGs (192x192 and 512x512) with a full dark square background and centered foreground. Example commands:
+
+PowerShell (Inkscape 1.0+):
+```powershell
+& "C:\Program Files\Inkscape\bin\inkscape.exe" icons\logo.svg --export-filename=icons\icon-512-maskable.png --export-width=512
+& "C:\Program Files\Inkscape\bin\inkscape.exe" icons\logo.svg --export-filename=icons\icon-192-maskable.png --export-width=192
+```
+
+ImageMagick (Windows):
+```powershell
+magick icons\logo.svg -background "#1C1B1F" -flatten -resize 512x512 icons\icon-512-maskable.png
+magick icons\logo.svg -background "#1C1B1F" -flatten -resize 192x192 icons\icon-192-maskable.png
+```
+
+Node + sharp (npx):
+```bash
+npx sharp icons/logo.svg --resize 512 512 --flatten --background '#1C1B1F' -o icons/icon-512-maskable.png
+npx sharp icons/logo.svg --resize 192 192 --flatten --background '#1C1B1F' -o icons/icon-192-maskable.png
+```
+
+After generating the PNGs, add them to git and push:
+```bash
+git add icons/icon-192-maskable.png icons/icon-512-maskable.png
+git commit -m "Add maskable PNG app icons"
+git push origin main
+```
+
+Then uninstall the PWA from your device, clear site data or unregister the service worker (DevTools → Application → Service Workers → Unregister), reload the site and reinstall the PWA.
