@@ -4,8 +4,8 @@
 
   <!-- Foreground bars: three perfectly identical stripes inside the safe circle area -->
   <g fill="#D0BCFF">
-    <rect x="24" y="18" width="12" height="84" rx="5"/>
-    <rect x="48" y="18" width="12" height="84" rx="5"/>
-    <rect x="72" y="18" width="12" height="84" rx="5"/>
+    <rect x="30" y="18" width="12" height="84" rx="5"/>
+    <rect x="54" y="18" width="12" height="84" rx="5"/>
+    <rect x="78" y="18" width="12" height="84" rx="5"/>
   </g>
 </svg>
