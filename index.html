@@ -165,17 +165,27 @@ const Music = (() => {
     const pitchClasses = [...new Set(midiNotes.map(toPitchClass))].sort((a, b) => a - b);
     const bassPC = toPitchClass(Math.min(...midiNotes));
     const rootCandidates = [bassPC, ...pitchClasses.filter(p => p !== bassPC)];
+    const seen = new Set();
+    const candidates = [];
     for (const dropFifth of [false, true]) {
       for (const root of rootCandidates) {
         const pattern = matchAtRoot(pitchClasses, root, dropFifth);
         if (pattern) {
-          return {
+          const chord = {
             rootName: NOTE_NAMES[root],
             suffix: pattern.suffix,
             fullName: pattern.name,
             slashBass: bassPC !== root ? '/' + NOTE_NAMES[bassPC] : ''
           };
+          const symbol = chord.rootName + chord.suffix + chord.slashBass;
+          if (!seen.has(symbol)) {
+            seen.add(symbol);
+            candidates.push(chord);
+          }
         }
+      }
+      if (candidates.length) {
+        return { ...candidates[0], alternatives: candidates.slice(1, 2) };
       }
     }
     return null;
@@ -228,7 +238,7 @@ const PianoView = (() => {
     const notes = activeNotes.map(Music.noteName).join(' · ');
     return chord
       ? {
-          name: chord.rootName + chord.suffix + chord.slashBass,
+          name: [chord, ...(chord.alternatives || [])].map(c => c.rootName + c.suffix + c.slashBass).join(' · '),
           type: chord.rootName + ' ' + chord.fullName + (chord.slashBass ? ' / ' + chord.slashBass.slice(1) : ''),
           notes
         }
@@ -308,6 +318,34 @@ const MidiInput = (() => {
   };
 })();
 
+const ScreenWakeLock = (() => {
+  let sentinel = null;
+  let pending = false;
+
+  async function request() {
+    if (pending || sentinel || !('wakeLock' in navigator) || document.visibilityState !== 'visible') return;
+    pending = true;
+    try {
+      sentinel = await navigator.wakeLock.request('screen');
+      sentinel.addEventListener('release', () => { sentinel = null; });
+    } catch {
+      sentinel = null;
+    } finally {
+      pending = false;
+    }
+  }
+
+  function init() {
+    request();
+    document.addEventListener('pointerdown', request, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && !sentinel) request();
+    });
+  }
+
+  return { init };
+})();
+
 document.getElementById('piano-keys').addEventListener('pointerdown', event => {
   const key = event.target.closest('[data-midi]');
   if (key) {
@@ -319,6 +357,7 @@ document.getElementById('piano-keys').addEventListener('pointerdown', event => {
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 PianoView.build();
 MidiInput.init();
+ScreenWakeLock.init();
 window.addEventListener('resize', PianoView.build);
 </script>
 </body>
