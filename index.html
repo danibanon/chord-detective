@@ -219,8 +219,14 @@ const NoteState = (() => {
     pedalDown = isDown;
     if (!isDown) for (const note of sustained) if (!heldMidi.has(note)) sustained.delete(note);
   }
+  function reset() {
+    manual.clear();
+    heldMidi.clear();
+    sustained.clear();
+    pedalDown = false;
+  }
 
-  return { getActive, noteOff, noteOn, setPedal, toggleManual };
+  return { getActive, noteOff, noteOn, reset, setPedal, toggleManual };
 })();
 
 // Piano view: DOM rendering and responsive layout.
@@ -296,10 +302,20 @@ const PianoView = (() => {
     dom.keys.appendChild(fragment);
   }
 
+  function viewportSize() {
+    const viewport = window.visualViewport;
+    return {
+      width: Math.round(viewport?.width || document.documentElement.clientWidth || window.innerWidth),
+      height: Math.round(viewport?.height || document.documentElement.clientHeight || window.innerHeight)
+    };
+  }
+
   function layout() {
-    const available = window.innerHeight - dom.topBar.offsetHeight;
-    const pianoH = Math.max(80, Math.min(Math.round(window.innerHeight * .38), available - 20));
-    const whiteW = Math.max(8, Math.min(Math.floor(pianoH * 23 / 150), Math.floor(window.innerWidth / VISIBLE_WHITE_COUNT)));
+    const viewport = viewportSize();
+    const topBarH = dom.topBar.offsetParent ? dom.topBar.offsetHeight : 0;
+    const available = Math.max(48, viewport.height - topBarH);
+    const pianoH = Math.max(48, Math.min(Math.round(viewport.height * .38), available - 8));
+    const whiteW = Math.max(7, Math.min(Math.floor(pianoH * 23 / 150), Math.floor(viewport.width / VISIBLE_WHITE_COUNT)));
     const whiteH = Math.round(whiteW * 150 / 23);
     const blackW = Math.round(whiteW * 11 / 23);
     const blackH = Math.round(whiteH * 90 / 150);
@@ -319,7 +335,17 @@ const PianoView = (() => {
     return whiteW;
   }
 
-  return { buildKeys, dom, layout, refresh, setMidiBadge: status => { dom.midiBadge.textContent = `MIDI: ${status}`; } };
+  let scheduled = false;
+  function scheduleLayout() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => {
+      scheduled = false;
+      layout();
+    });
+  }
+
+  return { buildKeys, dom, layout, refresh, scheduleLayout, setMidiBadge: status => { dom.midiBadge.textContent = `MIDI: ${status}`; } };
 })();
 
 // MIDI input: browser Web MIDI messages mapped into note state.
@@ -395,7 +421,11 @@ PianoView.dom.keys.addEventListener('pointerdown', event => {
   NoteState.toggleManual(Number(key.dataset.midi));
   PianoView.refresh();
 });
-PianoView.dom.appTitle.addEventListener('click', () => window.location.reload());
+PianoView.dom.appTitle.addEventListener('click', () => {
+  NoteState.reset();
+  PianoView.scheduleLayout();
+  PianoView.refresh();
+});
 PianoView.dom.spellingToggle.addEventListener('click', event => {
   const useFlats = Music.toggleSpelling();
   event.currentTarget.textContent = useFlats ? '♭' : '♯';
@@ -409,7 +439,17 @@ PianoView.dom.scroll.scrollLeft = 7 * PianoView.layout();
 PianoView.refresh();
 MidiInput.init();
 ScreenWakeLock.init();
-window.addEventListener('resize', PianoView.layout);
+window.addEventListener('resize', PianoView.scheduleLayout);
+window.visualViewport?.addEventListener('resize', PianoView.scheduleLayout);
+window.visualViewport?.addEventListener('scroll', PianoView.scheduleLayout);
+window.addEventListener('orientationchange', () => {
+  PianoView.scheduleLayout();
+  setTimeout(PianoView.scheduleLayout, 250);
+});
+window.addEventListener('pageshow', () => {
+  PianoView.scheduleLayout();
+  setTimeout(PianoView.scheduleLayout, 250);
+});
 </script>
 </body>
 </html>
