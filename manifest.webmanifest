@@ -5,8 +5,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
-  "background_color": "#1c1b1f",
-  "theme_color": "#1c1b1f",
+  "background_color": "#a21677",
+  "theme_color": "#a21677",
   "icons": [
     {
       "src": "icons/icon-192-maskable.png",

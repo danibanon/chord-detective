@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#1c1b1f">
+<meta name="theme-color" content="#a21677">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Chordet</title>
@@ -13,115 +13,120 @@
 <link rel="apple-touch-icon" href="icons/icon-192-maskable.png">
 <style>
 :root {
-  --primary: #8B5CF6; --surface: #1c1b1f; --surface-variant: #49454f;
-  --on-surface: #e6e1e5; --on-surface-dim: #938f99; --container: #2b2930;
-  --key-white: #e6e1e5; --key-black: #2b2930; --key-active-white: #8B5CF6;
-  --key-active-black: #9a82db;
+  --on-surface: #fff; --on-surface-dim: rgba(255,239,247,.74); --container: rgba(31,12,42,.72);
+  --key-white: #fff5fb; --key-black: #24112f; --key-active: linear-gradient(180deg,#7c3cff,#ff2d95);
 }
-
-html { font-size: max(10px, min(1.5vw, 2.5dvh)); }
+html { font-size: max(10px,min(1.5vw,2.5dvh)); }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 body {
-  background: var(--surface); color: var(--on-surface);
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--on-surface); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   display: flex; flex-direction: column; height: 100dvh; overflow: hidden; user-select: none;
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255,214,94,.96), transparent 30%),
+    radial-gradient(circle at 86% 20%, rgba(255,45,149,.9), transparent 34%),
+    radial-gradient(circle at 34% 76%, rgba(255,117,24,.98), transparent 40%),
+    radial-gradient(circle at 78% 84%, rgba(255,153,0,.78), transparent 34%),
+    linear-gradient(135deg,#46106f 0%,#a21677 38%,#f05a24 70%,#ffd166 100%);
+  background-size: 140% 140%, 150% 150%, 150% 150%, 145% 145%, 180% 180%; animation: living-gradient 16s ease-in-out infinite;
 }
-
+@keyframes living-gradient {
+  0%,100% { background-position: 0% 8%,100% 0%,8% 92%,95% 100%,0% 50%; }
+  25% { background-position: 32% 0%,72% 24%,24% 68%,64% 78%,38% 18%; }
+  50% { background-position: 100% 26%,38% 8%,58% 80%,30% 92%,100% 50%; }
+  75% { background-position: 58% 52%,86% 36%,18% 58%,82% 62%,42% 80%; }
+}
+@media (prefers-reduced-motion: reduce) { body { animation-duration: 32s; } }
 #chord-display {
-  flex: 1 1 0; min-height: 0; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; padding: 1rem 2rem;
-  gap: 0.5rem; overflow: hidden;
+  flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 1rem 2rem; gap: .5rem; overflow: hidden;
 }
-
 #chord-name {
-  font-size: 8rem; font-weight: 700; color: var(--primary);
-  letter-spacing: -0.02em; line-height: 1; white-space: nowrap; overflow: hidden;
-  text-overflow: ellipsis; max-width: 100%;
+  font-size: 8rem; font-weight: 800; color: white; letter-spacing: -.02em; line-height: 1.15;
+  white-space: nowrap; overflow: visible; text-overflow: ellipsis; max-width: 100%;
 }
-
-#chord-type, #chord-notes { white-space: nowrap; overflow: hidden; }
-#chord-type {
-  font-size: 1.2rem; color: var(--on-surface-dim);
-  letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+#chord-type, #chord-alternatives, #chord-notes { max-width: 100%; overflow: visible; text-align: center; }
+#chord-type { font-size: 1.2rem; color: var(--on-surface-dim); letter-spacing: .04em; font-weight: 700; }
+#chord-notes {
+  flex-shrink: 0; padding: 0 1.2rem .35rem; font-size: 1.05rem; color: #fff2a8; font-weight: 700;
+  text-shadow: 0 0 1rem rgba(255,209,102,.3);
 }
-
-#chord-notes { font-size: 1rem; color: var(--primary); }
-
-@media (max-height: 200px) { #chord-type, #chord-notes { display: none; } }
+#chord-alternatives { color: #fff2a8; font-size: 1.6rem; font-weight: 800; line-height: 1.15; max-width: min(100%,34rem); }
+@media (max-height: 200px) { #chord-type, #chord-alternatives, #chord-notes { display: none; } }
 @media (max-height: 100px) { #chord-display { display: none; } }
-
-#top-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.8rem 1.2rem; gap: 1rem; flex-shrink: 0;
-}
-
+#top-bar { display: flex; align-items: center; justify-content: space-between; padding: .8rem 1.2rem; gap: 1rem; flex-shrink: 0; }
 #app-title {
-  display: flex; align-items: center; gap: 0.5rem;
-  font-size: 1.2rem; font-weight: 700; color: var(--primary); letter-spacing: 0.04em;
+  border: 0; background: transparent; padding: 0; cursor: pointer; display: flex; align-items: center; gap: .5rem;
+  font-family: inherit; font-size: 1.2rem; font-weight: 800; color: white; letter-spacing: .04em;
 }
-
-#app-title img { width: 1.2em; height: 1.2em; display: block; }
-
-#midi-badge {
-  font-size: 0.9rem; color: var(--on-surface-dim); letter-spacing: 0.08em;
-  background: var(--container); padding: 0.4em 1.2em; border-radius: 100px;
+#app-title img { width: 1.2em; height: 1.2em; display: block; filter: drop-shadow(0 .45rem 1.4rem rgba(255,45,149,.42)); }
+#midi-badge, #spelling-toggle {
+  font-size: .9rem; color: white; letter-spacing: .08em; background: var(--container); padding: .46em 1.25em; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,.2); backdrop-filter: blur(14px); box-shadow: 0 .7rem 2rem rgba(24,6,32,.22);
 }
-
+#spelling-toggle { border: 0; cursor: pointer; }
 @media (max-height: 180px) { #top-bar { display: none; } }
-
-#piano-scroll {
-  overflow-x: auto; overflow-y: hidden; flex-shrink: 0; padding-bottom: 1rem;
-  display: flex; justify-content: center; touch-action: pan-x;
+#piano-scroll { overflow-x: auto; overflow-y: hidden; flex-shrink: 0; padding-bottom: 1rem; display: flex; justify-content: flex-start; touch-action: pan-x; }
+#piano-keys { position: relative; flex-shrink: 0; filter: drop-shadow(0 1rem 2rem rgba(36,8,44,.36)); }
+.key-white, .key-black { position: absolute; top: 4px; border: none; cursor: pointer; transition: background .08s; }
+.key-white::after { content: attr(data-label); position: absolute; left: 0; right: 0; bottom: .35rem; color: rgba(36,8,44,.45); font-size: .72rem; font-weight: 400; text-align: center; }
+.key-white { background: var(--key-white); border-radius: 0 0 4px 4px; box-shadow: inset 0 -12px 20px rgba(255,45,149,.12); }
+.key-white.active {
+  background: var(--key-active);
+  box-shadow: inset 1px 0 rgba(255,255,255,.55), inset -1px 0 rgba(36,8,44,.45), 0 0 1.4rem rgba(255,45,149,.66), inset 0 -.5rem 1rem rgba(85,0,71,.22);
 }
-
-#piano-keys { position: relative; flex-shrink: 0; }
-
-.key-white, .key-black {
-  position: absolute; top: 4px; border: none; cursor: pointer; transition: background 0.08s;
+.key-black {
+  background: linear-gradient(180deg,#37204a,var(--key-black)); border-radius: 0 0 3px 3px; z-index: 2;
+  box-shadow: 0 .45rem .75rem rgba(0,0,0,.44);
 }
-
-.key-white { background: var(--key-white); border-radius: 0 0 8px 8px; box-shadow: 0 2px 6px #0006; }
-.key-white.active { background: var(--key-active-white); }
-.key-black { background: var(--key-black); border-radius: 0 0 5px 5px; z-index: 2; box-shadow: 0 4px 8px #0009; }
-.key-black.active { background: var(--key-active-black); }
+.key-black.active { background: var(--key-active); box-shadow: 0 0 1.2rem rgba(255,45,149,.72), 0 .45rem .75rem rgba(0,0,0,.34); }
 </style>
 </head>
 <body>
 <div id="chord-display">
   <div id="chord-name">—</div>
   <div id="chord-type"></div>
-  <div id="chord-notes"></div>
+  <div id="chord-alternatives" hidden></div>
 </div>
-
+<div id="chord-notes"></div>
 <div id="top-bar">
-  <div id="app-title"><img src="icons/logo.svg" alt="">Chordet</div>
+  <button id="app-title" type="button" aria-label="Refresh Chordet"><img src="icons/logo.svg" alt="">Chordet</button>
+  <button id="spelling-toggle" type="button" aria-label="Use flat note names">♯</button>
   <div id="midi-badge">MIDI: off</div>
 </div>
-
 <div id="piano-scroll"><div id="piano-keys"></div></div>
-
 <script>
 'use strict';
 
+// <music>
+// Music: pure note spelling and chord detection.
 const Music = (() => {
-  const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-  const BLACK_PCS = new Set([1, 3, 6, 8, 10]);
+  const NOTE_NAMES = [
+    ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'],
+    ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B']
+  ];
+  const BLACK_PITCH_CLASSES = new Set([1, 3, 6, 8, 10]);
   const CHORD_PATTERNS = [
     { suffix: '5', name: 'Power chord', intervals: [0,7] },
     { suffix: '', name: 'Major', intervals: [0,4,7] },
+    { suffix: '(b5)', name: 'Major flat five', intervals: [0,4,6] },
     { suffix: 'm', name: 'Minor', intervals: [0,3,7] },
+    { suffix: 'm(b6)', name: 'Minor flat six', intervals: [0,3,7,8] },
+    { suffix: 'm(#5)', name: 'Minor sharp five', intervals: [0,3,8] },
     { suffix: '°', name: 'Diminished', intervals: [0,3,6] },
     { suffix: '+', name: 'Augmented', intervals: [0,4,8] },
     { suffix: 'sus2', name: 'Suspended second', intervals: [0,2,7] },
     { suffix: 'sus4', name: 'Suspended fourth', intervals: [0,5,7] },
     { suffix: 'M7', name: 'Major seventh', intervals: [0,4,7,11] },
+    { suffix: 'M7(b5)', name: 'Major seventh flat five', intervals: [0,4,6,11] },
     { suffix: 'm7', name: 'Minor seventh', intervals: [0,3,7,10] },
-    { suffix: '7', name: 'Dominant seventh', intervals: [0,4,7,10] },
+    { suffix: 'm7(#5)', name: 'Minor seventh sharp five', intervals: [0,3,8,10] },
+    { suffix: '7', name: 'Seventh', intervals: [0,4,7,10] },
     { suffix: '7b5', name: 'Seventh flat five', intervals: [0,4,6,10] },
     { suffix: '°7', name: 'Diminished seventh', intervals: [0,3,6,9] },
     { suffix: 'ø7', name: 'Half-diminished', intervals: [0,3,6,10] },
     { suffix: 'mM7', name: 'Minor major seventh', intervals: [0,3,7,11] },
+    { suffix: 'mM7(b5)', name: 'Minor major seventh flat five', intervals: [0,3,6,11] },
+    { suffix: 'mM7(#5)', name: 'Minor major seventh sharp five', intervals: [0,3,8,11] },
     { suffix: '+M7', name: 'Augmented major seventh', intervals: [0,4,8,11] },
     { suffix: '+7', name: 'Augmented seventh', intervals: [0,4,8,10] },
     { suffix: '6', name: 'Major sixth', intervals: [0,4,7,9] },
@@ -129,32 +134,35 @@ const Music = (() => {
     { suffix: 'add9', name: 'Add nine', intervals: [0,2,4,7] },
     { suffix: 'add11', name: 'Add eleven', intervals: [0,4,5,7] },
     { suffix: 'madd9', name: 'Minor add nine', intervals: [0,2,3,7] },
-    { suffix: '7sus4', name: 'Dominant seven sus four', intervals: [0,5,7,10] },
-    { suffix: '9', name: 'Dominant ninth', intervals: [0,2,4,7,10] },
+    { suffix: '7sus4', name: 'Seventh suspended fourth', intervals: [0,5,7,10] },
+    { suffix: '9', name: 'Ninth', intervals: [0,2,4,7,10] },
     { suffix: 'M9', name: 'Major ninth', intervals: [0,2,4,7,11] },
     { suffix: 'm9', name: 'Minor ninth', intervals: [0,2,3,7,10] },
-    { suffix: '11', name: 'Dominant eleventh', intervals: [0,2,4,5,7,10] },
+    { suffix: '11', name: 'Eleventh', intervals: [0,2,4,5,7,10] },
     { suffix: 'm11', name: 'Minor eleventh', intervals: [0,2,3,5,7,10] },
-    { suffix: '13', name: 'Dominant thirteenth', intervals: [0,2,4,7,9,10] },
+    { suffix: '13', name: 'Thirteenth', intervals: [0,2,4,7,9,10] },
     { suffix: 'M13', name: 'Major thirteenth', intervals: [0,2,4,7,9,11] },
     { suffix: 'm13', name: 'Minor thirteenth', intervals: [0,2,3,7,9,10] },
     { suffix: '6/9', name: 'Six nine', intervals: [0,2,4,7,9] },
-    { suffix: '7b9', name: 'Dominant flat nine', intervals: [0,1,4,7,10] },
-    { suffix: '7#9', name: 'Dominant sharp nine', intervals: [0,3,4,7,10] }
+    { suffix: '7b9', name: 'Seventh flat nine', intervals: [0,1,4,7,10] },
+    { suffix: '7#9', name: 'Seventh sharp nine', intervals: [0,3,4,7,10] }
   ];
-
+  let useFlats = false;
+  const setNoteSpelling = ({ flats }) => { useFlats = Boolean(flats); return useFlats; };
+  const toggleSpelling = () => setNoteSpelling({ flats: !useFlats });
   const toPitchClass = midi => ((midi % 12) + 12) % 12;
-  const arraysEqual = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+  const noteName = midi => NOTE_NAMES[Number(useFlats)][toPitchClass(midi)];
+  const spokenNoteName = name => name.replace('#', ' sharp').replace('b', ' flat');
+  const isBlackKey = midi => BLACK_PITCH_CLASSES.has(toPitchClass(midi));
+  const arraysEqual = (a, b) => a.length === b.length && a.every((value, index) => value === b[index]);
 
   function matchAtRoot(pitchClasses, root, dropFifth) {
-    const intervals = pitchClasses.map(p => (p - root + 12) % 12).sort((a, b) => a - b);
+    const intervals = pitchClasses.map(pc => (pc - root + 12) % 12).sort((a, b) => a - b);
     for (const pattern of CHORD_PATTERNS) {
-      const target = dropFifth ? pattern.intervals.filter(v => v !== 7) : pattern.intervals;
+      const target = dropFifth ? pattern.intervals.filter(interval => interval !== 7) : pattern.intervals;
       if (dropFifth && target.length === pattern.intervals.length) continue;
       if (arraysEqual(target, intervals)) {
-        return dropFifth
-          ? { ...pattern, suffix: pattern.suffix + '(no5)', name: pattern.name + ' no 5' }
-          : pattern;
+        return dropFifth ? { ...pattern, suffix: `${pattern.suffix}(no5)`, name: `${pattern.name} no 5` } : pattern;
       }
     }
     return null;
@@ -164,40 +172,36 @@ const Music = (() => {
     if (midiNotes.length < 2) return null;
     const pitchClasses = [...new Set(midiNotes.map(toPitchClass))].sort((a, b) => a - b);
     const bassPC = toPitchClass(Math.min(...midiNotes));
-    const rootCandidates = [bassPC, ...pitchClasses.filter(p => p !== bassPC)];
+    const rootCandidates = [bassPC, ...pitchClasses.filter(pc => pc !== bassPC)];
     const seen = new Set();
     const candidates = [];
+
     for (const dropFifth of [false, true]) {
       for (const root of rootCandidates) {
         const pattern = matchAtRoot(pitchClasses, root, dropFifth);
-        if (pattern) {
-          const chord = {
-            rootName: NOTE_NAMES[root],
-            suffix: pattern.suffix,
-            fullName: pattern.name,
-            slashBass: bassPC !== root ? '/' + NOTE_NAMES[bassPC] : ''
-          };
-          const symbol = chord.rootName + chord.suffix + chord.slashBass;
-          if (!seen.has(symbol)) {
-            seen.add(symbol);
-            candidates.push(chord);
-          }
+        if (!pattern) continue;
+        const chord = {
+          rootName: noteName(root),
+          suffix: pattern.suffix,
+          fullName: pattern.name,
+          slashBass: bassPC !== root ? `/${noteName(bassPC)}` : ''
+        };
+        const symbol = chord.rootName + chord.suffix + chord.slashBass;
+        if (!seen.has(symbol)) {
+          seen.add(symbol);
+          candidates.push(chord);
         }
       }
-      if (candidates.length) {
-        return { ...candidates[0], alternatives: candidates.slice(1, 2) };
-      }
+      if (candidates.length) return { ...candidates[0], alternatives: candidates.slice(1) };
     }
     return null;
   }
 
-  return {
-    detectChord,
-    noteName: midi => NOTE_NAMES[toPitchClass(midi)],
-    isBlackKey: midi => BLACK_PCS.has(toPitchClass(midi))
-  };
+  return { detectChord, isBlackKey, noteName, setNoteSpelling, spokenNoteName, toggleSpelling };
 })();
+// </music>
 
+// Note state: manual keys, MIDI-held keys, and sustain pedal.
 const NoteState = (() => {
   const manual = new Set();
   const heldMidi = new Set();
@@ -216,75 +220,109 @@ const NoteState = (() => {
     if (!isDown) for (const note of sustained) if (!heldMidi.has(note)) sustained.delete(note);
   }
 
-  return { getActive, toggleManual, noteOn, noteOff, setPedal };
+  return { getActive, noteOff, noteOn, setPedal, toggleManual };
 })();
 
+// Piano view: DOM rendering and responsive layout.
 const PianoView = (() => {
-  const MIDI_MIN = 21, MIDI_MAX = 108, WHITE_COUNT = 52;
-  const els = {
+  const MIDI_MIN = 21, MIDI_MAX = 108, WHITE_COUNT = 52, VISIBLE_WHITE_COUNT = 38;
+  const keysByMidi = new Map();
+  const dom = {
     scroll: document.getElementById('piano-scroll'),
     keys: document.getElementById('piano-keys'),
     chordName: document.getElementById('chord-name'),
     chordType: document.getElementById('chord-type'),
+    chordAlternatives: document.getElementById('chord-alternatives'),
     chordNotes: document.getElementById('chord-notes'),
     topBar: document.getElementById('top-bar'),
-    midiBadge: document.getElementById('midi-badge')
+    midiBadge: document.getElementById('midi-badge'),
+    appTitle: document.getElementById('app-title'),
+    spellingToggle: document.getElementById('spelling-toggle')
   };
 
-  function describeNotes(activeNotes) {
-    if (activeNotes.length === 0) return { name: '—', type: '', notes: '' };
-    if (activeNotes.length === 1) return { name: Music.noteName(activeNotes[0]), type: 'note', notes: '' };
-    const chord = Music.detectChord(activeNotes);
-    const notes = activeNotes.map(Music.noteName).join(' · ');
+  const displayNoteName = midi => Music.noteName(midi).replace('#', '♯').replace('b', '♭');
+  const chordInfo = chord => {
+    const bass = chord.slashBass ? ` over ${Music.spokenNoteName(chord.slashBass.slice(1))}` : '';
+    return `${Music.spokenNoteName(chord.rootName)} ${chord.fullName.toLowerCase()}${bass}`;
+  };
+
+  function describeNotes(notes) {
+    if (notes.length === 0) return { name: '—', type: '', notes: '' };
+    if (notes.length === 1) {
+      const name = Music.noteName(notes[0]);
+      return { name, type: `${Music.spokenNoteName(name)} note`, notes: '' };
+    }
+    const chord = Music.detectChord(notes);
+    const noteList = notes.map(displayNoteName).join(' · ');
+    const chords = chord ? [chord, ...(chord.alternatives || [])] : [];
     return chord
       ? {
-          name: [chord, ...(chord.alternatives || [])].map(c => c.rootName + c.suffix + c.slashBass).join(' · '),
-          type: chord.rootName + ' ' + chord.fullName + (chord.slashBass ? ' / ' + chord.slashBass.slice(1) : ''),
-          notes
+          name: chord.rootName + chord.suffix + chord.slashBass,
+          type: chordInfo(chord),
+          alternatives: chords.slice(1).map(candidate => candidate.rootName + candidate.suffix + candidate.slashBass),
+          notes: noteList
         }
-      : { name: '?', type: 'unrecognised', notes };
+      : { name: '?', type: 'unrecognised', notes: noteList };
   }
 
   function refresh() {
-    const activeNotes = NoteState.getActive();
-    const { name, type, notes } = describeNotes(activeNotes);
-    els.chordName.textContent = name;
-    els.chordType.textContent = type;
-    els.chordNotes.textContent = notes;
-    const activeSet = new Set(activeNotes);
-    els.keys.querySelectorAll('[data-midi]').forEach(key => key.classList.toggle('active', activeSet.has(+key.dataset.midi)));
+    const notes = NoteState.getActive();
+    const { name, type, notes: noteList, alternatives = [] } = describeNotes(notes);
+    dom.chordName.textContent = name;
+    dom.chordType.textContent = type;
+    dom.chordAlternatives.textContent = alternatives.join(', ');
+    dom.chordAlternatives.hidden = alternatives.length === 0;
+    dom.chordNotes.textContent = noteList;
+    const activeSet = new Set(notes);
+    for (const [midi, key] of keysByMidi) key.classList.toggle('active', activeSet.has(midi));
   }
 
-  function build() {
-    const available = window.innerHeight - els.topBar.offsetHeight;
-    const pianoH = Math.max(80, Math.min(Math.round(window.innerHeight * 0.38), available - 20));
-    const whiteW = Math.max(8, Math.min(Math.floor(pianoH * 23 / 150), Math.floor(window.innerWidth / WHITE_COUNT)));
-    const whiteH = Math.round(whiteW * 150 / 23);
-    const dims = { whiteW, whiteH, blackW: Math.round(whiteW * 11 / 23), blackH: Math.round(whiteH * 90 / 150) };
-
-    els.scroll.style.height = (dims.whiteH + (parseInt(getComputedStyle(els.scroll).paddingBottom, 10) || 8) + 4) + 'px';
-    els.keys.style.width = WHITE_COUNT * dims.whiteW + 'px';
-    els.keys.style.height = dims.whiteH + 'px';
-    els.keys.innerHTML = '';
-
+  function buildKeys() {
     let whiteIndex = 0;
+    const fragment = document.createDocumentFragment();
     for (let midi = MIDI_MIN; midi <= MIDI_MAX; midi++) {
-      const keyEl = document.createElement('div');
-      keyEl.className = Music.isBlackKey(midi) ? 'key-black' : 'key-white';
-      keyEl.dataset.midi = midi;
-      if (keyEl.className === 'key-black') keyEl.style.cssText = `width:${dims.blackW}px;height:${dims.blackH}px;left:${whiteIndex * dims.whiteW - dims.blackW / 2}px`;
+      const key = document.createElement('div');
+      key.dataset.midi = midi;
+      key.dataset.whiteIndex = whiteIndex;
+      if (midi === 60) key.dataset.label = 'C4';
+      if (Music.isBlackKey(midi)) key.className = 'key-black';
       else {
-        keyEl.style.cssText = `width:${dims.whiteW - 1}px;height:${dims.whiteH}px;left:${whiteIndex * dims.whiteW}px`;
+        key.className = 'key-white';
         whiteIndex++;
       }
-      els.keys.appendChild(keyEl);
+      keysByMidi.set(midi, key);
+      fragment.appendChild(key);
     }
-    refresh();
+    dom.keys.appendChild(fragment);
   }
 
-  return { build, refresh, setMidiBadge: text => { els.midiBadge.textContent = 'MIDI: ' + text; } };
+  function layout() {
+    const available = window.innerHeight - dom.topBar.offsetHeight;
+    const pianoH = Math.max(80, Math.min(Math.round(window.innerHeight * .38), available - 20));
+    const whiteW = Math.max(8, Math.min(Math.floor(pianoH * 23 / 150), Math.floor(window.innerWidth / VISIBLE_WHITE_COUNT)));
+    const whiteH = Math.round(whiteW * 150 / 23);
+    const blackW = Math.round(whiteW * 11 / 23);
+    const blackH = Math.round(whiteH * 90 / 150);
+    const scrollPadding = parseInt(getComputedStyle(dom.scroll).paddingBottom, 10) || 8;
+
+    dom.scroll.style.height = `${whiteH + scrollPadding + 4}px`;
+    dom.keys.style.width = `${WHITE_COUNT * whiteW}px`;
+    dom.keys.style.height = `${whiteH}px`;
+    for (const key of keysByMidi.values()) {
+      const whiteIndex = Number(key.dataset.whiteIndex);
+      if (key.classList.contains('key-black')) {
+        key.style.cssText = `width:${blackW}px;height:${blackH}px;left:${whiteIndex * whiteW - blackW / 2}px`;
+      } else {
+        key.style.cssText = `width:${whiteW - 1}px;height:${whiteH}px;left:${whiteIndex * whiteW}px`;
+      }
+    }
+    return whiteW;
+  }
+
+  return { buildKeys, dom, layout, refresh, setMidiBadge: status => { dom.midiBadge.textContent = `MIDI: ${status}`; } };
 })();
 
+// MIDI input: browser Web MIDI messages mapped into note state.
 const MidiInput = (() => {
   function handleMessage({ data }) {
     const [statusByte, note, velocity] = data;
@@ -304,20 +342,24 @@ const MidiInput = (() => {
     PianoView.setMidiBadge(count ? 'connected' : 'waiting');
   }
 
-  return {
-    init: async () => {
-      if (!navigator.requestMIDIAccess) return;
-      try {
-        const access = await navigator.requestMIDIAccess({ sysex: false });
-        attach(access);
-        access.onstatechange = () => attach(access);
-      } catch {
-        PianoView.setMidiBadge('denied');
-      }
+  async function init() {
+    if (!navigator.requestMIDIAccess) {
+      PianoView.setMidiBadge('unsupported');
+      return;
     }
-  };
+    try {
+      const access = await navigator.requestMIDIAccess({ sysex: false });
+      attach(access);
+      access.onstatechange = () => attach(access);
+    } catch {
+      PianoView.setMidiBadge('denied');
+    }
+  }
+
+  return { init };
 })();
 
+// Wake lock: keep the screen on during playing when supported.
 const ScreenWakeLock = (() => {
   let sentinel = null;
   let pending = false;
@@ -346,19 +388,28 @@ const ScreenWakeLock = (() => {
   return { init };
 })();
 
-document.getElementById('piano-keys').addEventListener('pointerdown', event => {
+// Boot: wire UI events and start browser integrations.
+PianoView.dom.keys.addEventListener('pointerdown', event => {
   const key = event.target.closest('[data-midi]');
-  if (key) {
-    NoteState.toggleManual(+key.dataset.midi);
-    PianoView.refresh();
-  }
+  if (!key) return;
+  NoteState.toggleManual(Number(key.dataset.midi));
+  PianoView.refresh();
+});
+PianoView.dom.appTitle.addEventListener('click', () => window.location.reload());
+PianoView.dom.spellingToggle.addEventListener('click', event => {
+  const useFlats = Music.toggleSpelling();
+  event.currentTarget.textContent = useFlats ? '♭' : '♯';
+  event.currentTarget.setAttribute('aria-label', `Use ${useFlats ? 'sharp' : 'flat'} note names`);
+  PianoView.refresh();
 });
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
-PianoView.build();
+PianoView.buildKeys();
+PianoView.dom.scroll.scrollLeft = 7 * PianoView.layout();
+PianoView.refresh();
 MidiInput.init();
 ScreenWakeLock.init();
-window.addEventListener('resize', PianoView.build);
+window.addEventListener('resize', PianoView.layout);
 </script>
 </body>
 </html>

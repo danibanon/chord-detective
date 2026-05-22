@@ -23,12 +23,21 @@ Install Chordet on your phone directly from the web! No play store needed
 - Keep the rebuild lean and easy to audit, with as few lines of code and files as practical.
 - Preserve a clean Material 3-inspired visual language using a dark surface, soft violet accents, rounded containers, and elevated keys.
 - Stay responsive without breakpoints-heavy layout code by scaling from viewport width and height, hiding secondary UI when vertical space gets too tight, and keeping the piano horizontally scrollable when necessary.
-- Work as a no-build static site that can be opened locally or hosted from any simple web server.
+- Work as a portable no-build static site with app code and styling kept in one HTML file.
 
 ## Project structure
 
-- [`index.html`](./index.html): app UI, styling, chord detection, responsive piano rendering, and MIDI integration
+- [`index.html`](./index.html): app UI, styling, chord detection, responsive piano rendering, MIDI integration, and PWA boot
+- [`package.json`](./package.json): defines the test command
 - [`manifest.webmanifest`](./manifest.webmanifest): install metadata
 - [`sw.js`](./sw.js): offline cache
 - [`icons/logo.svg`](./icons/logo.svg): extracted logo source and app icon
 - [`screenshot.png`](./screenshot.png): README preview image
+
+## Tests
+
+Run the dependency-free chord detection tests with:
+
+```sh
+npm test
+```

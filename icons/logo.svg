@@ -1,11 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Chordet logo">
-  <!-- Full square background with rounded corners for a softer icon shape -->
-  <rect width="120" height="120" rx="24" fill="#000000"/>
-
-  <!-- Foreground bars: three identical deep purple stripes with larger black margins for a true safe area -->
-  <g fill="#8B5CF6">
-    <rect x="35" y="25" width="10" height="70" rx="5"/>
-    <rect x="55" y="25" width="10" height="70" rx="5"/>
-    <rect x="75" y="25" width="10" height="70" rx="5"/>
+  <defs>
+    <linearGradient id="chordet-bg" x1="15" y1="105" x2="105" y2="15" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffd166"/>
+      <stop offset="0.28" stop-color="#ff8a00"/>
+      <stop offset="0.58" stop-color="#ff2d95"/>
+      <stop offset="1" stop-color="#7c3cff"/>
+    </linearGradient>
+    <filter id="soft-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 1  0 0.35 0 0 0.18  0 0 1 0 0.58  0 0 0 0.45 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#chordet-bg)"/>
+  <g filter="url(#soft-glow)">
+    <rect x="32" y="26" width="12" height="68" rx="6" fill="#ffffff"/>
+    <rect x="54" y="26" width="12" height="68" rx="6" fill="#ffffff"/>
+    <rect x="76" y="26" width="12" height="68" rx="6" fill="#ffffff"/>
   </g>
 </svg>
