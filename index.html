@@ -111,7 +111,6 @@ const Music = (() => {
     { suffix: '(b5)', name: 'Major flat five', intervals: [0,4,6] },
     { suffix: 'm', name: 'Minor', intervals: [0,3,7] },
     { suffix: 'm(b6)', name: 'Minor flat six', intervals: [0,3,7,8] },
-    { suffix: 'm(#5)', name: 'Minor sharp five', intervals: [0,3,8] },
     { suffix: '°', name: 'Diminished', intervals: [0,3,6] },
     { suffix: '+', name: 'Augmented', intervals: [0,4,8] },
     { suffix: 'sus2', name: 'Suspended second', intervals: [0,2,7] },
@@ -132,12 +131,12 @@ const Music = (() => {
     { suffix: '6', name: 'Major sixth', intervals: [0,4,7,9] },
     { suffix: 'm6', name: 'Minor sixth', intervals: [0,3,7,9] },
     { suffix: 'add9', name: 'Add nine', intervals: [0,2,4,7] },
-    { suffix: 'add11', name: 'Add eleven', intervals: [0,4,5,7] },
     { suffix: 'madd9', name: 'Minor add nine', intervals: [0,2,3,7] },
     { suffix: '7sus4', name: 'Seventh suspended fourth', intervals: [0,5,7,10] },
     { suffix: '9', name: 'Ninth', intervals: [0,2,4,7,10] },
     { suffix: 'M9', name: 'Major ninth', intervals: [0,2,4,7,11] },
     { suffix: 'm9', name: 'Minor ninth', intervals: [0,2,3,7,10] },
+    { suffix: 'mM9', name: 'Minor major ninth', intervals: [0,2,3,7,11] },
     { suffix: '11', name: 'Eleventh', intervals: [0,2,4,5,7,10] },
     { suffix: 'm11', name: 'Minor eleventh', intervals: [0,2,3,5,7,10] },
     { suffix: '13', name: 'Thirteenth', intervals: [0,2,4,7,9,10] },
@@ -156,13 +155,23 @@ const Music = (() => {
   const isBlackKey = midi => BLACK_PITCH_CLASSES.has(toPitchClass(midi));
   const arraysEqual = (a, b) => a.length === b.length && a.every((value, index) => value === b[index]);
 
-  function matchAtRoot(pitchClasses, root, dropFifth) {
+  const omittedTonePattern = (pattern, omittedInterval, suffix, name) => {
+    if (!pattern.intervals.includes(omittedInterval)) return null;
+    const intervals = pattern.intervals.filter(interval => interval !== omittedInterval);
+    if (intervals.length === pattern.intervals.length) return null;
+    return { ...pattern, intervals, suffix: `${pattern.suffix}${suffix}`, name: `${pattern.name} ${name}` };
+  };
+
+  function matchAtRoot(pitchClasses, root, omission) {
     const intervals = pitchClasses.map(pc => (pc - root + 12) % 12).sort((a, b) => a - b);
     for (const pattern of CHORD_PATTERNS) {
-      const target = dropFifth ? pattern.intervals.filter(interval => interval !== 7) : pattern.intervals;
-      if (dropFifth && target.length === pattern.intervals.length) continue;
+      let matchPattern = pattern;
+      if (omission === 'fifth') matchPattern = omittedTonePattern(pattern, 7, '(no5)', 'no 5');
+      if (omission === 'third') matchPattern = omittedTonePattern(pattern, pattern.intervals.includes(4) ? 4 : 3, '(no3)', 'no 3');
+      if (!matchPattern) continue;
+      const target = matchPattern.intervals;
       if (arraysEqual(target, intervals)) {
-        return dropFifth ? { ...pattern, suffix: `${pattern.suffix}(no5)`, name: `${pattern.name} no 5` } : pattern;
+        return matchPattern;
       }
     }
     return null;
@@ -176,9 +185,16 @@ const Music = (() => {
     const seen = new Set();
     const candidates = [];
 
-    for (const dropFifth of [false, true]) {
-      for (const root of rootCandidates) {
-        const pattern = matchAtRoot(pitchClasses, root, dropFifth);
+    const searchPasses = [
+      { omission: 'none', roots: rootCandidates },
+      { omission: 'third', roots: [bassPC] },
+      { omission: 'fifth', roots: rootCandidates },
+      { omission: 'third', roots: rootCandidates.filter(pc => pc !== bassPC) }
+    ];
+
+    for (const { omission, roots } of searchPasses) {
+      for (const root of roots) {
+        const pattern = matchAtRoot(pitchClasses, root, omission);
         if (!pattern) continue;
         const chord = {
           rootName: noteName(root),

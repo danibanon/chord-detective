@@ -21,10 +21,15 @@ assert.equal(symbol(detectChord([60, 64, 67])), 'C');
 assert.equal(symbol(detectChord([57, 60, 64])), 'Am');
 assert.equal(symbol(detectChord([60, 64, 67, 70])), 'C7');
 assert.equal(symbol(detectChord([60, 64, 67, 71])), 'CM7');
+assert.equal(symbol(detectChord([60, 63, 67, 71, 74])), 'CmM9');
 assert.equal(symbol(detectChord([59, 62, 65, 67])), 'G7/B');
+assert.equal(symbol(detectChord([52, 55, 60])), 'C/E');
+assert.equal(symbol(detectChord([60, 64, 65, 67])), 'FM9(no3)/C');
 assert.equal(symbol(detectChord([62, 63, 66, 72])), 'D7b9(no5)');
 assert.equal(detectChord([62, 63, 66, 72]).fullName, 'Seventh flat nine no 5');
 assert.equal(symbol(detectChord([60, 64])), 'C(no5)');
+assert.equal(symbol(detectChord([43, 53, 57, 62])), 'G9(no3)');
+assert.notEqual(symbol(detectChord([43, 53, 57, 62])), 'F6/9(no5)/G');
 assert.equal(detectChord([60, 61, 62]), null);
 
 assert.equal(noteName(61), 'C#');
