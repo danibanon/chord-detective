@@ -1,38 +1,38 @@
-# What it does
+# Chordet
 
-Chordet allows you to know the chord you are playing on your piano in 3 simple steps:
-  1. Open with your phone the [website](https://danibanon.github.io/chord-detective/)
-  2. Connect your piano to your phone via MIDI
-  3. Enjoy!
+Chordet is a browser-based chord detector for piano and keyboard players. Connect a MIDI keyboard for real-time recognition, or tap notes on the built-in piano.
 
 ![Chordet screenshot](./screenshot.png)
-Landscape mode is highly recommended!
+
+Landscape mode is recommended, especially on phones.
+
+## Features
+
+- Real-time Web MIDI chord recognition.
+- 88-key on-screen piano with highlighted active notes.
+- Chord name, chord type, played notes, and alternate interpretations.
+- Slash chords, omitted tones, polychord and upper-structure suggestions.
+- Major, minor, suspended, diminished, augmented, sixth, add9, 7th, 9th, 11th, 13th, and altered dominant chords.
+- Sharp/flat spelling toggle.
+- MIDI sustain pedal support.
+- Responsive fullscreen layout with screen wake lock when supported.
+- Installable PWA with offline caching.
+
+## How to Use
+
+1. Open [Chordet](https://danibanon.github.io/chord-detective/).
+2. Connect a MIDI keyboard, or tap notes on the on-screen piano.
+3. Use the sharp/flat toggle to change note spelling.
+4. Tap the Chordet title to clear held/manual notes.
 
 ## Installable App
 
-Install Chordet on your phone directly from the web! No play store needed
-  1. Open the [URL](https://danibanon.github.io/chord-detective/) in Android Chrome
-  2. Click top right 3 dots
-  3. Add to home screen
-  4. Install
-  5. Now you have it! Go find "Chordet" among your apps
+Install Chordet from the browser, no app store needed:
 
-
-## Design goals
-
-- Keep the rebuild lean and easy to audit, with as few lines of code and files as practical.
-- Preserve a clean Material 3-inspired visual language using a dark surface, soft violet accents, rounded containers, and elevated keys.
-- Stay responsive without breakpoints-heavy layout code by scaling from viewport width and height, hiding secondary UI when vertical space gets too tight, and keeping the piano horizontally scrollable when necessary.
-- Work as a portable no-build static site with app code and styling kept in one HTML file.
-
-## Project structure
-
-- [`index.html`](./index.html): app UI, styling, chord detection, responsive piano rendering, MIDI integration, and PWA boot
-- [`package.json`](./package.json): defines the test command
-- [`manifest.webmanifest`](./manifest.webmanifest): install metadata
-- [`sw.js`](./sw.js): offline cache
-- [`icons/logo.svg`](./icons/logo.svg): extracted logo source and app icon
-- [`screenshot.png`](./screenshot.png): README preview image
+1. Open [Chordet](https://danibanon.github.io/chord-detective/) in Android Chrome.
+2. Open the browser menu.
+3. Choose **Add to Home screen** or **Install app**.
+4. Launch Chordet from your apps.
 
 ## Tests
 

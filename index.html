@@ -90,7 +90,7 @@ body {
 <div id="chord-notes"></div>
 <div id="top-bar">
   <button id="app-title" type="button" aria-label="Refresh Chordet"><img src="icons/logo.svg" alt="">Chordet</button>
-  <button id="spelling-toggle" type="button" aria-label="Use flat note names">♯</button>
+  <button id="spelling-toggle" type="button" aria-label="Use sharp note names">♭</button>
   <div id="midi-badge">MIDI: off</div>
 </div>
 <div id="piano-scroll"><div id="piano-keys"></div></div>
@@ -115,18 +115,18 @@ const Music = (() => {
     { suffix: '+', name: 'Augmented', intervals: [0,4,8] },
     { suffix: 'sus2', name: 'Suspended second', intervals: [0,2,7] },
     { suffix: 'sus4', name: 'Suspended fourth', intervals: [0,5,7] },
-    { suffix: 'M7', name: 'Major seventh', intervals: [0,4,7,11] },
-    { suffix: 'M7(b5)', name: 'Major seventh flat five', intervals: [0,4,6,11] },
+    { suffix: 'maj7', name: 'Major seventh', intervals: [0,4,7,11] },
+    { suffix: 'maj7(b5)', name: 'Major seventh flat five', intervals: [0,4,6,11] },
     { suffix: 'm7', name: 'Minor seventh', intervals: [0,3,7,10] },
     { suffix: 'm7(#5)', name: 'Minor seventh sharp five', intervals: [0,3,8,10] },
     { suffix: '7', name: 'Seventh', intervals: [0,4,7,10] },
     { suffix: '7b5', name: 'Seventh flat five', intervals: [0,4,6,10] },
     { suffix: '°7', name: 'Diminished seventh', intervals: [0,3,6,9] },
     { suffix: 'ø7', name: 'Half-diminished', intervals: [0,3,6,10] },
-    { suffix: 'mM7', name: 'Minor major seventh', intervals: [0,3,7,11] },
-    { suffix: 'mM7(b5)', name: 'Minor major seventh flat five', intervals: [0,3,6,11] },
-    { suffix: 'mM7(#5)', name: 'Minor major seventh sharp five', intervals: [0,3,8,11] },
-    { suffix: '+M7', name: 'Augmented major seventh', intervals: [0,4,8,11] },
+    { suffix: 'm(maj7)', name: 'Minor major seventh', intervals: [0,3,7,11] },
+    { suffix: 'm(maj7)(b5)', name: 'Minor major seventh flat five', intervals: [0,3,6,11] },
+    { suffix: 'm(maj7)(#5)', name: 'Minor major seventh sharp five', intervals: [0,3,8,11] },
+    { suffix: '+maj7', name: 'Augmented major seventh', intervals: [0,4,8,11] },
     { suffix: '+7', name: 'Augmented seventh', intervals: [0,4,8,10] },
     { suffix: '6', name: 'Major sixth', intervals: [0,4,7,9] },
     { suffix: 'm6', name: 'Minor sixth', intervals: [0,3,7,9] },
@@ -134,19 +134,22 @@ const Music = (() => {
     { suffix: 'madd9', name: 'Minor add nine', intervals: [0,2,3,7] },
     { suffix: '7sus4', name: 'Seventh suspended fourth', intervals: [0,5,7,10] },
     { suffix: '9', name: 'Ninth', intervals: [0,2,4,7,10] },
-    { suffix: 'M9', name: 'Major ninth', intervals: [0,2,4,7,11] },
+    { suffix: 'maj9', name: 'Major ninth', intervals: [0,2,4,7,11] },
     { suffix: 'm9', name: 'Minor ninth', intervals: [0,2,3,7,10] },
-    { suffix: 'mM9', name: 'Minor major ninth', intervals: [0,2,3,7,11] },
+    { suffix: 'm(maj9)', name: 'Minor major ninth', intervals: [0,2,3,7,11] },
     { suffix: '11', name: 'Eleventh', intervals: [0,2,4,5,7,10] },
+    { suffix: 'maj11', name: 'Major eleventh', intervals: [0,2,4,5,7,11] },
     { suffix: 'm11', name: 'Minor eleventh', intervals: [0,2,3,5,7,10] },
+    { suffix: 'm(maj11)', name: 'Minor major eleventh', intervals: [0,2,3,5,7,11] },
     { suffix: '13', name: 'Thirteenth', intervals: [0,2,4,7,9,10] },
-    { suffix: 'M13', name: 'Major thirteenth', intervals: [0,2,4,7,9,11] },
+    { suffix: 'maj13', name: 'Major thirteenth', intervals: [0,2,4,7,9,11] },
     { suffix: 'm13', name: 'Minor thirteenth', intervals: [0,2,3,7,9,10] },
+    { suffix: 'm(maj13)', name: 'Minor major thirteenth', intervals: [0,2,3,7,9,11] },
     { suffix: '6/9', name: 'Six nine', intervals: [0,2,4,7,9] },
     { suffix: '7b9', name: 'Seventh flat nine', intervals: [0,1,4,7,10] },
     { suffix: '7#9', name: 'Seventh sharp nine', intervals: [0,3,4,7,10] }
   ];
-  let useFlats = false;
+  let useFlats = true;
   const setNoteSpelling = ({ flats }) => { useFlats = Boolean(flats); return useFlats; };
   const toggleSpelling = () => setNoteSpelling({ flats: !useFlats });
   const toPitchClass = midi => ((midi % 12) + 12) % 12;
@@ -154,7 +157,7 @@ const Music = (() => {
   const spokenNoteName = name => name.replace('#', ' sharp').replace('b', ' flat');
   const isBlackKey = midi => BLACK_PITCH_CLASSES.has(toPitchClass(midi));
   const arraysEqual = (a, b) => a.length === b.length && a.every((value, index) => value === b[index]);
-  const POLYCHORD_PATTERNS = CHORD_PATTERNS.filter(pattern => pattern.intervals.length === 3 || pattern.suffix.includes('7'));
+  const POLYCHORD_PATTERNS = CHORD_PATTERNS.filter(pattern => pattern.intervals.length === 3 || (pattern.intervals.length === 4 && pattern.suffix.includes('7')));
 
   const omittedTonePattern = (pattern, omittedInterval, suffix, name) => {
     if (!pattern.intervals.includes(omittedInterval)) return null;
@@ -209,6 +212,59 @@ const Music = (() => {
     };
   }
 
+  function buildSuggestion(root, symbol) {
+    return {
+      rootName: `${symbol}/${noteName(root)}*`,
+      suffix: '',
+      fullName: 'Polychord suggestion',
+      slashBass: '',
+      isPolychordSuggestion: true
+    };
+  }
+
+  function buildSlashAlternative(root, symbol, fullName) {
+    return {
+      rootName: symbol,
+      suffix: '',
+      fullName,
+      slashBass: `/${noteName(root)}`
+    };
+  }
+
+  function buildUpperStructureSuggestions(root, pattern) {
+    if (pattern.suffix.includes('(no')) return [];
+    if (pattern.suffix === '6') {
+      const sixthRoot = noteName(root + 9);
+      return [
+        buildSlashAlternative(root, `${sixthRoot}m7`, 'Minor seventh'),
+        buildSuggestion(root, `${sixthRoot}m`)
+      ];
+    }
+    if (pattern.suffix === 'm6') {
+      const sixthRoot = noteName(root + 9);
+      return [
+        buildSlashAlternative(root, `${sixthRoot}ø7`, 'Half-diminished'),
+        buildSuggestion(root, `${sixthRoot}°`)
+      ];
+    }
+    if (!pattern.suffix.includes('7') && !pattern.suffix.includes('9') && !pattern.suffix.includes('11') && !pattern.suffix.includes('13')) return [];
+    const ninth = pattern.intervals.includes(2) ? 2 : pattern.intervals.includes(1) ? 1 : pattern.intervals.includes(3) ? 3 : null;
+    const third = pattern.intervals.includes(4) ? 4 : pattern.intervals.includes(3) ? 3 : null;
+    const upperIntervals = pattern.suffix.includes('11')
+      ? [ninth, 5, 7, pattern.intervals.includes(11) ? 11 : 10]
+      : pattern.suffix.includes('13')
+      ? [third, 7, pattern.intervals.includes(11) ? 11 : 10]
+      : pattern.suffix.includes('9')
+      ? [ninth, 7, pattern.intervals.includes(11) ? 11 : 10]
+      : pattern.intervals.filter(interval => interval !== 0);
+    if (upperIntervals.includes(null)) return [];
+    if (upperIntervals.length < 3 || upperIntervals.length > 4) return [];
+    const upperPCs = upperIntervals.map(interval => (root + interval) % 12).sort((a, b) => a - b);
+    const upper = matchPolychordComponent(upperPCs);
+    if (!upper) return [];
+    return [buildSuggestion(root, upper.symbol)];
+  }
+
   function detectPolychords(pitchClasses, bassPC) {
     if (pitchClasses.length < 6 || pitchClasses.length > 8) return [];
     const candidates = [];
@@ -218,6 +274,7 @@ const Music = (() => {
       const lowerPCs = pitchClasses.filter((_, index) => mask & (1 << index));
       const upperPCs = pitchClasses.filter((_, index) => !(mask & (1 << index)));
       if (lowerPCs.length < 3 || lowerPCs.length > 4 || upperPCs.length < 3 || upperPCs.length > 4) continue;
+      if (!lowerPCs.includes(bassPC)) continue;
       const lower = matchPolychordComponent(lowerPCs);
       const upper = matchPolychordComponent(upperPCs);
       if (!lower || !upper) continue;
@@ -228,7 +285,6 @@ const Music = (() => {
       candidates.push({
         chord,
         score: [
-          lowerPCs.includes(bassPC) ? 0 : 1,
           upper.weight + lower.weight,
           lower.root === bassPC ? 0 : 1,
           symbol.length
@@ -248,37 +304,70 @@ const Music = (() => {
     if (midiNotes.length < 2) return null;
     const pitchClasses = [...new Set(midiNotes.map(toPitchClass))].sort((a, b) => a - b);
     const bassPC = toPitchClass(Math.min(...midiNotes));
-    const polychords = detectPolychords(pitchClasses, bassPC);
-    if (polychords.length) return polychords[0];
     const rootCandidates = [bassPC, ...pitchClasses.filter(pc => pc !== bassPC)];
-    const seen = new Set();
-    const candidates = [];
 
-    const searchPasses = [
-      { omission: 'none', roots: rootCandidates },
-      { omission: 'third', roots: [bassPC] },
-      { omission: 'fifth', roots: rootCandidates },
-      { omission: 'third', roots: rootCandidates.filter(pc => pc !== bassPC) }
-    ];
-
-    for (const { omission, roots } of searchPasses) {
-      for (const root of roots) {
-        const pattern = matchAtRoot(pitchClasses, root, omission);
-        if (!pattern) continue;
-        const chord = {
-          rootName: noteName(root),
-          suffix: pattern.suffix,
-          fullName: pattern.name,
-          slashBass: bassPC !== root ? `/${noteName(bassPC)}` : ''
-        };
-        const symbol = chord.rootName + chord.suffix + chord.slashBass;
-        if (!seen.has(symbol)) {
-          seen.add(symbol);
-          candidates.push(chord);
+    function matchSearchPasses(searchPasses, includePolychordAlternatives) {
+      const seen = new Set();
+      const candidates = [];
+      for (const { omission, roots } of searchPasses) {
+        for (const root of roots) {
+          const pattern = matchAtRoot(pitchClasses, root, omission);
+          if (!pattern) continue;
+          const chord = {
+            rootName: noteName(root),
+            suffix: pattern.suffix,
+            fullName: pattern.name,
+            slashBass: bassPC !== root ? `/${noteName(bassPC)}` : ''
+          };
+          const symbol = chord.rootName + chord.suffix + chord.slashBass;
+          if (!seen.has(symbol)) {
+            seen.add(symbol);
+            candidates.push(chord);
+          }
+        }
+        if (candidates.length) {
+          const primary = candidates[0];
+          const alternatives = candidates.slice(1);
+          if (includePolychordAlternatives) {
+            for (const polychord of detectPolychords(pitchClasses, bassPC)) {
+              const polychordSymbol = polychord.rootName + polychord.suffix + polychord.slashBass;
+              const hasDuplicate = primary.rootName + primary.suffix + primary.slashBass === polychordSymbol
+                || alternatives.some(candidate => candidate.rootName + candidate.suffix + candidate.slashBass === polychordSymbol);
+              if (!hasDuplicate) alternatives.push(polychord);
+            }
+          }
+          const suggestions = !primary.slashBass && omission === 'none'
+            ? buildUpperStructureSuggestions(roots[0], matchAtRoot(pitchClasses, roots[0], omission))
+            : [];
+          for (const suggestion of suggestions) {
+            const suggestionSymbol = suggestion.rootName + suggestion.suffix + suggestion.slashBass;
+            const hasDuplicate = primary.rootName + primary.suffix + primary.slashBass === suggestionSymbol
+              || alternatives.some(candidate => candidate.rootName + candidate.suffix + candidate.slashBass === suggestionSymbol);
+            if (!hasDuplicate) alternatives.push(suggestion);
+          }
+          return { ...primary, alternatives };
         }
       }
-      if (candidates.length) return { ...candidates[0], alternatives: candidates.slice(1) };
+      return null;
     }
+
+    const rootPositionChord = matchSearchPasses([
+      { omission: 'none', roots: [bassPC] },
+      { omission: 'third', roots: [bassPC] }
+    ], true);
+    if (rootPositionChord) return rootPositionChord;
+
+    const polychords = detectPolychords(pitchClasses, bassPC);
+    if (polychords.length) return polychords[0];
+
+    const slashChord = matchSearchPasses([
+      { omission: 'none', roots: rootCandidates.filter(pc => pc !== bassPC) },
+      { omission: 'fifth', roots: [bassPC] },
+      { omission: 'fifth', roots: rootCandidates.filter(pc => pc !== bassPC) },
+      { omission: 'third', roots: rootCandidates.filter(pc => pc !== bassPC) }
+    ], false);
+    if (slashChord) return slashChord;
+
     return null;
   }
 
