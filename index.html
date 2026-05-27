@@ -154,6 +154,7 @@ const Music = (() => {
   const spokenNoteName = name => name.replace('#', ' sharp').replace('b', ' flat');
   const isBlackKey = midi => BLACK_PITCH_CLASSES.has(toPitchClass(midi));
   const arraysEqual = (a, b) => a.length === b.length && a.every((value, index) => value === b[index]);
+  const POLYCHORD_PATTERNS = CHORD_PATTERNS.filter(pattern => pattern.intervals.length === 3 || pattern.suffix.includes('7'));
 
   const omittedTonePattern = (pattern, omittedInterval, suffix, name) => {
     if (!pattern.intervals.includes(omittedInterval)) return null;
@@ -177,10 +178,78 @@ const Music = (() => {
     return null;
   }
 
+  function matchPolychordComponent(pitchClasses) {
+    for (const root of pitchClasses) {
+      const intervals = pitchClasses.map(pc => (pc - root + 12) % 12).sort((a, b) => a - b);
+      for (const pattern of POLYCHORD_PATTERNS) {
+        if (arraysEqual(pattern.intervals, intervals)) {
+          return {
+            root,
+            rootName: noteName(root),
+            suffix: pattern.suffix,
+            fullName: pattern.name,
+            symbol: noteName(root) + pattern.suffix,
+            weight: pattern.intervals.length
+          };
+        }
+      }
+    }
+    return null;
+  }
+
+  function buildPolychord(upper, lower) {
+    return {
+      rootName: `${upper.symbol}/${lower.symbol}*`,
+      suffix: '',
+      fullName: 'Polychord',
+      slashBass: '',
+      isPolychord: true,
+      upper,
+      lower
+    };
+  }
+
+  function detectPolychords(pitchClasses, bassPC) {
+    if (pitchClasses.length < 6 || pitchClasses.length > 8) return [];
+    const candidates = [];
+    const seen = new Set();
+    const count = 1 << pitchClasses.length;
+    for (let mask = 0; mask < count; mask++) {
+      const lowerPCs = pitchClasses.filter((_, index) => mask & (1 << index));
+      const upperPCs = pitchClasses.filter((_, index) => !(mask & (1 << index)));
+      if (lowerPCs.length < 3 || lowerPCs.length > 4 || upperPCs.length < 3 || upperPCs.length > 4) continue;
+      const lower = matchPolychordComponent(lowerPCs);
+      const upper = matchPolychordComponent(upperPCs);
+      if (!lower || !upper) continue;
+      const chord = buildPolychord(upper, lower);
+      const symbol = chord.rootName;
+      if (seen.has(symbol)) continue;
+      seen.add(symbol);
+      candidates.push({
+        chord,
+        score: [
+          lowerPCs.includes(bassPC) ? 0 : 1,
+          upper.weight + lower.weight,
+          lower.root === bassPC ? 0 : 1,
+          symbol.length
+        ]
+      });
+    }
+    candidates.sort((a, b) => {
+      for (let index = 0; index < a.score.length; index++) {
+        if (a.score[index] !== b.score[index]) return a.score[index] - b.score[index];
+      }
+      return a.chord.rootName.localeCompare(b.chord.rootName);
+    });
+    return candidates.slice(0, 4).map(candidate => candidate.chord);
+  }
+
   function detectChord(midiNotes) {
     if (midiNotes.length < 2) return null;
     const pitchClasses = [...new Set(midiNotes.map(toPitchClass))].sort((a, b) => a - b);
     const bassPC = toPitchClass(Math.min(...midiNotes));
+    const polychords = detectPolychords(pitchClasses, bassPC);
+    if (polychords.length) return polychords[0];
     const rootCandidates = [bassPC, ...pitchClasses.filter(pc => pc !== bassPC)];
     const seen = new Set();
     const candidates = [];
@@ -264,6 +333,9 @@ const PianoView = (() => {
 
   const displayNoteName = midi => Music.noteName(midi).replace('#', '♯').replace('b', '♭');
   const chordInfo = chord => {
+    if (chord.isPolychord) {
+      return `${Music.spokenNoteName(chord.upper.rootName)} ${chord.upper.fullName.toLowerCase()} over ${Music.spokenNoteName(chord.lower.rootName)} ${chord.lower.fullName.toLowerCase()} polychord`;
+    }
     const bass = chord.slashBass ? ` over ${Music.spokenNoteName(chord.slashBass.slice(1))}` : '';
     return `${Music.spokenNoteName(chord.rootName)} ${chord.fullName.toLowerCase()}${bass}`;
   };

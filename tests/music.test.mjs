@@ -31,10 +31,17 @@ assert.equal(symbol(detectChord([60, 64])), 'C(no5)');
 assert.equal(symbol(detectChord([43, 53, 57, 62])), 'G9(no3)');
 assert.notEqual(symbol(detectChord([43, 53, 57, 62])), 'F6/9(no5)/G');
 assert.equal(detectChord([60, 61, 62]), null);
+assert.equal(symbol(detectChord([48, 52, 55, 62, 66, 69])), 'D/C*');
+assert.equal(detectChord([48, 52, 55, 62, 66, 69]).isPolychord, true);
+assert.equal(detectChord([48, 52, 55, 62, 66, 69]).alternatives, undefined);
+assert.equal(symbol(detectChord([47, 51, 54, 55, 58, 62, 65])), 'Gm7/B*');
+assert.equal(detectChord([47, 51, 54, 55, 58, 62, 65]).alternatives, undefined);
+assert.equal(detectChord([60, 64, 67, 62, 66]).isPolychord, undefined);
 
 assert.equal(noteName(61), 'C#');
 setNoteSpelling({ flats: true });
 assert.equal(noteName(61), 'Db');
 assert.equal(symbol(detectChord([61, 65, 68])), 'Db');
+assert.equal(symbol(detectChord([49, 53, 56, 63, 67, 70])), 'Eb/Db*');
 
 console.log('music tests passed');
